@@ -12,10 +12,11 @@ workflows:
           rm -rf fluentx_admin_secure
           unzip -q fluentx_mobile_test_ready.zip
 
-      - name: Apply compatibility and source fixes
+      - name: Apply dependency and source fixes
         script: |
           python3 - <<'PY'
           from pathlib import Path
+          import re
 
           root = Path('fluentx_admin_secure')
 
@@ -27,13 +28,14 @@ workflows:
               if old in text:
                   path.write_text(text.replace(old, new))
 
-          # ---------------- Dependency compatibility ----------------
           pubspec = root / 'pubspec.yaml'
           text = pubspec.read_text()
           text = text.replace('purchases_flutter: ^7.28.0 # RevenueCat', 'purchases_flutter: 10.5.0 # RevenueCat')
           text = text.replace('intl: ^0.19.0', 'intl: ^0.20.3')
           text = text.replace('build_runner: ^2.4.11', 'build_runner: 2.4.11')
           text = text.replace('freezed: ^2.5.5', 'freezed: 2.5.2')
+          text = re.sub(r'(?m)^\s*lucide_icons:\s*\^?0\.257\.0\s*\n?', '', text)
+          text = re.sub(r'(?m)^\s*flutter_lucide:\s*\^?[0-9.]+\s*\n?', '', text)
           for unused in (
               '  riverpod_generator: ^2.4.0\n',
               '  json_serializable: ^6.8.0\n',
@@ -42,7 +44,7 @@ workflows:
               text = text.replace(unused, '')
           pubspec.write_text(text)
 
-          # ---------------- RevenueCat 10.x ----------------
+          # RevenueCat 10.x API.
           purchase = root / 'lib/features/premium/data/datasources/purchase_remote_datasource.dart'
           code = purchase.read_text()
           code = code.replace(
@@ -55,15 +57,91 @@ workflows:
           )
           purchase.write_text(code)
 
-          # ---------------- Previous Lucide call-site compatibility ----------------
-          for rel in (
-              'lib/features/home/presentation/widgets/quick_action_grid.dart',
-              'lib/features/learn/presentation/screens/learn_hub_screen.dart',
-              'lib/features/writing/presentation/screens/writing_screen.dart',
-          ):
-              replace(rel, 'LucideIcons.penLine', 'Icons.edit_outlined')
+          # Replace Lucide completely with stable Material icons. This removes the
+          # IconData-final-class incompatibility and avoids icon-name drift.
+          icon_map = {
+              'award': 'workspace_premium_outlined',
+              'barChart2': 'bar_chart',
+              'bell': 'notifications_none',
+              'bookOpen': 'menu_book_outlined',
+              'briefcase': 'work_outline',
+              'building2': 'business_outlined',
+              'check': 'check',
+              'checkCircle2': 'check_circle_outline',
+              'chevronRight': 'chevron_right',
+              'clock': 'schedule',
+              'construction': 'construction',
+              'crown': 'workspace_premium_outlined',
+              'eye': 'visibility_outlined',
+              'eyeOff': 'visibility_off_outlined',
+              'fileText': 'description_outlined',
+              'flame': 'local_fire_department_outlined',
+              'footprints': 'directions_walk',
+              'graduationCap': 'school_outlined',
+              'headphones': 'headphones_outlined',
+              'helpCircle': 'help_outline',
+              'home': 'home_outlined',
+              'inbox': 'inbox_outlined',
+              'info': 'info_outline',
+              'languages': 'translate',
+              'lifeBuoy': 'support_agent',
+              'lightbulb': 'lightbulb_outline',
+              'lock': 'lock_outline',
+              'logOut': 'logout',
+              'mailCheck': 'mark_email_read_outlined',
+              'messageCircle': 'chat_bubble_outline',
+              'messageSquare': 'chat_outlined',
+              'mic': 'mic_none',
+              'moon': 'dark_mode_outlined',
+              'partyPopper': 'celebration_outlined',
+              'pause': 'pause',
+              'penLine': 'edit_outlined',
+              'play': 'play_arrow',
+              'playCircle': 'play_circle_outline',
+              'refreshCw': 'refresh',
+              'rotateCcw': 'replay',
+              'search': 'search',
+              'settings': 'settings_outlined',
+              'shield': 'shield_outlined',
+              'smartphone': 'smartphone',
+              'sparkles': 'auto_awesome_outlined',
+              'spellCheck': 'spellcheck',
+              'square': 'crop_square',
+              'star': 'star_border',
+              'sun': 'light_mode_outlined',
+              'target': 'gps_fixed',
+              'trash2': 'delete_outline',
+              'trophy': 'emoji_events_outlined',
+              'user': 'person_outline',
+              'userCog': 'manage_accounts_outlined',
+              'users': 'group_outlined',
+              'wifiOff': 'wifi_off',
+              'x': 'close',
+          }
+          for path in (root / 'lib').rglob('*.dart'):
+              code = path.read_text()
+              if 'LucideIcons.' not in code and 'lucide_icons' not in code and 'flutter_lucide' not in code:
+                  continue
+              code = code.replace("import 'package:lucide_icons/lucide_icons.dart';\n", '')
+              code = code.replace("import 'package:flutter_lucide/flutter_lucide.dart';\n", '')
+              if 'LucideIcons.' in code and "package:flutter/material.dart" not in code:
+                  if "import 'package:flutter/widgets.dart';" in code:
+                      code = code.replace("import 'package:flutter/widgets.dart';", "import 'package:flutter/material.dart';")
+                  else:
+                      code = "import 'package:flutter/material.dart';\n" + code
+              for old, new in icon_map.items():
+                  code = code.replace(f'LucideIcons.{old}', f'Icons.{new}')
+              path.write_text(code)
 
-          # ---------------- Failure extension import ----------------
+          leftovers = []
+          for path in (root / 'lib').rglob('*.dart'):
+              code = path.read_text()
+              if 'LucideIcons.' in code or 'package:lucide_icons/' in code or 'package:flutter_lucide/' in code:
+                  leftovers.append(str(path))
+          if leftovers:
+              raise SystemExit('Lucide leftovers: ' + ', '.join(leftovers))
+
+          # AI Failure extension import.
           ai_hub = root / 'lib/features/ai_practice/presentation/screens/ai_practice_hub_screen.dart'
           code = ai_hub.read_text()
           marker = "import '../../../../core/constants/app_spacing.dart';\n"
@@ -71,7 +149,7 @@ workflows:
               code = code.replace(marker, marker + "import '../../../../core/error/failures.dart';\n")
           ai_hub.write_text(code)
 
-          # ---------------- Supabase MFA null-safety ----------------
+          # Supabase MFA null-safety.
           admin = root / 'lib/features/admin/presentation/screens/admin_console_screen.dart'
           code = admin.read_text()
           code = code.replace(
@@ -82,7 +160,7 @@ workflows:
           code = code.replace('const Icon(Icons.visibility_lock)', 'const Icon(Icons.visibility)')
           admin.write_text(code)
 
-          # ---------------- flutter_local_notifications 17.x API ----------------
+          # flutter_local_notifications 17.x API.
           notifications = root / 'lib/core/services/notification_service.dart'
           code = notifications.read_text()
           marker = '      androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,\n'
@@ -93,99 +171,21 @@ workflows:
               )
           notifications.write_text(code)
 
-          # ---------------- RevenueCat auth sync warning ----------------
-          replace(
-              'lib/app/app.dart',
-              'Purchases.logIn(user.id).catchError((_) {});',
-              'Purchases.logIn(user.id).then<void>((_) {}, onError: (_, __) {});',
-          )
-          replace(
-              'lib/app/app.dart',
-              'Purchases.logOut().catchError((_) {});',
-              'Purchases.logOut().then<void>((_) {}, onError: (_, __) {});',
-          )
+          # RevenueCat auth sync return types.
+          replace('lib/app/app.dart', 'Purchases.logIn(user.id).catchError((_) {});', 'Purchases.logIn(user.id).then<void>((_) {}, onError: (_, __) {});')
+          replace('lib/app/app.dart', 'Purchases.logOut().catchError((_) {});', 'Purchases.logOut().then<void>((_) {}, onError: (_, __) {});')
 
-          # ---------------- Const / unused cleanup ----------------
-          radius = root / 'lib/core/constants/app_radius.dart'
-          code = radius.read_text()
-          code = code.replace('static final BorderRadius smAll = BorderRadius.circular(sm);', 'static const BorderRadius smAll = BorderRadius.all(Radius.circular(sm));')
-          code = code.replace('static final BorderRadius mdAll = BorderRadius.circular(md);', 'static const BorderRadius mdAll = BorderRadius.all(Radius.circular(md));')
-          code = code.replace('static final BorderRadius lgAll = BorderRadius.circular(lg);', 'static const BorderRadius lgAll = BorderRadius.all(Radius.circular(lg));')
-          code = code.replace('static final BorderRadius fullAll = BorderRadius.circular(full);', 'static const BorderRadius fullAll = BorderRadius.all(Radius.circular(full));')
-          code = code.replace('static final BorderRadius bottomSheetTop = BorderRadius.only(', 'static const BorderRadius bottomSheetTop = BorderRadius.only(')
-          radius.write_text(code)
-
-          replace('lib/features/grammar/presentation/widgets/grammar_quiz_sheet.dart', '        final colorScheme = Theme.of(context).colorScheme;\n\n', '')
-          replace('lib/features/listening/application/providers/listening_providers.dart', "import '../../../authentication/application/providers/auth_providers.dart';\n", '')
-          replace('lib/features/onboarding/application/providers/onboarding_providers.dart', "import '../../../../core/error/failures.dart';\n", '')
-          replace('lib/features/onboarding/presentation/screens/onboarding_screen.dart', '    final colorScheme = Theme.of(context).colorScheme;\n\n    return Scaffold(', '    return Scaffold(')
-          replace('lib/features/communication_dna/presentation/screens/communication_dna_screen.dart', 'Icon(Icons.trending_up, size: 18, color: const Color(0xFF16A34A))', 'const Icon(Icons.trending_up, size: 18, color: Color(0xFF16A34A))')
-          replace('lib/features/communication_dna/presentation/screens/communication_dna_screen.dart', 'Icon(Icons.flag_outlined, size: 18, color: const Color(0xFFD97706))', 'const Icon(Icons.flag_outlined, size: 18, color: Color(0xFFD97706))')
-          replace('lib/features/writing/presentation/widgets/writing_editor_sheet.dart', '          decoration: InputDecoration(', '          decoration: const InputDecoration(')
-
-          # Await router futures to satisfy unawaited_futures lint.
-          replace('lib/features/authentication/presentation/screens/login_screen.dart', '      context.push(\n', '      await context.push(\n')
-          replace('lib/features/authentication/presentation/screens/signup_screen.dart', '    context.push(\n', '    await context.push(\n')
-
-          # Supabase current API + unnecessary dart:ui import.
+          # Supabase current API.
           main = root / 'lib/main.dart'
-          code = main.read_text()
-          code = code.replace("import 'dart:ui';\n\n", '')
+          code = main.read_text().replace("import 'dart:ui';\n\n", '')
           code = code.replace('    anonKey: EnvConfig.supabaseAnonKey,', '    publishableKey: EnvConfig.supabaseAnonKey,')
           main.write_text(code)
-          PY
 
-      - name: Migrate Lucide icons for current Flutter
-        script: |
-          python3 - <<'PY'
-          from pathlib import Path
-          import re
-
-          root = Path('fluentx_admin_secure')
-          pubspec = root / 'pubspec.yaml'
-          text = pubspec.read_text()
-          text = re.sub(
-              r'(?m)^\s*lucide_icons:\s*\^?0\.257\.0\s*$',
-              '  flutter_lucide: ^1.11.0',
-              text,
-          )
-          pubspec.write_text(text)
-
-          aliases = {
-              'barChart2': 'chart_no_axes_column',
-              'checkCircle2': 'circle_check_big',
-              'helpCircle': 'circle_question_mark',
-              'playCircle': 'circle_play',
-          }
-
-          def snake(name: str) -> str:
-              if name in aliases:
-                  return aliases[name]
-              name = re.sub(r'([a-z0-9])([A-Z])', r'\1_\2', name)
-              return name.lower()
-
-          for path in (root / 'lib').rglob('*.dart'):
-              code = path.read_text()
-              if 'lucide_icons' not in code and 'LucideIcons.' not in code:
-                  continue
-              code = code.replace(
-                  "import 'package:lucide_icons/lucide_icons.dart';",
-                  "import 'package:flutter_lucide/flutter_lucide.dart';",
-              )
-              code = re.sub(
-                  r'LucideIcons\.([A-Za-z0-9_]+)',
-                  lambda m: 'LucideIcons.' + snake(m.group(1)),
-                  code,
-              )
-              path.write_text(code)
-
-          leftovers = []
-          for path in (root / 'lib').rglob('*.dart'):
-              code = path.read_text()
-              if "package:lucide_icons/" in code:
-                  leftovers.append(str(path))
-          if leftovers:
-              raise SystemExit('Old lucide_icons imports remain: ' + ', '.join(leftovers))
+          # Safe lint cleanup that previously surfaced.
+          replace('lib/features/listening/application/providers/listening_providers.dart', "import '../../../authentication/application/providers/auth_providers.dart';\n", '')
+          replace('lib/features/onboarding/application/providers/onboarding_providers.dart', "import '../../../../core/error/failures.dart';\n", '')
+          replace('lib/features/authentication/presentation/screens/login_screen.dart', '      context.push(\n', '      await context.push(\n')
+          replace('lib/features/authentication/presentation/screens/signup_screen.dart', '    context.push(\n', '    await context.push(\n')
           PY
 
       - name: Source preflight
@@ -207,20 +207,30 @@ workflows:
         script: |
           cd fluentx_admin_secure
           set +e
-          flutter analyze --no-fatal-infos --no-fatal-warnings 2>&1 | tee /tmp/fluentx_analyze.log
-          ANALYZE_EXIT=${PIPESTATUS[0]}
-          echo "Analyzer exit code: $ANALYZE_EXIT"
-          echo "Analyzer is informational for the mobile-test workflow; style lints must not block an installable APK."
+          flutter analyze --no-fatal-infos --no-fatal-warnings 2>&1 | tee analyze.log
+          echo "Analyzer exit code: ${PIPESTATUS[0]}"
           set -e
           exit 0
 
       - name: Run tests
         script: cd fluentx_admin_secure && flutter test
 
-      - name: Build debug APK
+      - name: Build debug APK with root-cause diagnostics
         script: |
           cd fluentx_admin_secure
-          flutter build apk --debug --dart-define=FLAVOR=dev
+          set +e
+          flutter build apk --debug --dart-define=FLAVOR=dev 2>&1 | tee build-debug.log
+          BUILD_EXIT=${PIPESTATUS[0]}
+          if [ "$BUILD_EXIT" -ne 0 ]; then
+            echo ""
+            echo "================ ROOT CAUSE SUMMARY ================"
+            grep -nE "Error:|FAILURE:|What went wrong:|Execution failed|Caused by:|Exception|Could not|error:" build-debug.log | tail -n 120 || true
+            echo "===================================================="
+            exit "$BUILD_EXIT"
+          fi
+          set -e
 
     artifacts:
       - fluentx_admin_secure/build/app/outputs/flutter-apk/*.apk
+      - fluentx_admin_secure/build-debug.log
+      - fluentx_admin_secure/analyze.log
