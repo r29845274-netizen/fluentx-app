@@ -1,0 +1,30 @@
+workflows:
+  fluentx-mobile-test-apk:
+    name: FluentX — Mobile Test APK
+    max_build_duration: 60
+    instance_type: mac_mini_m2
+    environment:
+      flutter: stable
+    scripts:
+      - name: Extract FluentX source
+        script: |
+          rm -rf fluentx_admin_secure
+          unzip -q fluentx_mobile_test_ready.zip
+      - name: Source preflight
+        script: cd fluentx_admin_secure && python3 scripts/preflight_check.py
+      - name: Bootstrap Android platform
+        script: cd fluentx_admin_secure && bash scripts/bootstrap_android.sh
+      - name: Install dependencies
+        script: cd fluentx_admin_secure && flutter pub get
+      - name: Generate code
+        script: cd fluentx_admin_secure && dart run build_runner build --delete-conflicting-outputs
+      - name: Analyze
+        script: cd fluentx_admin_secure && flutter analyze
+      - name: Run tests
+        script: cd fluentx_admin_secure && flutter test
+      - name: Build debug APK
+        script: |
+          cd fluentx_admin_secure
+          flutter build apk --debug --dart-define=FLAVOR=dev
+    artifacts:
+      - fluentx_admin_secure/build/app/outputs/flutter-apk/*.apk
