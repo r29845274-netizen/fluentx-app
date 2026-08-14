@@ -18,6 +18,7 @@ workflows:
           pubspec = Path('fluentx_admin_secure/pubspec.yaml')
           text = pubspec.read_text()
           text = text.replace('purchases_flutter: ^7.28.0 # RevenueCat', 'purchases_flutter: 10.5.0 # RevenueCat')
+          text = text.replace('intl: ^0.19.0', 'intl: ^0.20.3')
           pubspec.write_text(text)
 
           source = Path('fluentx_admin_secure/lib/features/premium/data/datasources/purchase_remote_datasource.dart')
