@@ -16,7 +16,7 @@ def replace(rel, old, new):
         path.write_text(text.replace(old, new))
 
 
-# Edit pubspec line-by-line so YAML indentation can never be consumed by regex.
+# Edit pubspec line-by-line so YAML indentation is preserved.
 pubspec = root / 'pubspec.yaml'
 lines = pubspec.read_text().splitlines()
 out = []
@@ -55,7 +55,10 @@ if purchase.exists():
     )
     purchase.write_text(code)
 
-# Remove old Lucide dependency usage and use stable Material icons.
+# Exact Lucide -> Material icon migration.
+# IMPORTANT: replacement is done with one regex callback, never substring-by-substring.
+# This prevents bugs such as userCog -> person_outlineCog,
+# checkCircle2 -> checkCircle2 after replacing only "check", etc.
 icon_map = {
     'award': 'workspace_premium_outlined',
     'barChart2': 'bar_chart',
@@ -75,7 +78,7 @@ icon_map = {
     'flame': 'local_fire_department_outlined',
     'footprints': 'directions_walk',
     'graduationCap': 'school_outlined',
-    'headphones': 'headphones_outlined',
+    'headphones': 'headphones',
     'helpCircle': 'help_outline',
     'home': 'home_outlined',
     'inbox': 'inbox_outlined',
@@ -90,7 +93,7 @@ icon_map = {
     'messageSquare': 'chat_outlined',
     'mic': 'mic_none',
     'moon': 'dark_mode_outlined',
-    'partyPopper': 'celebration_outlined',
+    'partyPopper': 'celebration',
     'pause': 'pause',
     'penLine': 'edit_outlined',
     'play': 'play_arrow',
@@ -101,7 +104,7 @@ icon_map = {
     'settings': 'settings_outlined',
     'shield': 'shield_outlined',
     'smartphone': 'smartphone',
-    'sparkles': 'auto_awesome_outlined',
+    'sparkles': 'auto_awesome',
     'spellCheck': 'spellcheck',
     'square': 'crop_square',
     'star': 'star_border',
@@ -116,12 +119,29 @@ icon_map = {
     'x': 'close',
 }
 
+lucide_pattern = re.compile(r'LucideIcons\.([A-Za-z0-9_]+)')
+used_names = set()
+unknown_names = set()
+
+
+def lucide_replacer(match):
+    name = match.group(1)
+    used_names.add(name)
+    material_name = icon_map.get(name)
+    if material_name is None:
+        unknown_names.add(name)
+        material_name = 'help_outline'
+    return f'Icons.{material_name}'
+
+
 for path in (root / 'lib').rglob('*.dart'):
     code = path.read_text()
     if 'LucideIcons.' not in code and 'lucide_icons' not in code and 'flutter_lucide' not in code:
         continue
+
     code = code.replace("import 'package:lucide_icons/lucide_icons.dart';\n", '')
     code = code.replace("import 'package:flutter_lucide/flutter_lucide.dart';\n", '')
+
     if 'LucideIcons.' in code and "package:flutter/material.dart" not in code:
         if "import 'package:flutter/widgets.dart';" in code:
             code = code.replace(
@@ -130,10 +150,13 @@ for path in (root / 'lib').rglob('*.dart'):
             )
         else:
             code = "import 'package:flutter/material.dart';\n" + code
-    for old, new in icon_map.items():
-        code = code.replace(f'LucideIcons.{old}', f'Icons.{new}')
-    code = re.sub(r'LucideIcons\.[A-Za-z0-9_]+', 'Icons.help_outline', code)
+
+    code = lucide_pattern.sub(lucide_replacer, code)
     path.write_text(code)
+
+print('Lucide icon names migrated:', ', '.join(sorted(used_names)))
+if unknown_names:
+    print('Unknown Lucide names mapped safely to Icons.help_outline:', ', '.join(sorted(unknown_names)))
 
 # Failure extension import.
 ai_hub = root / 'lib/features/ai_practice/presentation/screens/ai_practice_hub_screen.dart'
@@ -226,7 +249,9 @@ replace(
 text = pubspec.read_text()
 if re.search(r'(?m)^\S.*flutter_svg:', text):
     raise SystemExit('pubspec indentation damaged near flutter_svg')
+
 leftovers = []
+invalid_generated_icon_tokens = []
 for path in (root / 'lib').rglob('*.dart'):
     code = path.read_text()
     if (
@@ -235,7 +260,14 @@ for path in (root / 'lib').rglob('*.dart'):
         or 'package:flutter_lucide/' in code
     ):
         leftovers.append(str(path))
+    # Catch the exact corruption pattern from the previous CI patch.
+    for token in ('person_outlineCog', 'checkCircle2', 'play_arrowCircle'):
+        if f'Icons.{token}' in code:
+            invalid_generated_icon_tokens.append(f'{path}:{token}')
+
 if leftovers:
     raise SystemExit('Lucide leftovers: ' + ', '.join(leftovers))
+if invalid_generated_icon_tokens:
+    raise SystemExit('Invalid generated icon names: ' + ', '.join(invalid_generated_icon_tokens))
 
 print('CI compatibility patch applied successfully.')
