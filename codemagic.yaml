@@ -55,7 +55,7 @@ workflows:
           )
           purchase.write_text(code)
 
-          # ---------------- Lucide icon compatibility ----------------
+          # ---------------- Previous Lucide call-site compatibility ----------------
           for rel in (
               'lib/features/home/presentation/widgets/quick_action_grid.dart',
               'lib/features/learn/presentation/screens/learn_hub_screen.dart',
@@ -135,6 +135,63 @@ workflows:
           main.write_text(code)
           PY
 
+      - name: Migrate Lucide icons for current Flutter
+        script: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          root = Path('fluentx_admin_secure')
+          pubspec = root / 'pubspec.yaml'
+          text = pubspec.read_text()
+          text = re.sub(
+              r'(?m)^\s*lucide_icons:\s*\^?0\.257\.0\s*$',
+              '  flutter_lucide: ^1.11.0',
+              text,
+          )
+          pubspec.write_text(text)
+
+          # Old lucide_icons 0.257.0 subclasses IconData. Current Flutter makes
+          # IconData final, so migrate to flutter_lucide, which exposes const
+          # IconData values directly.
+          aliases = {
+              'barChart2': 'chart_no_axes_column',
+              'checkCircle2': 'circle_check_big',
+              'helpCircle': 'circle_question_mark',
+              'playCircle': 'circle_play',
+          }
+
+          def snake(name: str) -> str:
+              if name in aliases:
+                  return aliases[name]
+              name = re.sub(r'([a-z0-9])([A-Z])', r'\1_\2', name)
+              return name.lower()
+
+          for path in (root / 'lib').rglob('*.dart'):
+              code = path.read_text()
+              if 'lucide_icons' not in code and 'LucideIcons.' not in code:
+                  continue
+              code = code.replace(
+                  "import 'package:lucide_icons/lucide_icons.dart';",
+                  "import 'package:flutter_lucide/flutter_lucide.dart';",
+              )
+              code = re.sub(
+                  r'LucideIcons\.([A-Za-z0-9_]+)',
+                  lambda m: 'LucideIcons.' + snake(m.group(1)),
+                  code,
+              )
+              path.write_text(code)
+
+          # Hard verification so an old incompatible import cannot silently remain.
+          leftovers = []
+          for path in (root / 'lib').rglob('*.dart'):
+              code = path.read_text()
+              if "package:lucide_icons/" in code:
+                  leftovers.append(str(path))
+          if leftovers:
+              raise SystemExit('Old lucide_icons imports remain: ' + ', '.join(leftovers))
+          PY
+
       - name: Source preflight
         script: cd fluentx_admin_secure && python3 scripts/preflight_check.py
 
@@ -143,9 +200,6 @@ workflows:
 
       - name: Remove generated Flutter template test
         script: |
-          # flutter create adds test/widget_test.dart and references MyApp, while
-          # this project root widget is FluentXApp. It is template code, not an
-          # FluentX test, so remove only that generated file.
           rm -f fluentx_admin_secure/test/widget_test.dart
 
       - name: Install dependencies
