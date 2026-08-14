@@ -10,40 +10,65 @@ workflows:
         script: |
           rm -rf fluentx_admin_secure
           unzip -q fluentx_mobile_test_ready.zip
-      - name: Fix test-build dependency compatibility
+
+      - name: Fix dependency compatibility
         script: |
           python3 - <<'PY'
           from pathlib import Path
 
           pubspec = Path('fluentx_admin_secure/pubspec.yaml')
           text = pubspec.read_text()
+
+          # Runtime packages that conflict with current Flutter stable.
           text = text.replace('purchases_flutter: ^7.28.0 # RevenueCat', 'purchases_flutter: 10.5.0 # RevenueCat')
           text = text.replace('intl: ^0.19.0', 'intl: ^0.20.3')
+
+          # Keep the Freezed 2.x API used by the source, but stay before the
+          # analyzer/macros dependency introduced in Freezed 2.5.3+.
+          text = text.replace('build_runner: ^2.4.11', 'build_runner: 2.4.11')
+          text = text.replace('freezed: ^2.5.5', 'freezed: 2.5.2')
+
+          # These generators are not used anywhere in lib/. Removing them avoids
+          # unnecessary analyzer constraints (especially hive_generator <7).
+          text = text.replace('  riverpod_generator: ^2.4.0\n', '')
+          text = text.replace('  json_serializable: ^6.8.0\n', '')
+          text = text.replace('  hive_generator: ^2.0.1\n', '')
+
           pubspec.write_text(text)
 
+          # RevenueCat 10.x no longer throws PurchasesErrorCode directly.
           source = Path('fluentx_admin_secure/lib/features/premium/data/datasources/purchase_remote_datasource.dart')
-          text = source.read_text()
-          text = text.replace(
-              "    } on PurchasesErrorCode catch (e) {\n      throw ServerException(e.toString());\n    } catch (e) {\n      throw ServerException(e.toString());\n    }",
-              "    } catch (e) {\n      throw ServerException(e.toString());\n    }",
-          )
-          source.write_text(text)
+          if source.exists():
+              code = source.read_text()
+              code = code.replace(
+                  "    } on PurchasesErrorCode catch (e) {\n      throw ServerException(e.toString());\n    } catch (e) {\n      throw ServerException(e.toString());\n    }",
+                  "    } catch (e) {\n      throw ServerException(e.toString());\n    }",
+              )
+              source.write_text(code)
           PY
+
       - name: Source preflight
         script: cd fluentx_admin_secure && python3 scripts/preflight_check.py
+
       - name: Bootstrap Android platform
         script: cd fluentx_admin_secure && bash scripts/bootstrap_android.sh
+
       - name: Install dependencies
         script: cd fluentx_admin_secure && flutter pub get
+
       - name: Generate code
         script: cd fluentx_admin_secure && dart run build_runner build --delete-conflicting-outputs
+
       - name: Analyze
         script: cd fluentx_admin_secure && flutter analyze || true
+
       - name: Run tests
         script: cd fluentx_admin_secure && flutter test || true
+
       - name: Build debug APK
         script: |
           cd fluentx_admin_secure
           flutter build apk --debug --dart-define=FLAVOR=dev
+
     artifacts:
       - fluentx_admin_secure/build/app/outputs/flutter-apk/*.apk
