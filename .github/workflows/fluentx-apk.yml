@@ -49,6 +49,9 @@ jobs:
         working-directory: fluentx_admin_secure
         run: bash scripts/bootstrap_android.sh
 
+      - name: Enable Android core library desugaring
+        run: python3 scripts/patch_android_desugaring.py fluentx_admin_secure
+
       - name: Remove generated template test
         run: rm -f fluentx_admin_secure/test/widget_test.dart
 
