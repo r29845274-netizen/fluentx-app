@@ -27,6 +27,9 @@ workflows:
       - name: Bootstrap Android platform
         script: cd fluentx_admin_secure && bash scripts/bootstrap_android.sh
 
+      - name: Enable Android core library desugaring
+        script: python3 scripts/patch_android_desugaring.py fluentx_admin_secure
+
       - name: Remove generated Flutter template test
         script: rm -f fluentx_admin_secure/test/widget_test.dart
 
