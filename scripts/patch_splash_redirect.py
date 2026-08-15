@@ -3,10 +3,10 @@ import sys
 
 root = Path(sys.argv[1] if len(sys.argv) > 1 else 'fluentx_admin_secure')
 
-# The app source is stored as a ZIP and extracted during CI. On a fresh install,
-# FluentX can remain on the Flutter splash route when authentication resolves to
-# unauthenticated. Force that state to leave /splash and go to /login while
-# preserving the original auth-status expression used by the router.
+# The source is stored as a ZIP and extracted during CI. Keep the existing
+# branded Flutter splash visible for a short minimum duration, then route based
+# on the resolved authentication state. This avoids both previous failure modes:
+# staying forever on /splash and skipping the FluentX splash entirely.
 
 candidates = [
     root / 'lib/routes/app_router.dart',
@@ -17,106 +17,96 @@ for path in (root / 'lib').rglob('app_router.dart'):
     if path not in candidates:
         candidates.append(path)
 
-
-def find_matching_brace(text: str, opening: int) -> int:
-    depth = 0
-    in_single = False
-    in_double = False
-    escaped = False
-    for i in range(opening, len(text)):
-        ch = text[i]
-        if escaped:
-            escaped = False
-            continue
-        if ch == '\\' and (in_single or in_double):
-            escaped = True
-            continue
-        if ch == "'" and not in_double:
-            in_single = not in_single
-            continue
-        if ch == '"' and not in_single:
-            in_double = not in_double
-            continue
-        if in_single or in_double:
-            continue
-        if ch == '{':
-            depth += 1
-        elif ch == '}':
-            depth -= 1
-            if depth == 0:
-                return i
-    return -1
-
-
 patched_path = None
 for path in candidates:
     if not path.exists():
         continue
 
     code = path.read_text()
-    marker = 'AuthStatus.unauthenticated'
-    marker_index = code.find(marker)
-    if marker_index < 0:
+    if 'AuthStatus.unauthenticated' not in code or 'RoutePaths.splash' not in code:
         continue
 
-    # Find the if-statement containing AuthStatus.unauthenticated.
-    if_start = code.rfind('if', max(0, marker_index - 400), marker_index)
-    open_brace = code.find('{', marker_index, marker_index + 400)
-    if if_start < 0 or open_brace < 0:
-        continue
+    # 1) Add a single launch timestamp and minimum branded splash duration.
+    root_key = 'final _rootNavigatorKey = GlobalKey<NavigatorState>();'
+    timing_block = '''final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
-    close_brace = find_matching_brace(code, open_brace)
-    if close_brace < 0:
-        continue
+final _routerStartedAt = DateTime.now();
+const _minimumSplashDuration = Duration(milliseconds: 1200);'''
+    if '_minimumSplashDuration' not in code:
+        if root_key not in code:
+            raise SystemExit('Could not find root navigator key for splash timing patch.')
+        code = code.replace(root_key, timing_block, 1)
 
-    line_start = code.rfind('\n', 0, if_start) + 1
-    indent = code[line_start:if_start]
-    if indent.strip():
-        indent = ''
+    # 2) GoRouter supports FutureOr<String?> redirects, so make this callback async.
+    sync_redirect = 'redirect: (context, state) {'
+    async_redirect = 'redirect: (context, state) async {'
+    if sync_redirect in code:
+        code = code.replace(sync_redirect, async_redirect, 1)
+    elif async_redirect not in code:
+        raise SystemExit('Could not find GoRouter redirect callback.')
 
-    header = code[if_start:open_brace + 1]
-    replacement = (
-        header
-        + '\n'
-        + indent
-        + '  if (currentPath == RoutePaths.splash) {\n'
-        + indent
-        + '    return RoutePaths.login;\n'
-        + indent
-        + '  }\n\n'
-        + indent
-        + '  return isPublicPath ? null : RoutePaths.login;\n'
-        + indent
-        + '}'
-    )
+    # 3) Once auth has resolved, keep the Flutter splash visible until the
+    # minimum launch duration has elapsed. This applies to signed-out,
+    # onboarding, and already-authenticated users.
+    unknown_block = '''      if (authStatus == AuthStatus.unknown) {
+        return currentPath == RoutePaths.splash ? null : RoutePaths.splash;
+      }
+'''
+    delay_block = '''      if (authStatus == AuthStatus.unknown) {
+        return currentPath == RoutePaths.splash ? null : RoutePaths.splash;
+      }
 
-    old_block = code[if_start:close_brace + 1]
-    new_code = code[:if_start] + replacement + code[close_brace + 1:]
-    path.write_text(new_code)
+      if (currentPath == RoutePaths.splash) {
+        final elapsed = DateTime.now().difference(_routerStartedAt);
+        final remainingMs =
+            _minimumSplashDuration.inMilliseconds - elapsed.inMilliseconds;
+        if (remainingMs > 0) {
+          await Future<void>.delayed(Duration(milliseconds: remainingMs));
+        }
+      }
+'''
+    if 'remainingMs =' not in code:
+        if unknown_block not in code:
+            raise SystemExit('Could not find unknown-auth splash block.')
+        code = code.replace(unknown_block, delay_block, 1)
 
-    # Verify the exact replaced block, rather than matching unrelated splash code.
-    verify_block = replacement
+    # 4) Signed-out users must leave splash after the delay instead of treating
+    # splash as an indefinitely valid public route.
+    original_unauth = '''      if (authStatus == AuthStatus.unauthenticated) {
+        // Signed out and trying to reach a protected route → login.
+        return isPublicPath ? null : RoutePaths.login;
+      }'''
+    fixed_unauth = '''      if (authStatus == AuthStatus.unauthenticated) {
+        // Fresh signed-out launch: show splash briefly, then open login.
+        if (currentPath == RoutePaths.splash) {
+          return RoutePaths.login;
+        }
+
+        return isPublicPath ? null : RoutePaths.login;
+      }'''
+    if 'Fresh signed-out launch' not in code:
+        if original_unauth not in code:
+            raise SystemExit('Could not find unauthenticated router block.')
+        code = code.replace(original_unauth, fixed_unauth, 1)
+
     required = [
-        'AuthStatus.unauthenticated',
+        'redirect: (context, state) async {',
+        '_minimumSplashDuration = Duration(milliseconds: 1200)',
+        'await Future<void>.delayed(Duration(milliseconds: remainingMs));',
         'if (currentPath == RoutePaths.splash)',
         'return RoutePaths.login;',
-        'return isPublicPath ? null : RoutePaths.login;',
     ]
-    missing = [item for item in required if item not in verify_block]
+    missing = [item for item in required if item not in code]
     if missing:
-        raise SystemExit('Splash redirect verification failed: ' + ', '.join(missing))
+        raise SystemExit('Splash patch verification failed: ' + ', '.join(missing))
 
-    print(f'Patched splash routing in: {path}')
-    print('Previous unauthenticated router block:')
-    print(old_block)
-    print('New unauthenticated router block:')
-    print(replacement)
+    path.write_text(code)
     patched_path = path
+    print(f'Patched branded splash timing and routing in: {path}')
+    print('Minimum FluentX splash duration: 1200 ms')
     break
 
 if patched_path is None:
-    raise SystemExit(
-        'Could not find the router block containing AuthStatus.unauthenticated.'
-    )
+    raise SystemExit('Could not locate FluentX app_router.dart for splash patching.')
 
-print('FluentX splash routing fix applied successfully.')
+print('FluentX splash timing + redirect fix applied successfully.')
