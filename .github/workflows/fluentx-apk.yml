@@ -37,6 +37,9 @@ jobs:
       - name: Apply compatibility patch
         run: python3 scripts/ci_patch.py fluentx_admin_secure
 
+      - name: Fix splash routing
+        run: python3 scripts/patch_splash_redirect.py fluentx_admin_secure
+
       - name: Validate pubspec
         working-directory: fluentx_admin_secure
         run: flutter pub get
