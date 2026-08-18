@@ -49,6 +49,9 @@ jobs:
       - name: Apply full placement test UI
         run: python3 scripts/patch_full_placement_test_ui.py fluentx_admin_secure
 
+      - name: Apply personalized learning path UI
+        run: python3 scripts/patch_personalized_learning_path.py fluentx_admin_secure
+
       - name: Apply FluentX premium visual system
         run: python3 scripts/patch_fluentx_visual_system.py fluentx_admin_secure
 
