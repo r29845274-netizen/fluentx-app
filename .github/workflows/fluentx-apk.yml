@@ -34,20 +34,14 @@ jobs:
           rm -rf fluentx_admin_secure
           unzip -q fluentx_mobile_test_ready.zip
 
-      - name: Upload onboarding source snapshot
-        uses: actions/upload-artifact@v7
-        with:
-          name: FluentX-onboarding-source
-          path: |
-            fluentx_admin_secure/lib/features/onboarding/
-            fluentx_admin_secure/lib/app/
-          if-no-files-found: error
-
       - name: Apply compatibility patch
         run: python3 scripts/ci_patch.py fluentx_admin_secure
 
       - name: Fix splash routing
         run: python3 scripts/patch_splash_redirect.py fluentx_admin_secure
+
+      - name: Apply personalized onboarding
+        run: python3 scripts/patch_personalized_onboarding.py fluentx_admin_secure
 
       - name: Validate pubspec
         working-directory: fluentx_admin_secure
