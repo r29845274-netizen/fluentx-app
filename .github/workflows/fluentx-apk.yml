@@ -55,6 +55,9 @@ jobs:
       - name: Apply market-ready backend and content
         run: python3 scripts/patch_market_ready_completion.py fluentx_admin_secure
 
+      - name: Apply detailed learning path screen
+        run: python3 scripts/patch_learning_path_detail.py fluentx_admin_secure
+
       - name: Apply FluentX premium visual system
         run: python3 scripts/patch_fluentx_visual_system.py fluentx_admin_secure
 
