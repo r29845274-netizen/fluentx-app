@@ -61,6 +61,9 @@ jobs:
       - name: Apply FluentX premium visual system
         run: python3 scripts/patch_fluentx_visual_system.py fluentx_admin_secure
 
+      - name: Apply reference-inspired full app UI UX
+        run: python3 scripts/patch_reference_uiux.py fluentx_admin_secure
+
       - name: Validate pubspec
         working-directory: fluentx_admin_secure
         run: flutter pub get
