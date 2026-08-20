@@ -37,7 +37,7 @@ jobs:
 
       - name: Build completion audit
         run: |
-          mkdir -p diagnostics
+          mkdir -p diagnostics/source_snapshots
           {
             echo '=== DART FILE TREE ==='
             find fluentx_admin_secure/lib -type f -name '*.dart' | sort
@@ -56,17 +56,30 @@ jobs:
             echo
             echo '=== BILLING / SUBSCRIPTION ==='
             grep -RniE -C 3 'RevenueCat|Purchases|purchase|subscription|billing|paywall|entitlement' fluentx_admin_secure/lib fluentx_admin_secure/pubspec.yaml || true
-            echo
-            echo '=== ROUTES ==='
-            grep -RniE -C 2 'GoRoute|RoutePaths|path:' fluentx_admin_secure/lib/core fluentx_admin_secure/lib || true
           } > diagnostics/app_completion_audit.txt
+
+          cp fluentx_admin_secure/lib/routes/app_router.dart diagnostics/source_snapshots/app_router.dart.txt
+          cp fluentx_admin_secure/lib/routes/route_paths.dart diagnostics/source_snapshots/route_paths.dart.txt
+          cp fluentx_admin_secure/lib/core/router/bootstrap_screen.dart diagnostics/source_snapshots/bootstrap_screen.dart.txt
+          cp fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart diagnostics/source_snapshots/interview_prep_screen.dart.txt
+          cp fluentx_admin_secure/lib/features/progress/presentation/screens/progress_screen.dart diagnostics/source_snapshots/progress_screen.dart.txt
+          cp fluentx_admin_secure/lib/features/profile/presentation/screens/profile_screen.dart diagnostics/source_snapshots/profile_screen.dart.txt
+          cp fluentx_admin_secure/lib/features/profile/presentation/screens/daily_goals_screen.dart diagnostics/source_snapshots/daily_goals_screen.dart.txt
+          cp fluentx_admin_secure/lib/features/settings/presentation/screens/settings_screen.dart diagnostics/source_snapshots/settings_screen.dart.txt
+          cp fluentx_admin_secure/lib/features/settings/presentation/screens/edit_profile_screen.dart diagnostics/source_snapshots/edit_profile_screen.dart.txt
+          cp fluentx_admin_secure/lib/features/settings/presentation/screens/legal_document_screen.dart diagnostics/source_snapshots/legal_document_screen.dart.txt
+          cp fluentx_admin_secure/lib/features/premium/presentation/screens/premium_screen.dart diagnostics/source_snapshots/premium_screen.dart.txt
+          cp fluentx_admin_secure/lib/features/premium/data/datasources/purchase_remote_datasource.dart diagnostics/source_snapshots/purchase_remote_datasource.dart.txt
+          cp fluentx_admin_secure/lib/features/home/data/datasources/home_remote_datasource.dart diagnostics/source_snapshots/home_remote_datasource.dart.txt
+          cp fluentx_admin_secure/lib/features/achievements/data/datasources/achievements_remote_datasource.dart diagnostics/source_snapshots/achievements_remote_datasource.dart.txt
+          cp fluentx_admin_secure/pubspec.yaml diagnostics/source_snapshots/pubspec.yaml.txt
 
       - name: Save audit
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add diagnostics/app_completion_audit.txt
+          git add diagnostics
           if ! git diff --cached --quiet; then
-            git commit -m "Save FluentX completion audit [skip ci]"
+            git commit -m "Save FluentX implementation snapshots [skip ci]"
             git push
           fi
