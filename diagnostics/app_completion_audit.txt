@@ -257,36 +257,100 @@ fluentx_admin_secure/lib/core/services/notification_service.dart-80-          im
 fluentx_admin_secure/lib/core/services/notification_service.dart-81-        ),
 fluentx_admin_secure/lib/core/services/notification_service.dart-82-        iOS: DarwinNotificationDetails(),
 --
-fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-3-import '../../../../core/constants/app_spacing.dart';
-fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-4-import '../../../../shared/widgets/widgets.dart';
-fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-5-
-fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart:6:class InterviewPrepScreen extends StatefulWidget {
-fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart:7:  const InterviewPrepScreen({super.key});
-fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-8-
-fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-9-  @override
-fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart:10:  State<InterviewPrepScreen> createState() => _InterviewPrepScreenState();
-fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-11-}
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-7-import '../../../../shared/widgets/widgets.dart';
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-8-import '../../../authentication/application/providers/auth_providers.dart';
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-9-
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart:10:class InterviewPrepScreen extends ConsumerStatefulWidget {
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart:11:  const InterviewPrepScreen({super.key});
 fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-12-
-fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart:13:class _InterviewPrepScreenState extends State<InterviewPrepScreen> {
-fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-14-  static const _questions = [
-fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-15-    ('Tell me about yourself.', 'Keep it to 45–60 seconds: present role, key strength, one proof point, and why this role fits.'),
-fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-16-    ('What is your biggest strength?', 'Choose one job-relevant strength and prove it with a short result-based example.'),
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-13-  @override
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart:14:  ConsumerState<InterviewPrepScreen> createState() => _InterviewPrepScreenState();
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-15-}
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-16-
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart:17:class _InterviewPrepScreenState extends ConsumerState<InterviewPrepScreen> {
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-18-  final _answerController = TextEditingController();
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-19-  final _speech = stt.SpeechToText();
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-20-
 --
-fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-46-  @override
-fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-47-  Widget build(BuildContext context) {
-fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-48-    return Scaffold(
-fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart:49:      appBar: AppBar(title: const Text('Interview Practice')),
-fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-50-      body: SafeArea(
-fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-51-        top: false,
-fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-52-        child: Padding(
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-56-    try {
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-57-      final client = ref.read(supabaseClientProvider);
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-58-      final rows = await client
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart:59:          .from('interview_questions')
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-60-          .select('id,category,question,coaching_tip,sort_order')
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-61-          .eq('category', _category)
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-62-          .eq('is_active', true)
 --
-fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-79-              const SizedBox(height: AppSpacing.md),
-fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-80-              Text(question.$1, style: Theme.of(context).textTheme.headlineSmall),
-fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-81-              const SizedBox(height: AppSpacing.md),
-fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart:82:              const Text('Answer it aloud as if you are in a real interview. Keep your response clear and structured.'),
-fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-83-              const SizedBox(height: AppSpacing.md),
-fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-84-              TextButton.icon(
-fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-85-                onPressed: () => setState(() => _showTip = !_showTip),
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-79-    try {
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-80-      final client = ref.read(supabaseClientProvider);
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-81-      final row = await client
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart:82:          .from('interview_attempts')
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-83-          .insert({'user_id': user.id, 'category': _category})
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-84-          .select('id')
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-85-          .single();
+--
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-140-    if (!await _ensureAttempt()) {
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-141-      if (mounted) {
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-142-        ScaffoldMessenger.of(context).showSnackBar(
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart:143:          const SnackBar(content: Text('Could not start interview practice. Please try again.')),
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-144-        );
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-145-      }
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-146-      return;
+--
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-150-    try {
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-151-      final client = ref.read(supabaseClientProvider);
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-152-      final response = await client.functions.invoke(
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart:153:        'score-interview-answer',
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-154-        body: {
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-155-          'attempt_id': _attemptId,
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-156-          'question_id': _questions[_index]['id'],
+--
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-185-      if (_attemptId != null) {
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-186-        final overall = _scores.isEmpty ? 0 : (_scores.reduce((a, b) => a + b) / _scores.length).round();
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-187-        try {
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart:188:          await client.from('interview_attempts').update({
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-189-            'overall_score': overall,
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-190-            'completed_at': DateTime.now().toIso8601String(),
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-191-          }).eq('id', _attemptId!);
+--
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-210-  @override
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-211-  Widget build(BuildContext context) {
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-212-    return Scaffold(
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart:213:      appBar: AppBar(title: const Text('AI Interview Coach')),
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-214-      body: SafeArea(
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-215-        top: false,
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-216-        child: _loading
+--
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-230-    return ListView(
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-231-      padding: const EdgeInsets.all(AppSpacing.base),
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-232-      children: [
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart:233:        Text('Choose interview type', style: Theme.of(context).textTheme.bodySmall),
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-234-        const SizedBox(height: AppSpacing.xs),
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-235-        Wrap(
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-236-          spacing: AppSpacing.sm,
+--
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-278-          maxLines: 10,
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-279-          decoration: InputDecoration(
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-280-            labelText: 'Your answer',
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart:281:            hintText: 'Speak or type your interview answer here…',
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-282-            alignLabelWithHint: true,
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-283-            suffixIcon: IconButton(
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-284-              onPressed: _toggleMic,
+--
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-300-          ElevatedButton.icon(
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-301-            onPressed: _next,
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-302-            icon: Icon(_index == _questions.length - 1 ? Icons.flag_outlined : Icons.arrow_forward),
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart:303:            label: Text(_index == _questions.length - 1 ? 'Finish Interview' : 'Next Question'),
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-304-          ),
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-305-        ],
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-306-      ],
+--
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-354-              const SizedBox(height: AppSpacing.md),
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-355-              Text('$overall/100', style: Theme.of(context).textTheme.displayLarge),
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-356-              const SizedBox(height: AppSpacing.sm),
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart:357:              Text('Interview practice complete', style: Theme.of(context).textTheme.headlineSmall, textAlign: TextAlign.center),
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-358-              const SizedBox(height: AppSpacing.sm),
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-359-              Text('Your answers and AI coaching have been saved to your FluentX profile.', textAlign: TextAlign.center, style: Theme.of(context).textTheme.bodyMedium),
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-360-              const SizedBox(height: AppSpacing.lg),
 --
 fluentx_admin_secure/lib/features/profile/presentation/screens/help_support_screen.dart-7-  const HelpSupportScreen({super.key});
 fluentx_admin_secure/lib/features/profile/presentation/screens/help_support_screen.dart-8-
@@ -811,20 +875,21 @@ fluentx_admin_secure/lib/core/services/notification_service.dart-74-      _nextI
 fluentx_admin_secure/lib/core/services/notification_service.dart-75-      const NotificationDetails(
 fluentx_admin_secure/lib/core/services/notification_service.dart-76-        android: AndroidNotificationDetails(
 --
-fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-59-
-fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-60-  Widget _buildQuestion(BuildContext context) {
-fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-61-    final question = _questions[_index];
-fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart:62:    final progress = (_index + 1) / _questions.length;
-fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-63-
-fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-64-    return Column(
-fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-65-      crossAxisAlignment: CrossAxisAlignment.stretch,
-fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-66-      children: [
-fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-67-        ClipRRect(
-fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-68-          borderRadius: BorderRadius.circular(100),
-fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart:69:          child: LinearProgressIndicator(value: progress, minHeight: 7),
-fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-70-        ),
-fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-71-        const SizedBox(height: AppSpacing.sm),
-fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-72-        Text('Question ${_index + 1} of ${_questions.length}', style: Theme.of(context).textTheme.bodySmall),
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-226-
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-227-  Widget _buildPractice(BuildContext context) {
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-228-    final q = _questions[_index];
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart:229:    final progress = (_index + 1) / _questions.length;
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-230-    return ListView(
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-231-      padding: const EdgeInsets.all(AppSpacing.base),
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-232-      children: [
+--
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-249-        const SizedBox(height: AppSpacing.lg),
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-250-        ClipRRect(
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-251-          borderRadius: BorderRadius.circular(100),
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart:252:          child: LinearProgressIndicator(value: progress, minHeight: 7),
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-253-        ),
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-254-        const SizedBox(height: AppSpacing.sm),
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-255-        Text('Question ${_index + 1} of ${_questions.length}'),
 --
 fluentx_admin_secure/lib/features/profile/domain/level_progress.dart-10-///
 fluentx_admin_secure/lib/features/profile/domain/level_progress.dart-11-/// Formula: 1000 XP per level. Tune freely — it's isolated here so
@@ -1918,6 +1983,14 @@ fluentx_admin_secure/lib/main.dart-20-
 fluentx_admin_secure/lib/main.dart-21-  tz_data.initializeTimeZones();
 fluentx_admin_secure/lib/main.dart-22-
 --
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-356-              const SizedBox(height: AppSpacing.sm),
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-357-              Text('Interview practice complete', style: Theme.of(context).textTheme.headlineSmall, textAlign: TextAlign.center),
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-358-              const SizedBox(height: AppSpacing.sm),
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart:359:              Text('Your answers and AI coaching have been saved to your FluentX profile.', textAlign: TextAlign.center, style: Theme.of(context).textTheme.bodyMedium),
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-360-              const SizedBox(height: AppSpacing.lg),
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-361-              ElevatedButton.icon(onPressed: _restart, icon: const Icon(Icons.replay), label: const Text('Practice Again')),
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-362-            ],
+--
 fluentx_admin_secure/lib/features/profile/presentation/widgets/profile_header.dart-3-import '../../../../core/constants/app_spacing.dart';
 fluentx_admin_secure/lib/features/profile/presentation/widgets/profile_header.dart-4-import '../../domain/level_progress.dart';
 fluentx_admin_secure/lib/features/profile/presentation/widgets/profile_header.dart-5-
@@ -2191,37 +2264,31 @@ fluentx_admin_secure/lib/features/settings/presentation/screens/settings_screen.
 fluentx_admin_secure/lib/features/settings/presentation/screens/settings_screen.dart-151-                  ),
 fluentx_admin_secure/lib/features/settings/presentation/screens/settings_screen.dart-152-                  const Divider(height: 1),
 fluentx_admin_secure/lib/features/settings/presentation/screens/settings_screen.dart:153:                  ProfileMenuTile(
-fluentx_admin_secure/lib/features/settings/presentation/screens/settings_screen.dart-154-                    icon: Icons.shield_outlined,
-fluentx_admin_secure/lib/features/settings/presentation/screens/settings_screen.dart-155-                    label: 'Admin Console',
-fluentx_admin_secure/lib/features/settings/presentation/screens/settings_screen.dart-156-                    onTap: () => context.push(RoutePaths.adminConsole),
-fluentx_admin_secure/lib/features/settings/presentation/screens/settings_screen.dart-157-                  ),
-fluentx_admin_secure/lib/features/settings/presentation/screens/settings_screen.dart-158-                  const Divider(height: 1),
-fluentx_admin_secure/lib/features/settings/presentation/screens/settings_screen.dart:159:                  ProfileMenuTile(
-fluentx_admin_secure/lib/features/settings/presentation/screens/settings_screen.dart-160-                    icon: Icons.delete_outline,
-fluentx_admin_secure/lib/features/settings/presentation/screens/settings_screen.dart:161:                    label: _deleting ? 'Deleting Account…' : 'Delete Account',
-fluentx_admin_secure/lib/features/settings/presentation/screens/settings_screen.dart-162-                    iconColor: colorScheme.error,
-fluentx_admin_secure/lib/features/settings/presentation/screens/settings_screen.dart-163-                    labelColor: colorScheme.error,
-fluentx_admin_secure/lib/features/settings/presentation/screens/settings_screen.dart-164-                    onTap: _deleting ? null : _confirmDeleteAccount,
+fluentx_admin_secure/lib/features/settings/presentation/screens/settings_screen.dart-154-                    icon: Icons.delete_outline,
+fluentx_admin_secure/lib/features/settings/presentation/screens/settings_screen.dart:155:                    label: _deleting ? 'Deleting Account…' : 'Delete Account',
+fluentx_admin_secure/lib/features/settings/presentation/screens/settings_screen.dart-156-                    iconColor: colorScheme.error,
+fluentx_admin_secure/lib/features/settings/presentation/screens/settings_screen.dart-157-                    labelColor: colorScheme.error,
+fluentx_admin_secure/lib/features/settings/presentation/screens/settings_screen.dart-158-                    onTap: _deleting ? null : _confirmDeleteAccount,
 --
-fluentx_admin_secure/lib/features/settings/presentation/screens/settings_screen.dart-173-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.base),
-fluentx_admin_secure/lib/features/settings/presentation/screens/settings_screen.dart-174-              child: Column(
-fluentx_admin_secure/lib/features/settings/presentation/screens/settings_screen.dart-175-                children: [
+fluentx_admin_secure/lib/features/settings/presentation/screens/settings_screen.dart-167-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.base),
+fluentx_admin_secure/lib/features/settings/presentation/screens/settings_screen.dart-168-              child: Column(
+fluentx_admin_secure/lib/features/settings/presentation/screens/settings_screen.dart-169-                children: [
+fluentx_admin_secure/lib/features/settings/presentation/screens/settings_screen.dart:170:                  ProfileMenuTile(
+fluentx_admin_secure/lib/features/settings/presentation/screens/settings_screen.dart-171-                    icon: Icons.shield_outlined,
+fluentx_admin_secure/lib/features/settings/presentation/screens/settings_screen.dart:172:                    label: 'Privacy Policy',
+fluentx_admin_secure/lib/features/settings/presentation/screens/settings_screen.dart:173:                    onTap: () => context.push(RoutePaths.privacyPolicy),
+fluentx_admin_secure/lib/features/settings/presentation/screens/settings_screen.dart-174-                  ),
+fluentx_admin_secure/lib/features/settings/presentation/screens/settings_screen.dart-175-                  const Divider(height: 1),
 fluentx_admin_secure/lib/features/settings/presentation/screens/settings_screen.dart:176:                  ProfileMenuTile(
-fluentx_admin_secure/lib/features/settings/presentation/screens/settings_screen.dart-177-                    icon: Icons.shield_outlined,
-fluentx_admin_secure/lib/features/settings/presentation/screens/settings_screen.dart:178:                    label: 'Privacy Policy',
-fluentx_admin_secure/lib/features/settings/presentation/screens/settings_screen.dart:179:                    onTap: () => context.push(RoutePaths.privacyPolicy),
+fluentx_admin_secure/lib/features/settings/presentation/screens/settings_screen.dart-177-                    icon: Icons.description_outlined,
+fluentx_admin_secure/lib/features/settings/presentation/screens/settings_screen.dart:178:                    label: 'Terms of Service',
+fluentx_admin_secure/lib/features/settings/presentation/screens/settings_screen.dart:179:                    onTap: () => context.push(RoutePaths.termsOfService),
 fluentx_admin_secure/lib/features/settings/presentation/screens/settings_screen.dart-180-                  ),
 fluentx_admin_secure/lib/features/settings/presentation/screens/settings_screen.dart-181-                  const Divider(height: 1),
-fluentx_admin_secure/lib/features/settings/presentation/screens/settings_screen.dart:182:                  ProfileMenuTile(
-fluentx_admin_secure/lib/features/settings/presentation/screens/settings_screen.dart-183-                    icon: Icons.description_outlined,
-fluentx_admin_secure/lib/features/settings/presentation/screens/settings_screen.dart:184:                    label: 'Terms of Service',
-fluentx_admin_secure/lib/features/settings/presentation/screens/settings_screen.dart:185:                    onTap: () => context.push(RoutePaths.termsOfService),
-fluentx_admin_secure/lib/features/settings/presentation/screens/settings_screen.dart-186-                  ),
-fluentx_admin_secure/lib/features/settings/presentation/screens/settings_screen.dart-187-                  const Divider(height: 1),
-fluentx_admin_secure/lib/features/settings/presentation/screens/settings_screen.dart:188:                  const ProfileMenuTile(
-fluentx_admin_secure/lib/features/settings/presentation/screens/settings_screen.dart-189-                    icon: Icons.info_outline,
-fluentx_admin_secure/lib/features/settings/presentation/screens/settings_screen.dart-190-                    label: 'App Version',
-fluentx_admin_secure/lib/features/settings/presentation/screens/settings_screen.dart-191-                    trailing: Text('0.1.0'),
+fluentx_admin_secure/lib/features/settings/presentation/screens/settings_screen.dart:182:                  const ProfileMenuTile(
+fluentx_admin_secure/lib/features/settings/presentation/screens/settings_screen.dart-183-                    icon: Icons.info_outline,
+fluentx_admin_secure/lib/features/settings/presentation/screens/settings_screen.dart-184-                    label: 'App Version',
+fluentx_admin_secure/lib/features/settings/presentation/screens/settings_screen.dart-185-                    trailing: Text('0.1.0'),
 --
 fluentx_admin_secure/lib/features/home/data/models/home_summary_model.dart-2-
 fluentx_admin_secure/lib/features/home/data/models/home_summary_model.dart-3-/// Maps a `user_home_stats` Supabase row into the domain [HomeSummary].
