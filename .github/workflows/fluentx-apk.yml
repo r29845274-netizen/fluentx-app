@@ -5,6 +5,9 @@ on:
     branches: [main]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build-apk:
     runs-on: ubuntu-latest
@@ -54,6 +57,19 @@ jobs:
 
       - name: Apply market-ready backend and content
         run: python3 scripts/patch_market_ready_completion.py fluentx_admin_secure
+
+      - name: Export canonical Supabase backend sources
+        run: |
+          rm -rf backend_export
+          mkdir -p backend_export
+          cp -R fluentx_admin_secure/supabase/. backend_export/
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add backend_export
+          if ! git diff --cached --quiet; then
+            git commit -m "Export canonical Supabase backend sources [skip ci]"
+            git push
+          fi
 
       - name: Apply detailed learning path screen
         run: python3 scripts/patch_learning_path_detail.py fluentx_admin_secure
