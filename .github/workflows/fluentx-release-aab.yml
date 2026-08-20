@@ -1,0 +1,109 @@
+name: FluentX Production AAB
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-release-aab:
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Validate required release secrets
+        env:
+          KEYSTORE_B64: ${{ secrets.FLuentX_UPLOAD_KEYSTORE_B64 }}
+          STORE_PASSWORD: ${{ secrets.FLuentX_UPLOAD_STORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.FLuentX_UPLOAD_KEY_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.FLuentX_UPLOAD_KEY_ALIAS }}
+          REVENUECAT_ANDROID_API_KEY: ${{ secrets.REVENUECAT_ANDROID_API_KEY }}
+        run: |
+          test -n "$KEYSTORE_B64" || (echo 'Missing FLuentX_UPLOAD_KEYSTORE_B64' && exit 1)
+          test -n "$STORE_PASSWORD" || (echo 'Missing FLuentX_UPLOAD_STORE_PASSWORD' && exit 1)
+          test -n "$KEY_PASSWORD" || (echo 'Missing FLuentX_UPLOAD_KEY_PASSWORD' && exit 1)
+          test -n "$KEY_ALIAS" || (echo 'Missing FLuentX_UPLOAD_KEY_ALIAS' && exit 1)
+          test -n "$REVENUECAT_ANDROID_API_KEY" || (echo 'Missing REVENUECAT_ANDROID_API_KEY' && exit 1)
+
+      - name: Extract source
+        run: |
+          rm -rf fluentx_admin_secure
+          unzip -q fluentx_mobile_test_ready.zip
+
+      - name: Apply production patches
+        run: |
+          python3 scripts/ci_patch.py fluentx_admin_secure
+          python3 scripts/patch_splash_redirect.py fluentx_admin_secure
+          python3 scripts/patch_personalized_onboarding.py fluentx_admin_secure
+          python3 scripts/fix_personalized_onboarding_compile.py fluentx_admin_secure
+          python3 scripts/patch_full_placement_test_ui.py fluentx_admin_secure
+          python3 scripts/patch_learning_path_minimal.py fluentx_admin_secure
+          python3 scripts/patch_market_ready_completion.py fluentx_admin_secure
+          python3 scripts/patch_learning_path_detail.py fluentx_admin_secure
+          python3 scripts/patch_fluentx_visual_system.py fluentx_admin_secure
+          python3 scripts/patch_reference_uiux.py fluentx_admin_secure
+          python3 scripts/patch_interview_ai_coach.py fluentx_admin_secure
+          python3 scripts/patch_settings_security.py fluentx_admin_secure
+          python3 scripts/patch_revenuecat_production.py fluentx_admin_secure
+          python3 scripts/patch_production_readiness.py fluentx_admin_secure
+
+      - name: Bootstrap Android
+        working-directory: fluentx_admin_secure
+        run: bash scripts/bootstrap_android.sh
+
+      - name: Apply Android release config
+        run: |
+          python3 scripts/patch_android_desugaring.py fluentx_admin_secure
+          python3 scripts/patch_android_release.py fluentx_admin_secure
+
+      - name: Configure upload keystore
+        env:
+          KEYSTORE_B64: ${{ secrets.FLuentX_UPLOAD_KEYSTORE_B64 }}
+          STORE_PASSWORD: ${{ secrets.FLuentX_UPLOAD_STORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.FLuentX_UPLOAD_KEY_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.FLuentX_UPLOAD_KEY_ALIAS }}
+        run: |
+          echo "$KEYSTORE_B64" | base64 --decode > fluentx_admin_secure/android/app/upload-keystore.jks
+          cat > fluentx_admin_secure/android/key.properties <<EOF
+          storePassword=$STORE_PASSWORD
+          keyPassword=$KEY_PASSWORD
+          keyAlias=$KEY_ALIAS
+          storeFile=upload-keystore.jks
+          EOF
+
+      - name: Install dependencies
+        working-directory: fluentx_admin_secure
+        run: flutter pub get
+
+      - name: Generate code
+        working-directory: fluentx_admin_secure
+        run: dart run build_runner build --delete-conflicting-outputs
+
+      - name: Build production AAB
+        working-directory: fluentx_admin_secure
+        env:
+          REVENUECAT_ANDROID_API_KEY: ${{ secrets.REVENUECAT_ANDROID_API_KEY }}
+        run: >-
+          flutter build appbundle --release
+          --dart-define=FLAVOR=prod
+          --dart-define=REVENUECAT_ANDROID_API_KEY=$REVENUECAT_ANDROID_API_KEY
+
+      - name: Upload production AAB
+        uses: actions/upload-artifact@v7
+        with:
+          name: FluentX-production-aab
+          path: fluentx_admin_secure/build/app/outputs/bundle/release/app-release.aab
+          if-no-files-found: error
