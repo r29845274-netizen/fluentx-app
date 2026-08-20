@@ -37,6 +37,31 @@ jobs:
           rm -rf fluentx_admin_secure
           unzip -q fluentx_mobile_test_ready.zip
 
+      - name: Export configured Supabase project ref
+        run: |
+          mkdir -p diagnostics
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          root = Path('fluentx_admin_secure')
+          refs = set()
+          pattern = re.compile(r'https://([a-z0-9]{10,})\.supabase\.co', re.I)
+
+          for path in root.rglob('*'):
+              if not path.is_file():
+                  continue
+              try:
+                  text = path.read_text(errors='ignore')
+              except Exception:
+                  continue
+              refs.update(match.group(1) for match in pattern.finditer(text))
+
+          output = Path('diagnostics/supabase_project_refs.txt')
+          output.write_text('\n'.join(sorted(refs)) + ('\n' if refs else ''))
+          print('Supabase project refs found:', ', '.join(sorted(refs)) or 'none')
+          PY
+
       - name: Apply compatibility patch
         run: python3 scripts/ci_patch.py fluentx_admin_secure
 
@@ -65,9 +90,9 @@ jobs:
           cp -R fluentx_admin_secure/supabase/. backend_export/
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add backend_export
+          git add backend_export diagnostics/supabase_project_refs.txt
           if ! git diff --cached --quiet; then
-            git commit -m "Export canonical Supabase backend sources [skip ci]"
+            git commit -m "Export canonical Supabase backend sources and project ref [skip ci]"
             git push
           fi
 
@@ -135,4 +160,5 @@ jobs:
           path: |
             fluentx_admin_secure/pubspec.yaml
             fluentx_admin_secure/pubspec.lock
+            diagnostics/supabase_project_refs.txt
           if-no-files-found: ignore
