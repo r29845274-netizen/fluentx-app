@@ -34,6 +34,8 @@ jobs:
           python3 scripts/patch_learning_path_detail.py fluentx_admin_secure
           python3 scripts/patch_fluentx_visual_system.py fluentx_admin_secure
           python3 scripts/patch_reference_uiux.py fluentx_admin_secure
+          python3 scripts/patch_interview_ai_coach.py fluentx_admin_secure
+          python3 scripts/patch_hide_admin_entry.py fluentx_admin_secure
 
       - name: Build completion audit
         run: |
@@ -55,9 +57,12 @@ jobs:
             grep -RniE -C 3 'profile|settings|delete account|delete-account|privacy|terms' fluentx_admin_secure/lib || true
             echo
             echo '=== BILLING / SUBSCRIPTION ==='
-            grep -RniE -C 3 'RevenueCat|Purchases|purchase|subscription|billing|paywall|entitlement' fluentx_admin_secure/lib fluentx_admin_secure/pubspec.yaml || true
+            grep -RniE -C 3 'RevenueCat|Purchases|purchase|subscription|billing|paywall|entitlement|apiKey|revenuecat' fluentx_admin_secure/lib fluentx_admin_secure/pubspec.yaml || true
           } > diagnostics/app_completion_audit.txt
 
+          cp fluentx_admin_secure/lib/main.dart diagnostics/source_snapshots/main.dart.txt
+          cp fluentx_admin_secure/lib/app/app.dart diagnostics/source_snapshots/app.dart.txt
+          cp fluentx_admin_secure/lib/core/config/env_config.dart diagnostics/source_snapshots/env_config.dart.txt
           cp fluentx_admin_secure/lib/routes/app_router.dart diagnostics/source_snapshots/app_router.dart.txt
           cp fluentx_admin_secure/lib/routes/route_paths.dart diagnostics/source_snapshots/route_paths.dart.txt
           cp fluentx_admin_secure/lib/core/router/bootstrap_screen.dart diagnostics/source_snapshots/bootstrap_screen.dart.txt
@@ -68,8 +73,10 @@ jobs:
           cp fluentx_admin_secure/lib/features/settings/presentation/screens/settings_screen.dart diagnostics/source_snapshots/settings_screen.dart.txt
           cp fluentx_admin_secure/lib/features/settings/presentation/screens/edit_profile_screen.dart diagnostics/source_snapshots/edit_profile_screen.dart.txt
           cp fluentx_admin_secure/lib/features/settings/presentation/screens/legal_document_screen.dart diagnostics/source_snapshots/legal_document_screen.dart.txt
-          cp fluentx_admin_secure/lib/features/premium/presentation/screens/premium_screen.dart diagnostics/source_snapshots/premium_screen.dart.txt
+          cp fluentx_admin_secure/lib/features/premium/application/providers/purchase_providers.dart diagnostics/source_snapshots/purchase_providers.dart.txt
           cp fluentx_admin_secure/lib/features/premium/data/datasources/purchase_remote_datasource.dart diagnostics/source_snapshots/purchase_remote_datasource.dart.txt
+          cp fluentx_admin_secure/lib/features/premium/data/repositories/purchase_repository_impl.dart diagnostics/source_snapshots/purchase_repository_impl.dart.txt
+          cp fluentx_admin_secure/lib/features/premium/presentation/screens/premium_screen.dart diagnostics/source_snapshots/premium_screen.dart.txt
           cp fluentx_admin_secure/lib/features/home/data/datasources/home_remote_datasource.dart diagnostics/source_snapshots/home_remote_datasource.dart.txt
           cp fluentx_admin_secure/lib/features/achievements/data/datasources/achievements_remote_datasource.dart diagnostics/source_snapshots/achievements_remote_datasource.dart.txt
           cp fluentx_admin_secure/pubspec.yaml diagnostics/source_snapshots/pubspec.yaml.txt
