@@ -26,16 +26,16 @@ jobs:
 
       - name: Validate required release secrets
         env:
-          KEYSTORE_B64: ${{ secrets.FLuentX_UPLOAD_KEYSTORE_B64 }}
-          STORE_PASSWORD: ${{ secrets.FLuentX_UPLOAD_STORE_PASSWORD }}
-          KEY_PASSWORD: ${{ secrets.FLuentX_UPLOAD_KEY_PASSWORD }}
-          KEY_ALIAS: ${{ secrets.FLuentX_UPLOAD_KEY_ALIAS }}
+          KEYSTORE_B64: ${{ secrets.FLUENTX_UPLOAD_KEYSTORE_B64 }}
+          STORE_PASSWORD: ${{ secrets.FLUENTX_UPLOAD_STORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.FLUENTX_UPLOAD_KEY_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.FLUENTX_UPLOAD_KEY_ALIAS }}
           REVENUECAT_ANDROID_API_KEY: ${{ secrets.REVENUECAT_ANDROID_API_KEY }}
         run: |
-          test -n "$KEYSTORE_B64" || (echo 'Missing FLuentX_UPLOAD_KEYSTORE_B64' && exit 1)
-          test -n "$STORE_PASSWORD" || (echo 'Missing FLuentX_UPLOAD_STORE_PASSWORD' && exit 1)
-          test -n "$KEY_PASSWORD" || (echo 'Missing FLuentX_UPLOAD_KEY_PASSWORD' && exit 1)
-          test -n "$KEY_ALIAS" || (echo 'Missing FLuentX_UPLOAD_KEY_ALIAS' && exit 1)
+          test -n "$KEYSTORE_B64" || (echo 'Missing FLUENTX_UPLOAD_KEYSTORE_B64' && exit 1)
+          test -n "$STORE_PASSWORD" || (echo 'Missing FLUENTX_UPLOAD_STORE_PASSWORD' && exit 1)
+          test -n "$KEY_PASSWORD" || (echo 'Missing FLUENTX_UPLOAD_KEY_PASSWORD' && exit 1)
+          test -n "$KEY_ALIAS" || (echo 'Missing FLUENTX_UPLOAD_KEY_ALIAS' && exit 1)
           test -n "$REVENUECAT_ANDROID_API_KEY" || (echo 'Missing REVENUECAT_ANDROID_API_KEY' && exit 1)
 
       - name: Extract source
@@ -71,10 +71,10 @@ jobs:
 
       - name: Configure upload keystore
         env:
-          KEYSTORE_B64: ${{ secrets.FLuentX_UPLOAD_KEYSTORE_B64 }}
-          STORE_PASSWORD: ${{ secrets.FLuentX_UPLOAD_STORE_PASSWORD }}
-          KEY_PASSWORD: ${{ secrets.FLuentX_UPLOAD_KEY_PASSWORD }}
-          KEY_ALIAS: ${{ secrets.FLuentX_UPLOAD_KEY_ALIAS }}
+          KEYSTORE_B64: ${{ secrets.FLUENTX_UPLOAD_KEYSTORE_B64 }}
+          STORE_PASSWORD: ${{ secrets.FLUENTX_UPLOAD_STORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.FLUENTX_UPLOAD_KEY_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.FLUENTX_UPLOAD_KEY_ALIAS }}
         run: |
           echo "$KEYSTORE_B64" | base64 --decode > fluentx_admin_secure/android/app/upload-keystore.jks
           cat > fluentx_admin_secure/android/key.properties <<EOF
