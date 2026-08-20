@@ -1,0 +1,13 @@
+# FluentX local release material
+.local-secrets/
+*.jks
+*.keystore
+key.properties
+
+# Local environment files
+.env
+.env.*
+
+# Common generated folders
+.dart_tool/
+build/
