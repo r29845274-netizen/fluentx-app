@@ -64,6 +64,9 @@ jobs:
       - name: Apply reference-inspired full app UI UX
         run: python3 scripts/patch_reference_uiux.py fluentx_admin_secure
 
+      - name: Apply AI Interview Coach
+        run: python3 scripts/patch_interview_ai_coach.py fluentx_admin_secure
+
       - name: Validate pubspec
         working-directory: fluentx_admin_secure
         run: flutter pub get
