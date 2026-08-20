@@ -67,6 +67,9 @@ jobs:
       - name: Apply AI Interview Coach
         run: python3 scripts/patch_interview_ai_coach.py fluentx_admin_secure
 
+      - name: Apply settings security polish
+        run: python3 scripts/patch_settings_security.py fluentx_admin_secure
+
       - name: Validate pubspec
         working-directory: fluentx_admin_secure
         run: flutter pub get
