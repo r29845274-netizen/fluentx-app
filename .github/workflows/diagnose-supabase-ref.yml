@@ -1,0 +1,41 @@
+name: Diagnose Supabase Ref
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Extract source
+        run: |
+          rm -rf fluentx_admin_secure
+          unzip -q fluentx_mobile_test_ready.zip
+      - name: Save project ref only
+        run: |
+          mkdir -p diagnostics
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          refs=set()
+          p=re.compile(r'https://([a-z0-9]{10,})\.supabase\.co',re.I)
+          for f in Path('fluentx_admin_secure').rglob('*'):
+              if f.is_file():
+                  try: t=f.read_text(errors='ignore')
+                  except Exception: continue
+                  refs.update(m.group(1) for m in p.finditer(t))
+          Path('diagnostics/supabase_project_refs.txt').write_text('\n'.join(sorted(refs)) + ('\n' if refs else ''))
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add diagnostics/supabase_project_refs.txt
+          if ! git diff --cached --quiet; then
+            git commit -m "Save Supabase project ref diagnostic [skip ci]"
+            git push
+          fi
