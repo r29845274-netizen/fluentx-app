@@ -1,0 +1,12 @@
+fluentx_admin_secure/android/.gitignore
+fluentx_admin_secure/android/app/build.gradle.kts
+fluentx_admin_secure/android/app/google-services.json
+fluentx_admin_secure/android/build.gradle.kts
+fluentx_admin_secure/android/fluentx_android.iml
+fluentx_admin_secure/android/gradle.properties
+fluentx_admin_secure/android/gradle/wrapper/gradle-wrapper.jar
+fluentx_admin_secure/android/gradle/wrapper/gradle-wrapper.properties
+fluentx_admin_secure/android/gradlew
+fluentx_admin_secure/android/gradlew.bat
+fluentx_admin_secure/android/local.properties
+fluentx_admin_secure/android/settings.gradle.kts
