@@ -1,0 +1,59 @@
+import 'package:flutter/material.dart';
+
+import '../../core/constants/app_spacing.dart';
+
+/// Scaffolding placeholder for a feature screen whose real UI hasn't
+/// been built yet in the current sprint.
+///
+/// This is NOT a fake implementation of feature logic — it renders no
+/// business behavior and makes no claims about functionality. It exists
+/// solely so the navigation graph (this sprint's deliverable) is fully
+/// wired and testable end-to-end before each feature's own sprint
+/// replaces this file's contents with the real screen. The route path
+/// stays identical when that swap happens, so nothing else changes.
+class BootstrapScreen extends StatelessWidget {
+  const BootstrapScreen({
+    required this.featureName,
+    required this.plannedSprint,
+    super.key,
+    this.icon = Icons.construction,
+  });
+
+  final String featureName;
+  final String plannedSprint;
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Scaffold(
+      appBar: AppBar(title: Text(featureName)),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(AppSpacing.xl),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, size: 48, color: colorScheme.onSurfaceVariant),
+              const SizedBox(height: AppSpacing.base),
+              Text(
+                featureName,
+                style: Theme.of(context).textTheme.headlineSmall,
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: AppSpacing.sm),
+              Text(
+                'Scheduled for $plannedSprint',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: colorScheme.onSurfaceVariant,
+                    ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}

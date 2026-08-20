@@ -1,0 +1,122 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../../../core/constants/app_spacing.dart';
+import '../../../../routes/route_paths.dart';
+import '../../../../shared/widgets/widgets.dart';
+import '../../../authentication/application/providers/auth_controller.dart';
+import '../../../authentication/application/providers/auth_providers.dart';
+import '../../../home/application/providers/home_providers.dart';
+import '../../../premium/application/providers/purchase_providers.dart';
+import '../../domain/level_progress.dart';
+import '../widgets/profile_header.dart';
+import '../widgets/profile_menu_tile.dart';
+
+class ProfileScreen extends ConsumerWidget {
+  const ProfileScreen({super.key});
+
+  Future<void> _confirmLogout(BuildContext context, WidgetRef ref) async {
+    final confirmed = await AppDialog.confirm(
+      context,
+      title: 'Log out?',
+      message: "You'll need to sign back in to continue your progress.",
+      confirmLabel: 'Log Out',
+      isDestructive: true,
+    );
+    if (confirmed) {
+      await ref.read(authControllerProvider.notifier).signOut();
+      // No explicit navigation here — the router's redirect reacts to
+      // authStatusProvider flipping to unauthenticated and sends the
+      // user to /login automatically.
+    }
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final userAsync = ref.watch(authStateChangesProvider);
+    final homeSummaryAsync = ref.watch(homeSummaryProvider);
+    final isPremium = ref.watch(subscriptionStatusProvider).valueOrNull?.isPremium ?? false;
+
+    return Scaffold(
+      appBar: AppBar(title: const Text('Profile')),
+      body: SafeArea(
+        top: false,
+        child: userAsync.when(
+          data: (user) {
+            if (user == null) {
+              return const ErrorStateWidget(message: 'You need to be signed in.');
+            }
+
+            final xp = homeSummaryAsync.valueOrNull?.xpEarned ?? 0;
+            final levelProgress = LevelProgress.fromTotalXp(xp);
+
+            return ListView(
+              padding: const EdgeInsets.all(AppSpacing.base),
+              children: [
+                ProfileHeader(
+                  fullName: user.fullName ?? user.email.split('@').first,
+                  email: user.email,
+                  avatarUrl: user.avatarUrl,
+                  levelProgress: levelProgress,
+                  isPremium: isPremium,
+                ),
+                const SizedBox(height: AppSpacing.xl),
+                AppCard(
+                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.base),
+                  child: Column(
+                    children: [
+                      ProfileMenuTile(
+                        icon: Icons.workspace_premium_outlined,
+                        label: 'Achievements',
+                        onTap: () => context.push(RoutePaths.achievements),
+                      ),
+                      const Divider(height: 1),
+                      ProfileMenuTile(
+                        icon: Icons.workspace_premium_outlined,
+                        label: 'My Plan',
+                        onTap: () => context.push(RoutePaths.premium),
+                      ),
+                      const Divider(height: 1),
+                      ProfileMenuTile(
+                        icon: Icons.settings_outlined,
+                        label: 'Settings',
+                        onTap: () => context.push(RoutePaths.settings),
+                      ),
+                      const Divider(height: 1),
+                      ProfileMenuTile(
+                        icon: Icons.gps_fixed,
+                        label: 'Daily Goals',
+                        onTap: () => context.push(RoutePaths.dailyGoals),
+                      ),
+                      const Divider(height: 1),
+                      ProfileMenuTile(
+                        icon: Icons.help_outline,
+                        label: 'Help & Support',
+                        onTap: () => context.push(RoutePaths.helpSupport),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.base),
+                AppCard(
+                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.base),
+                  child: ProfileMenuTile(
+                    icon: Icons.logout,
+                    label: 'Log Out',
+                    iconColor: Theme.of(context).colorScheme.error,
+                    labelColor: Theme.of(context).colorScheme.error,
+                    trailing: const SizedBox.shrink(),
+                    onTap: () => _confirmLogout(context, ref),
+                  ),
+                ),
+              ],
+            );
+          },
+          loading: () => const LoadingWidget(),
+          error: (_, __) => const ErrorStateWidget(),
+        ),
+      ),
+    );
+  }
+}

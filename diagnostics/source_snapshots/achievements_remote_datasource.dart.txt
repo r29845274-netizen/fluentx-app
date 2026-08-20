@@ -1,0 +1,32 @@
+import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
+
+import '../../../../core/error/exceptions.dart';
+import '../../domain/entities/achievement_stats.dart';
+import '../models/achievement_stats_model.dart';
+
+abstract class AchievementsRemoteDataSource {
+  Future<AchievementStats> getStats(String userId);
+}
+
+class AchievementsRemoteDataSourceImpl implements AchievementsRemoteDataSource {
+  AchievementsRemoteDataSourceImpl(this._client);
+  final supabase.SupabaseClient _client;
+
+  @override
+  Future<AchievementStats> getStats(String userId) async {
+    try {
+      final rows = await _client.rpc<List<dynamic>>(
+        'get_achievement_stats',
+        params: {'p_user_id': userId},
+      );
+      if (rows.isEmpty) {
+        throw const ServerException('No achievement data available yet.');
+      }
+      return (rows.first as Map<String, dynamic>).toAchievementStats();
+    } on supabase.PostgrestException catch (e) {
+      throw ServerException(e.message);
+    } catch (e) {
+      throw ServerException(e.toString());
+    }
+  }
+}

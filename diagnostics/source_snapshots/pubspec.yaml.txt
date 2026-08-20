@@ -1,0 +1,77 @@
+name: fluentx
+description: "FluentX — AI-powered Communication Coach"
+publish_to: 'none'
+version: 0.1.0+1
+
+environment:
+  sdk: '>=3.4.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # State management
+  flutter_riverpod: ^2.5.1
+  riverpod_annotation: ^2.3.5
+
+  # Navigation
+  go_router: ^14.2.0
+
+  # Backend
+  supabase_flutter: ^2.5.6
+
+  # Networking
+  dio: ^5.5.0
+
+  # Local storage
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+  flutter_secure_storage: ^9.2.2
+
+  # Models / immutability
+  freezed_annotation: ^2.4.4
+  json_annotation: ^4.9.0
+
+  # Design
+  google_fonts: ^6.2.1
+  flutter_svg: ^2.0.10+1
+
+  # Error handling
+  fpdart: ^1.1.0
+
+  # Payments
+  purchases_flutter: 10.5.0 # RevenueCat
+
+  # Notifications
+  firebase_core: ^3.3.0
+  firebase_messaging: ^15.0.4
+  firebase_analytics: ^11.2.1
+  firebase_crashlytics: ^4.0.4
+  flutter_local_notifications: ^17.2.2
+
+  # Localization
+  easy_localization: ^3.0.7
+
+  # Utilities
+  intl: ^0.20.3
+  cupertino_icons: ^1.0.8
+  flutter_tts: ^4.0.2
+  speech_to_text: ^7.0.0
+  timezone: ^0.9.4
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+  # Code generation
+  build_runner: 2.4.11
+  freezed: 2.5.2
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/
+    - assets/icons/
+    - assets/audio/
+  fonts: [] # Manrope is loaded dynamically via google_fonts; no bundled font files needed

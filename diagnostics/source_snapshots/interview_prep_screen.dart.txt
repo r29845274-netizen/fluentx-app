@@ -1,0 +1,143 @@
+import 'package:flutter/material.dart';
+
+import '../../../../core/constants/app_spacing.dart';
+import '../../../../shared/widgets/widgets.dart';
+
+class InterviewPrepScreen extends StatefulWidget {
+  const InterviewPrepScreen({super.key});
+
+  @override
+  State<InterviewPrepScreen> createState() => _InterviewPrepScreenState();
+}
+
+class _InterviewPrepScreenState extends State<InterviewPrepScreen> {
+  static const _questions = [
+    ('Tell me about yourself.', 'Keep it to 45–60 seconds: present role, key strength, one proof point, and why this role fits.'),
+    ('What is your biggest strength?', 'Choose one job-relevant strength and prove it with a short result-based example.'),
+    ('Describe a difficult problem you solved.', 'Use STAR: Situation, Task, Action, Result. Spend most of the answer on your action.'),
+    ('Why do you want this role?', 'Connect your skills and goals to the company, team, or work — not only salary or title.'),
+    ('Why should we hire you?', 'Summarize 2–3 relevant strengths, evidence, and the value you can create quickly.'),
+  ];
+
+  int _index = 0;
+  int _score = 0;
+  bool _showTip = false;
+
+  void _rate(int score) {
+    setState(() {
+      _score += score;
+      if (_index < _questions.length - 1) {
+        _index += 1;
+        _showTip = false;
+      } else {
+        _index = _questions.length;
+      }
+    });
+  }
+
+  void _restart() {
+    setState(() {
+      _index = 0;
+      _score = 0;
+      _showTip = false;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Interview Practice')),
+      body: SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.all(AppSpacing.base),
+          child: _index >= _questions.length ? _buildComplete(context) : _buildQuestion(context),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildQuestion(BuildContext context) {
+    final question = _questions[_index];
+    final progress = (_index + 1) / _questions.length;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        ClipRRect(
+          borderRadius: BorderRadius.circular(100),
+          child: LinearProgressIndicator(value: progress, minHeight: 7),
+        ),
+        const SizedBox(height: AppSpacing.sm),
+        Text('Question ${_index + 1} of ${_questions.length}', style: Theme.of(context).textTheme.bodySmall),
+        const SizedBox(height: AppSpacing.xl),
+        AppCard(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(Icons.work_outline, color: Theme.of(context).colorScheme.primary, size: 30),
+              const SizedBox(height: AppSpacing.md),
+              Text(question.$1, style: Theme.of(context).textTheme.headlineSmall),
+              const SizedBox(height: AppSpacing.md),
+              const Text('Answer it aloud as if you are in a real interview. Keep your response clear and structured.'),
+              const SizedBox(height: AppSpacing.md),
+              TextButton.icon(
+                onPressed: () => setState(() => _showTip = !_showTip),
+                icon: const Icon(Icons.lightbulb_outline, size: 18),
+                label: Text(_showTip ? 'Hide coaching tip' : 'Show coaching tip'),
+              ),
+              if (_showTip) ...[
+                const SizedBox(height: AppSpacing.sm),
+                Text(
+                  question.$2,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                ),
+              ],
+            ],
+          ),
+        ),
+        const Spacer(),
+        Text('How strong was your answer?', style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600)),
+        const SizedBox(height: AppSpacing.sm),
+        Row(
+          children: [
+            Expanded(child: OutlinedButton(onPressed: () => _rate(1), child: const Text('Needs Work'))),
+            const SizedBox(width: AppSpacing.sm),
+            Expanded(child: OutlinedButton(onPressed: () => _rate(2), child: const Text('Good'))),
+            const SizedBox(width: AppSpacing.sm),
+            Expanded(child: ElevatedButton(onPressed: () => _rate(3), child: const Text('Strong'))),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildComplete(BuildContext context) {
+    final maxScore = _questions.length * 3;
+    final percent = ((_score / maxScore) * 100).round();
+    return Center(
+      child: AppCard(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.workspace_premium_outlined, size: 52),
+            const SizedBox(height: AppSpacing.md),
+            Text('$percent%', style: Theme.of(context).textTheme.displayLarge),
+            const SizedBox(height: AppSpacing.sm),
+            Text('Practice complete', style: Theme.of(context).textTheme.headlineSmall),
+            const SizedBox(height: AppSpacing.sm),
+            const Text('Repeat the session and improve the answers you rated lower.'),
+            const SizedBox(height: AppSpacing.lg),
+            ElevatedButton.icon(
+              onPressed: _restart,
+              icon: const Icon(Icons.replay, size: 18),
+              label: const Text('Practice Again'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

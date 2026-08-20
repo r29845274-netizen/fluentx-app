@@ -1,0 +1,92 @@
+import 'dart:async';
+
+import 'package:purchases_flutter/purchases_flutter.dart';
+
+import '../../../../core/error/exceptions.dart';
+import '../../domain/entities/subscription_status.dart';
+
+/// The ONLY file permitted to import `purchases_flutter` directly —
+/// everything above this depends on [PurchaseRepository] instead, so
+/// swapping payment providers later means rewriting this file and its
+/// sibling repository impl, nothing else.
+abstract class PurchaseRemoteDataSource {
+  Stream<SubscriptionStatus> get subscriptionStatusChanges;
+  Future<List<PremiumPackage>> getPackages();
+  Future<SubscriptionStatus> purchase(String packageIdentifier);
+  Future<SubscriptionStatus> restorePurchases();
+}
+
+class PurchaseRemoteDataSourceImpl implements PurchaseRemoteDataSource {
+  static const _entitlementId = 'premium'; // must match the RevenueCat dashboard entitlement id
+
+  SubscriptionStatus _mapCustomerInfo(CustomerInfo info) {
+    final entitlement = info.entitlements.active[_entitlementId];
+    if (entitlement == null) return SubscriptionStatus.free;
+
+    return SubscriptionStatus(
+      isPremium: true,
+      productIdentifier: entitlement.productIdentifier,
+      expirationDate: entitlement.expirationDate != null
+          ? DateTime.tryParse(entitlement.expirationDate!)
+          : null,
+      willRenew: entitlement.willRenew,
+    );
+  }
+
+  @override
+  Stream<SubscriptionStatus> get subscriptionStatusChanges {
+    final controller = StreamController<SubscriptionStatus>();
+    void listener(CustomerInfo info) => controller.add(_mapCustomerInfo(info));
+    Purchases.addCustomerInfoUpdateListener(listener);
+    controller.onCancel = () => Purchases.removeCustomerInfoUpdateListener(listener);
+    // Emit current status immediately so subscribers don't wait for
+    // the next change event.
+    Purchases.getCustomerInfo().then((info) => controller.add(_mapCustomerInfo(info)));
+    return controller.stream;
+  }
+
+  @override
+  Future<List<PremiumPackage>> getPackages() async {
+    try {
+      final offerings = await Purchases.getOfferings();
+      final current = offerings.current;
+      if (current == null) return [];
+
+      return current.availablePackages.map((pkg) {
+        return PremiumPackage(
+          identifier: pkg.identifier,
+          title: pkg.storeProduct.title,
+          priceString: pkg.storeProduct.priceString,
+          period: pkg.packageType == PackageType.annual ? 'yearly' : 'monthly',
+        );
+      }).toList();
+    } catch (e) {
+      throw ServerException(e.toString());
+    }
+  }
+
+  @override
+  Future<SubscriptionStatus> purchase(String packageIdentifier) async {
+    try {
+      final offerings = await Purchases.getOfferings();
+      final package = offerings.current?.availablePackages
+          .firstWhere((p) => p.identifier == packageIdentifier);
+      if (package == null) throw const ServerException('Plan not found. Please try again.');
+
+      final result = await Purchases.purchase(PurchaseParams.package(package));
+      return _mapCustomerInfo(result.customerInfo);
+    } catch (e) {
+      throw ServerException(e.toString());
+    }
+  }
+
+  @override
+  Future<SubscriptionStatus> restorePurchases() async {
+    try {
+      final info = await Purchases.restorePurchases();
+      return _mapCustomerInfo(info);
+    } catch (e) {
+      throw ServerException(e.toString());
+    }
+  }
+}

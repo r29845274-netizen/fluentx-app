@@ -1,0 +1,58 @@
+import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
+
+import '../../../../core/error/exceptions.dart';
+import '../../domain/entities/home_summary.dart';
+import '../models/home_summary_model.dart';
+
+abstract class HomeRemoteDataSource {
+  Future<HomeSummary> getHomeSummary(String userId);
+}
+
+/// Backed by the `user_home_stats` table — see
+/// `supabase/migrations/0001_user_home_stats.sql` for the schema and
+/// RLS policy this depends on.
+class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
+  HomeRemoteDataSourceImpl(this._client);
+
+  final supabase.SupabaseClient _client;
+
+  static const _table = 'user_home_stats';
+
+  @override
+  Future<HomeSummary> getHomeSummary(String userId) async {
+    try {
+      final authUser = _client.auth.currentUser;
+      final greetingName = _firstNameFrom(authUser?.userMetadata?['full_name'] as String?);
+
+      final existing = await _client
+          .from(_table)
+          .select()
+          .eq('user_id', userId)
+          .maybeSingle();
+
+      if (existing != null) {
+        return existing.toHomeSummary(greetingName: greetingName);
+      }
+
+      // First time this user has opened Home — lazily create their
+      // stats row with defaults rather than treating "no row yet" as
+      // an error state.
+      final created = await _client
+          .from(_table)
+          .insert({'user_id': userId})
+          .select()
+          .single();
+
+      return created.toHomeSummary(greetingName: greetingName);
+    } on supabase.PostgrestException catch (e) {
+      throw ServerException(e.message);
+    } catch (e) {
+      throw ServerException(e.toString());
+    }
+  }
+
+  String _firstNameFrom(String? fullName) {
+    if (fullName == null || fullName.trim().isEmpty) return 'there';
+    return fullName.trim().split(RegExp(r'\s+')).first;
+  }
+}

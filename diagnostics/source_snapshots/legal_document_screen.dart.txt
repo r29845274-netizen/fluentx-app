@@ -1,0 +1,49 @@
+import 'package:flutter/material.dart';
+
+import '../../../../core/constants/app_spacing.dart';
+
+class LegalDocumentScreen extends StatelessWidget {
+  const LegalDocumentScreen({required this.title, required this.sections, super.key});
+
+  final String title;
+  final List<(String, String)> sections;
+
+  static const privacySections = <(String, String)>[
+    ('Information we use', 'FluentX uses account information, profile details, learning progress, practice activity and app settings to provide the learning experience.'),
+    ('Voice and AI practice', 'When you use speaking or AI features, the content you submit may be processed by service providers that power speech, AI feedback and app infrastructure.'),
+    ('Payments and diagnostics', 'Subscription status may be handled by the app-store/payment provider. Crash, analytics and notification services may process technical device and usage information.'),
+    ('Your choices', 'You can change notification settings, edit your profile and request permanent account deletion from Settings.'),
+    ('Security', 'API secrets are kept server-side. User data access is protected with authenticated requests and row-level access controls.'),
+  ];
+
+  static const termsSections = <(String, String)>[
+    ('Using FluentX', 'Use FluentX for lawful personal learning. Do not attempt to abuse the service, bypass security controls or interfere with other users.'),
+    ('AI feedback', 'AI-generated corrections and scores are learning aids and may occasionally be incomplete or inaccurate. Review important communication before relying on it.'),
+    ('Subscriptions', 'Paid access, renewal and cancellation are governed by the purchase terms shown by the applicable app store or payment provider.'),
+    ('Account responsibility', 'Keep your sign-in credentials secure. You are responsible for activity performed through your account.'),
+    ('Service changes', 'Features may be improved, replaced or discontinued as FluentX evolves. Material changes should be reflected in the published product terms.'),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text(title)),
+      body: ListView.separated(
+        padding: const EdgeInsets.all(AppSpacing.base),
+        itemCount: sections.length,
+        separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.lg),
+        itemBuilder: (context, index) {
+          final section = sections[index];
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(section.$1, style: Theme.of(context).textTheme.headlineSmall),
+              const SizedBox(height: AppSpacing.xs),
+              Text(section.$2),
+            ],
+          );
+        },
+      ),
+    );
+  }
+}
