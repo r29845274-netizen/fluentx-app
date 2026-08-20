@@ -35,7 +35,7 @@ jobs:
           python3 scripts/patch_fluentx_visual_system.py fluentx_admin_secure
           python3 scripts/patch_reference_uiux.py fluentx_admin_secure
           python3 scripts/patch_interview_ai_coach.py fluentx_admin_secure
-          python3 scripts/patch_hide_admin_entry.py fluentx_admin_secure
+          python3 scripts/patch_settings_security.py fluentx_admin_secure
 
       - name: Build completion audit
         run: |
