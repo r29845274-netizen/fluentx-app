@@ -1,0 +1,96 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../../../core/constants/app_radius.dart';
+import '../../../../core/constants/app_spacing.dart';
+import '../../../../shared/widgets/widgets.dart';
+import '../../application/providers/grammar_providers.dart';
+import '../../domain/entities/grammar_lesson.dart';
+import '../widgets/grammar_quiz_sheet.dart';
+
+class GrammarScreen extends ConsumerWidget {
+  const GrammarScreen({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final lessonsAsync = ref.watch(grammarLessonsProvider);
+
+    return Scaffold(
+      appBar: AppBar(title: const Text('Grammar')),
+      body: SafeArea(
+        top: false,
+        child: lessonsAsync.when(
+          data: (lessons) {
+            if (lessons.isEmpty) {
+              return const EmptyStateWidget(title: 'No lessons available yet');
+            }
+            return ListView.separated(
+              padding: const EdgeInsets.all(AppSpacing.base),
+              itemCount: lessons.length,
+              separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.md),
+              itemBuilder: (context, index) => _LessonCard(lesson: lessons[index]),
+            );
+          },
+          loading: () => const LoadingWidget(),
+          error: (_, __) => ErrorStateWidget(
+            onRetry: () => ref.invalidate(grammarLessonsProvider),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _LessonCard extends StatelessWidget {
+  const _LessonCard({required this.lesson});
+
+  final GrammarLesson lesson;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return AppCard(
+      onTap: () => AppBottomSheet.show(
+        context,
+        title: lesson.title,
+        child: GrammarQuizSheet(lesson: lesson),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: colorScheme.primary.withValues(alpha: 0.1),
+              borderRadius: AppRadius.mdAll,
+            ),
+            child: Icon(Icons.spellcheck, color: colorScheme.primary, size: 20),
+          ),
+          const SizedBox(width: AppSpacing.md),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  lesson.title,
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  lesson.category,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: colorScheme.onSurfaceVariant,
+                      ),
+                ),
+              ],
+            ),
+          ),
+          Icon(Icons.chevron_right, size: 20, color: colorScheme.onSurfaceVariant),
+        ],
+      ),
+    );
+  }
+}

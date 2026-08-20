@@ -1,0 +1,96 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../../../core/constants/app_spacing.dart';
+import '../../../../shared/widgets/widgets.dart';
+import '../../application/providers/vocabulary_providers.dart';
+import '../widgets/review_rating_buttons.dart';
+import '../widgets/vocabulary_flashcard.dart';
+
+class VocabularyScreen extends ConsumerWidget {
+  const VocabularyScreen({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final wordsAsync = ref.watch(dueWordsProvider);
+    final currentIndex = ref.watch(vocabularyReviewControllerProvider);
+
+    return Scaffold(
+      appBar: AppBar(title: const Text('Vocabulary')),
+      body: SafeArea(
+        top: false,
+        child: wordsAsync.when(
+          data: (words) {
+            if (words.isEmpty) {
+              return const EmptyStateWidget(
+                title: 'No words due right now',
+                message: 'Great job — you\'re all caught up! Check back later.',
+                icon: Icons.check_circle_outline,
+              );
+            }
+            if (currentIndex >= words.length) {
+              return _SessionComplete(reviewedCount: words.length);
+            }
+
+            final word = words[currentIndex];
+
+            return Padding(
+              padding: const EdgeInsets.all(AppSpacing.base),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(100),
+                    child: LinearProgressIndicator(
+                      value: currentIndex / words.length,
+                      minHeight: 6,
+                      backgroundColor: Theme.of(context).colorScheme.outline,
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+                  Text(
+                    '${currentIndex + 1} of ${words.length}',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  const SizedBox(height: AppSpacing.lg),
+                  Expanded(
+                    child: Center(
+                      child: SingleChildScrollView(
+                        child: VocabularyFlashcard(word: word),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.lg),
+                  ReviewRatingButtons(
+                    onRated: (quality) => ref
+                        .read(vocabularyReviewControllerProvider.notifier)
+                        .submitAndAdvance(word, quality),
+                  ),
+                ],
+              ),
+            );
+          },
+          loading: () => const LoadingWidget(),
+          error: (error, _) => ErrorStateWidget(
+            onRetry: () => ref.invalidate(dueWordsProvider),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _SessionComplete extends StatelessWidget {
+  const _SessionComplete({required this.reviewedCount});
+
+  final int reviewedCount;
+
+  @override
+  Widget build(BuildContext context) {
+    return EmptyStateWidget(
+      title: 'Session complete! 🎉',
+      message: 'You reviewed $reviewedCount word${reviewedCount == 1 ? '' : 's'} today.',
+      icon: Icons.celebration,
+    );
+  }
+}

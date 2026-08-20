@@ -1,0 +1,138 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../../../core/constants/app_spacing.dart';
+import '../../../../routes/route_paths.dart';
+import '../../../../shared/widgets/widgets.dart';
+import '../../application/providers/home_providers.dart';
+import '../../domain/entities/home_summary.dart';
+import '../widgets/continue_learning_card.dart';
+import '../widgets/daily_goal_card.dart';
+import '../widgets/quick_action_grid.dart';
+import '../widgets/stat_chip.dart';
+
+class HomeScreen extends ConsumerWidget {
+  const HomeScreen({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final homeSummaryAsync = ref.watch(homeSummaryProvider);
+
+    return Scaffold(
+      body: SafeArea(
+        child: homeSummaryAsync.when(
+          data: (summary) => _HomeContent(summary: summary),
+          loading: () => const _HomeLoadingSkeleton(),
+          error: (error, stackTrace) => ErrorStateWidget(
+            message: "We couldn't load your dashboard right now.",
+            onRetry: () => ref.invalidate(homeSummaryProvider),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _HomeContent extends ConsumerWidget {
+  const _HomeContent({required this.summary});
+
+  final HomeSummary summary;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final textTheme = Theme.of(context).textTheme;
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return RefreshIndicator(
+      onRefresh: () async => ref.invalidate(homeSummaryProvider),
+      child: ListView(
+        padding: const EdgeInsets.all(AppSpacing.base),
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Text(
+                  'Hi, ${summary.greetingName} 👋',
+                  style: textTheme.headlineLarge,
+                ),
+              ),
+              IconButton(
+                onPressed: () {
+                  // Notifications inbox ships in Sprint 6.
+                },
+                icon: Icon(Icons.notifications_none, color: colorScheme.onSurfaceVariant),
+              ),
+            ],
+          ),
+          Text(
+            'Small steps every day build real fluency.',
+            style: textTheme.bodyMedium?.copyWith(color: colorScheme.onSurfaceVariant),
+          ),
+          const SizedBox(height: AppSpacing.lg),
+          DailyGoalCard(
+            targetMinutes: summary.dailyGoalTargetMinutes,
+            progressMinutes: summary.dailyGoalProgressMinutes,
+            progress: summary.dailyGoalProgress,
+          ),
+          const SizedBox(height: AppSpacing.md),
+          Row(
+            children: [
+              StatChip(
+                icon: Icons.local_fire_department_outlined,
+                iconColor: const Color(0xFFEA580C),
+                value: '${summary.streakDays}',
+                label: 'Day Streak',
+              ),
+              const SizedBox(width: AppSpacing.md),
+              StatChip(
+                icon: Icons.emoji_events_outlined,
+                iconColor: const Color(0xFFD97706),
+                value: '${summary.xpEarned}',
+                label: 'XP Earned',
+              ),
+            ],
+          ),
+          if (summary.continueLearning != null) ...[
+            const SizedBox(height: AppSpacing.xl),
+            Text('Continue Learning', style: textTheme.headlineSmall),
+            const SizedBox(height: AppSpacing.sm),
+            ContinueLearningCard(
+              item: summary.continueLearning!,
+              onTap: () {
+                // Deep-links to the specific module once Learn (Sprint
+                // 3) exposes per-module routes; for now this opens the
+                // Learn hub.
+                context.push(RoutePaths.learn);
+              },
+            ),
+          ],
+          const SizedBox(height: AppSpacing.xl),
+          Text('Quick Actions', style: textTheme.headlineSmall),
+          const SizedBox(height: AppSpacing.sm),
+          const QuickActionGrid(),
+          const SizedBox(height: AppSpacing.xl),
+        ],
+      ),
+    );
+  }
+}
+
+class _HomeLoadingSkeleton extends StatelessWidget {
+  const _HomeLoadingSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      padding: const EdgeInsets.all(AppSpacing.base),
+      children: const [
+        LoadingCardSkeleton(lines: 2),
+        SizedBox(height: AppSpacing.md),
+        LoadingCardSkeleton(lines: 1),
+        SizedBox(height: AppSpacing.xl),
+        LoadingCardSkeleton(lines: 3),
+      ],
+    );
+  }
+}

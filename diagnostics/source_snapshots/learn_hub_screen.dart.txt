@@ -1,0 +1,227 @@
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
+
+import '../../../../core/constants/app_radius.dart';
+import '../../../../core/constants/app_spacing.dart';
+import '../../../../routes/route_paths.dart';
+import '../../../../shared/widgets/widgets.dart';
+
+class _LearnModule {
+  const _LearnModule({
+    required this.title,
+    required this.subtitle,
+    required this.icon,
+    required this.color,
+    required this.route,
+  });
+
+  final String title;
+  final String subtitle;
+  final IconData icon;
+  final Color color;
+  final String route;
+}
+
+/// Six learning modules matching the reference Learn screen.
+class LearnHubScreen extends StatelessWidget {
+  const LearnHubScreen({super.key});
+
+  static const _modules = [
+    _LearnModule(
+      title: 'Vocabulary',
+      subtitle: 'Smart spaced-repetition vocabulary',
+      icon: Icons.menu_book_outlined,
+      color: Color(0xFFF59E0B),
+      route: RoutePaths.vocabulary,
+    ),
+    _LearnModule(
+      title: 'Grammar',
+      subtitle: 'Practical grammar lessons & quizzes',
+      icon: Icons.spellcheck,
+      color: Color(0xFF10B981),
+      route: RoutePaths.grammar,
+    ),
+    _LearnModule(
+      title: 'Listening',
+      subtitle: 'Real-life audio',
+      icon: Icons.headphones,
+      color: Color(0xFF2563EB),
+      route: RoutePaths.listening,
+    ),
+    _LearnModule(
+      title: 'Writing',
+      subtitle: 'AI writing coach',
+      icon: Icons.edit_outlined,
+      color: Color(0xFF0EA5E9),
+      route: RoutePaths.writing,
+    ),
+    _LearnModule(
+      title: 'Idioms & Phrases',
+      subtitle: 'Speak like a native',
+      icon: Icons.chat_bubble_outline,
+      color: Color(0xFFA855F7),
+      route: RoutePaths.idiomsPhrases,
+    ),
+    _LearnModule(
+      title: 'Business English',
+      subtitle: 'Workplace communication',
+      icon: Icons.work_outline,
+      color: Color(0xFF8B5CF6),
+      route: RoutePaths.businessEnglish,
+    ),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Learn')),
+      body: SafeArea(
+        top: false,
+        child: ListView(
+          padding: const EdgeInsets.all(AppSpacing.base),
+          children: [
+            FutureBuilder<List<dynamic>>(
+              future: Future.wait<dynamic>([
+                supabase.Supabase.instance.client.rpc('get_my_onboarding_state'),
+                supabase.Supabase.instance.client.rpc('get_my_learning_path'),
+              ]),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return const AppCard(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(vertical: AppSpacing.md),
+                      child: Center(child: CircularProgressIndicator()),
+                    ),
+                  );
+                }
+                final stateRaw = snapshot.data![0];
+                final pathRaw = snapshot.data![1];
+                final state = stateRaw is Map
+                    ? Map<String, dynamic>.from(stateRaw)
+                    : <String, dynamic>{};
+                final weeks = pathRaw is List ? pathRaw : const <dynamic>[];
+                final currentWeek = int.tryParse((state['current_week'] ?? 1).toString()) ?? 1;
+                final level = (state['current_cefr_level'] ?? 'A1').toString();
+                Map<String, dynamic>? current;
+                for (final item in weeks) {
+                  if (item is Map &&
+                      int.tryParse((item['week_number'] ?? '').toString()) == currentWeek) {
+                    current = Map<String, dynamic>.from(item);
+                    break;
+                  }
+                }
+                final title = (current?['title'] ?? 'Personalized English').toString();
+                return AppCard(
+                  onTap: () => context.push(RoutePaths.learningPath),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            width: 48,
+                            height: 48,
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).colorScheme.primaryContainer,
+                              borderRadius: AppRadius.mdAll,
+                            ),
+                            child: Text(
+                              level,
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.primary,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: AppSpacing.md),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Your 60-Week Learning Path',
+                                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                ),
+                                const SizedBox(height: 2),
+                                Text('Week $currentWeek • $title'),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: AppSpacing.md),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(99),
+                        child: LinearProgressIndicator(
+                          value: (currentWeek / 60.0).clamp(0.0, 1.0).toDouble(),
+                          minHeight: 7,
+                        ),
+                      ),
+                      const SizedBox(height: AppSpacing.sm),
+                      Text(
+                        'A1 → A2 → B1 → B2 → C1',
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+            const SizedBox(height: AppSpacing.lg),
+            Text(
+              'Explore All Skills',
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
+            ),
+            const SizedBox(height: AppSpacing.md),
+            ..._modules.map((module) => Padding(
+                  padding: const EdgeInsets.only(bottom: AppSpacing.md),
+                  child: AppCard(
+                    onTap: () => context.push(module.route),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 48,
+                          height: 48,
+                          decoration: BoxDecoration(
+                            color: module.color.withValues(alpha: 0.12),
+                            borderRadius: AppRadius.mdAll,
+                          ),
+                          child: Icon(module.icon, color: module.color, size: 22),
+                        ),
+                        const SizedBox(width: AppSpacing.md),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                module.title,
+                                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(module.subtitle, style: Theme.of(context).textTheme.bodySmall),
+                            ],
+                          ),
+                        ),
+                        Icon(
+                          Icons.chevron_right,
+                          size: 20,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                      ],
+                    ),
+                  ),
+                )),
+          ],
+        ),
+      ),
+    );
+  }
+}

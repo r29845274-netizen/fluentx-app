@@ -13,6 +13,13 @@
 /// variables per build flavor (dev/staging/prod) rather than committed
 /// to the repo.
 abstract final class EnvConfig {
+  /// Public RevenueCat Android SDK key. Supply at build time:
+  /// --dart-define=REVENUECAT_ANDROID_API_KEY=goog_...
+  static const revenueCatAndroidApiKey = String.fromEnvironment(
+    'REVENUECAT_ANDROID_API_KEY',
+    defaultValue: '',
+  );
+
   const EnvConfig._();
 
   static const String supabaseUrl = String.fromEnvironment(

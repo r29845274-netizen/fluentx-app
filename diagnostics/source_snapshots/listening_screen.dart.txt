@@ -1,0 +1,96 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../../../core/constants/app_radius.dart';
+import '../../../../core/constants/app_spacing.dart';
+import '../../../../shared/widgets/widgets.dart';
+import '../../application/providers/listening_providers.dart';
+import '../../domain/entities/listening_clip.dart';
+import '../widgets/listening_clip_sheet.dart';
+
+class ListeningScreen extends ConsumerWidget {
+  const ListeningScreen({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final clipsAsync = ref.watch(listeningClipsProvider);
+
+    return Scaffold(
+      appBar: AppBar(title: const Text('Listening')),
+      body: SafeArea(
+        top: false,
+        child: clipsAsync.when(
+          data: (clips) {
+            if (clips.isEmpty) {
+              return const EmptyStateWidget(title: 'No clips available yet');
+            }
+            return ListView.separated(
+              padding: const EdgeInsets.all(AppSpacing.base),
+              itemCount: clips.length,
+              separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.md),
+              itemBuilder: (context, index) => _ClipCard(clip: clips[index]),
+            );
+          },
+          loading: () => const LoadingWidget(),
+          error: (_, __) => ErrorStateWidget(
+            onRetry: () => ref.invalidate(listeningClipsProvider),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ClipCard extends StatelessWidget {
+  const _ClipCard({required this.clip});
+
+  final ListeningClip clip;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return AppCard(
+      onTap: () => AppBottomSheet.show(
+        context,
+        title: clip.title,
+        child: ListeningClipSheet(clip: clip),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: const Color(0xFFEA580C).withValues(alpha: 0.12),
+              borderRadius: AppRadius.mdAll,
+            ),
+            child: const Icon(Icons.headphones, color: Color(0xFFEA580C), size: 20),
+          ),
+          const SizedBox(width: AppSpacing.md),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  clip.title,
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  clip.category,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: colorScheme.onSurfaceVariant,
+                      ),
+                ),
+              ],
+            ),
+          ),
+          Icon(Icons.chevron_right, size: 20, color: colorScheme.onSurfaceVariant),
+        ],
+      ),
+    );
+  }
+}

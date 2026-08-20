@@ -12,8 +12,25 @@ import 'app/app.dart';
 import 'core/config/env_config.dart';
 import 'core/theme/theme_mode_provider.dart';
 
+
+Future<void> _configureRevenueCat() async {
+  final apiKey = EnvConfig.revenueCatAndroidApiKey;
+  if (apiKey.isEmpty) {
+    // Billing stays disabled until a public RevenueCat Android SDK key is
+    // supplied via --dart-define. Never hardcode private/server keys here.
+    return;
+  }
+
+  const flavor = String.fromEnvironment('FLAVOR', defaultValue: 'dev');
+  await Purchases.setLogLevel(
+    flavor == 'prod' ? LogLevel.info : LogLevel.debug,
+  );
+  await Purchases.configure(PurchasesConfiguration(apiKey));
+}
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await _configureRevenueCat();
 
   await Hive.initFlutter();
   await Hive.openBox(kSettingsBoxName);

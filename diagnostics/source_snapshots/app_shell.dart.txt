@@ -1,0 +1,50 @@
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+
+import 'app_bottom_nav_bar.dart';
+
+/// Wraps GoRouter's [StatefulNavigationShell] with FluentX's bottom
+/// navigation bar.
+///
+/// Using `goBranch` (rather than `go`) preserves each tab's own
+/// navigation stack and scroll position when switching tabs — e.g.
+/// drilling into a vocabulary deck, switching to Profile, then back to
+/// AI Practice returns you to where you left off instead of resetting
+/// to that tab's root.
+class AppShell extends StatelessWidget {
+  const AppShell({required this.navigationShell, super.key});
+
+  final StatefulNavigationShell navigationShell;
+
+  static const _items = [
+    AppNavItem(icon: Icons.home_outlined, activeIcon: Icons.home_outlined, label: 'Home'),
+    AppNavItem(icon: Icons.mic_none, activeIcon: Icons.mic_none, label: 'Practice'),
+    AppNavItem(icon: Icons.menu_book_outlined, activeIcon: Icons.menu_book_outlined, label: 'Learn'),
+    AppNavItem(
+      icon: Icons.bar_chart,
+      activeIcon: Icons.bar_chart,
+      label: 'Progress',
+    ),
+    AppNavItem(icon: Icons.person_outline, activeIcon: Icons.person_outline, label: 'Profile'),
+  ];
+
+  void _onTap(int index) {
+    navigationShell.goBranch(
+      index,
+      // Tapping the already-active tab pops it back to its root.
+      initialLocation: index == navigationShell.currentIndex,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: navigationShell,
+      bottomNavigationBar: AppBottomNavBar(
+        items: _items,
+        currentIndex: navigationShell.currentIndex,
+        onTap: _onTap,
+      ),
+    );
+  }
+}

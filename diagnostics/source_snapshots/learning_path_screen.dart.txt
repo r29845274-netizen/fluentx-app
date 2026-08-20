@@ -1,0 +1,358 @@
+import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
+
+import '../../../../core/constants/app_radius.dart';
+import '../../../../core/constants/app_spacing.dart';
+import '../../../../shared/widgets/widgets.dart';
+
+class LearningPathScreen extends StatelessWidget {
+  const LearningPathScreen({super.key});
+
+  Map<String, dynamic> _asMap(dynamic value) {
+    if (value is Map) return Map<String, dynamic>.from(value);
+    return <String, dynamic>{};
+  }
+
+  List<Map<String, dynamic>> _asRows(dynamic value) {
+    if (value is! List) return <Map<String, dynamic>>[];
+    return value
+        .whereType<Map>()
+        .map((row) => Map<String, dynamic>.from(row))
+        .toList();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final client = supabase.Supabase.instance.client;
+    final future = Future.wait<dynamic>([
+      client.rpc('get_my_onboarding_state'),
+      client.rpc('get_my_learning_path'),
+      client.rpc('get_my_current_week_lessons'),
+      client.rpc('get_my_learning_recommendation'),
+    ]);
+
+    return Scaffold(
+      appBar: AppBar(title: const Text('My Learning Path')),
+      body: FutureBuilder<List<dynamic>>(
+        future: future,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState != ConnectionState.done) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (snapshot.hasError || !snapshot.hasData) {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(AppSpacing.xl),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.cloud_off_outlined, size: 52),
+                    const SizedBox(height: AppSpacing.base),
+                    Text(
+                      'We could not load your learning path. Please try again.',
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.bodyLarge,
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }
+
+          final state = _asMap(snapshot.data![0]);
+          final weeks = _asRows(snapshot.data![1]);
+          final lessons = _asRows(snapshot.data![2]);
+          final recommendation = _asMap(snapshot.data![3]);
+          final currentWeek = int.tryParse((state['current_week'] ?? 1).toString()) ?? 1;
+          final level = (state['current_cefr_level'] ?? 'A1').toString();
+          final placementScore = double.tryParse((state['placement_score'] ?? 0).toString()) ?? 0;
+
+          Map<String, dynamic> currentWeekRow = <String, dynamic>{};
+          for (final row in weeks) {
+            if (int.tryParse((row['week_number'] ?? '').toString()) == currentWeek) {
+              currentWeekRow = row;
+              break;
+            }
+          }
+
+          return ListView(
+            padding: const EdgeInsets.all(AppSpacing.base),
+            children: [
+              _PathHero(
+                level: level,
+                currentWeek: currentWeek,
+                title: (currentWeekRow['title'] ?? 'Personalized English').toString(),
+                outcome: (currentWeekRow['outcome'] ?? 'Keep building real-world English confidence.').toString(),
+                placementScore: placementScore,
+              ),
+              const SizedBox(height: AppSpacing.lg),
+              Text(
+                'Recommended Next',
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
+              ),
+              const SizedBox(height: AppSpacing.sm),
+              AppCard(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    CircleAvatar(
+                      backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                      child: Icon(Icons.auto_awesome_rounded, color: Theme.of(context).colorScheme.primary),
+                    ),
+                    const SizedBox(width: AppSpacing.md),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            (recommendation['title'] ?? 'Continue your personalized learning path').toString(),
+                            style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            (recommendation['reason'] ?? 'Your next activity is selected from your current progress.').toString(),
+                            style: Theme.of(context).textTheme.bodyMedium,
+                          ),
+                          const SizedBox(height: AppSpacing.sm),
+                          Text(
+                            (recommendation['recommended_skill'] ?? 'Current Week').toString(),
+                            style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                                  color: Theme.of(context).colorScheme.primary,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: AppSpacing.lg),
+              Text(
+                'This Week · 5 Activities',
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
+              ),
+              const SizedBox(height: AppSpacing.sm),
+              if (lessons.isEmpty)
+                const AppCard(child: Text('Your weekly activities will appear here.'))
+              else
+                ...lessons.map((lesson) => Padding(
+                      padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                      child: _LessonCard(lesson: lesson),
+                    )),
+              const SizedBox(height: AppSpacing.lg),
+              Text(
+                'A1 → C1 · Full 60-Week Roadmap',
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
+              ),
+              const SizedBox(height: AppSpacing.sm),
+              ...['A1', 'A2', 'B1', 'B2', 'C1'].map((cefr) {
+                final levelWeeks = weeks.where((row) => row['cefr_level']?.toString() == cefr).toList();
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                  child: Card(
+                    clipBehavior: Clip.antiAlias,
+                    child: ExpansionTile(
+                      initiallyExpanded: cefr == level,
+                      title: Text(
+                        '$cefr · ${_levelName(cefr)}',
+                        style: const TextStyle(fontWeight: FontWeight.w800),
+                      ),
+                      subtitle: Text('${levelWeeks.length} weeks'),
+                      children: levelWeeks.map((week) {
+                        final number = int.tryParse((week['week_number'] ?? 0).toString()) ?? 0;
+                        final isCurrent = number == currentWeek;
+                        final completion = double.tryParse((week['completion_percent'] ?? 0).toString()) ?? 0;
+                        final status = (week['status'] ?? 'not_started').toString();
+                        return Container(
+                          color: isCurrent
+                              ? Theme.of(context).colorScheme.primaryContainer.withValues(alpha: .35)
+                              : null,
+                          child: ListTile(
+                            leading: CircleAvatar(
+                              backgroundColor: isCurrent
+                                  ? Theme.of(context).colorScheme.primary
+                                  : Theme.of(context).colorScheme.surfaceContainerHighest,
+                              child: Text(
+                                '$number',
+                                style: TextStyle(
+                                  color: isCurrent
+                                      ? Theme.of(context).colorScheme.onPrimary
+                                      : Theme.of(context).colorScheme.onSurface,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                            ),
+                            title: Text(
+                              (week['title'] ?? 'Week $number').toString(),
+                              style: TextStyle(fontWeight: isCurrent ? FontWeight.w800 : FontWeight.w600),
+                            ),
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const SizedBox(height: 2),
+                                Text((week['focus'] ?? '').toString()),
+                                if (completion > 0) ...[
+                                  const SizedBox(height: 6),
+                                  LinearProgressIndicator(value: (completion / 100).clamp(0.0, 1.0)),
+                                ],
+                              ],
+                            ),
+                            trailing: _StatusIcon(status: status, isCurrent: isCurrent),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                );
+              }),
+              const SizedBox(height: AppSpacing.xl),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  String _levelName(String level) {
+    return switch (level) {
+      'A1' => 'Foundation',
+      'A2' => 'Everyday Independence',
+      'B1' => 'Independent Speaker',
+      'B2' => 'Confident Communicator',
+      'C1' => 'Advanced Communicator',
+      _ => 'English Mastery',
+    };
+  }
+}
+
+class _PathHero extends StatelessWidget {
+  const _PathHero({
+    required this.level,
+    required this.currentWeek,
+    required this.title,
+    required this.outcome,
+    required this.placementScore,
+  });
+
+  final String level;
+  final int currentWeek;
+  final String title;
+  final String outcome;
+  final double placementScore;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return Container(
+      padding: const EdgeInsets.all(AppSpacing.lg),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [colors.primaryContainer, colors.secondaryContainer],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: AppRadius.lgAll,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 58,
+                height: 58,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(color: colors.primary, borderRadius: AppRadius.mdAll),
+                child: Text(
+                  level,
+                  style: TextStyle(color: colors.onPrimary, fontSize: 20, fontWeight: FontWeight.w900),
+                ),
+              ),
+              const SizedBox(width: AppSpacing.md),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Week $currentWeek of 60', style: Theme.of(context).textTheme.labelLarge),
+                    const SizedBox(height: 2),
+                    Text(title, style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900)),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.base),
+          LinearProgressIndicator(value: (currentWeek / 60).clamp(0.0, 1.0), minHeight: 8),
+          const SizedBox(height: AppSpacing.sm),
+          Text(outcome, style: Theme.of(context).textTheme.bodyMedium),
+          if (placementScore > 0) ...[
+            const SizedBox(height: AppSpacing.sm),
+            Text('Placement score: ${placementScore.round()}%', style: Theme.of(context).textTheme.labelLarge),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _LessonCard extends StatelessWidget {
+  const _LessonCard({required this.lesson});
+  final Map<String, dynamic> lesson;
+
+  @override
+  Widget build(BuildContext context) {
+    final day = int.tryParse((lesson['day_number'] ?? 0).toString()) ?? 0;
+    final minutes = int.tryParse((lesson['estimated_minutes'] ?? 15).toString()) ?? 15;
+    return AppCard(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          CircleAvatar(
+            backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+            child: Text('$day', style: const TextStyle(fontWeight: FontWeight.w800)),
+          ),
+          const SizedBox(width: AppSpacing.md),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  (lesson['title'] ?? 'Daily activity').toString(),
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
+                ),
+                const SizedBox(height: 4),
+                Text((lesson['instructions'] ?? '').toString(), style: Theme.of(context).textTheme.bodyMedium),
+                const SizedBox(height: AppSpacing.sm),
+                Text(
+                  '${(lesson['lesson_type'] ?? 'Practice').toString()} · $minutes min',
+                  style: Theme.of(context).textTheme.labelMedium?.copyWith(color: Theme.of(context).colorScheme.primary),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _StatusIcon extends StatelessWidget {
+  const _StatusIcon({required this.status, required this.isCurrent});
+  final String status;
+  final bool isCurrent;
+
+  @override
+  Widget build(BuildContext context) {
+    if (status == 'completed') {
+      return Icon(Icons.check_circle_rounded, color: Theme.of(context).colorScheme.primary);
+    }
+    if (status == 'needs_review') {
+      return Icon(Icons.refresh_rounded, color: Theme.of(context).colorScheme.tertiary);
+    }
+    if (isCurrent || status == 'in_progress') {
+      return Icon(Icons.play_circle_fill_rounded, color: Theme.of(context).colorScheme.primary);
+    }
+    return Icon(Icons.lock_open_rounded, color: Theme.of(context).colorScheme.onSurfaceVariant);
+  }
+}

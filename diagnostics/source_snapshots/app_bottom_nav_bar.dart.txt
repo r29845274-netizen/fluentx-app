@@ -1,0 +1,49 @@
+import 'package:flutter/material.dart';
+
+/// A single destination in [AppBottomNavBar].
+class AppNavItem {
+  const AppNavItem({
+    required this.icon,
+    required this.activeIcon,
+    required this.label,
+  });
+
+  final IconData icon;
+  final IconData activeIcon;
+  final String label;
+}
+
+/// FluentX's bottom navigation bar.
+///
+/// Thin wrapper around [NavigationBar] (styled globally via
+/// [NavigationBarThemeData] in `app_theme.dart`) so the router shell
+/// only has to supply items + the current index, without repeating
+/// styling decisions.
+class AppBottomNavBar extends StatelessWidget {
+  const AppBottomNavBar({
+    required this.items,
+    required this.currentIndex,
+    required this.onTap,
+    super.key,
+  });
+
+  final List<AppNavItem> items;
+  final int currentIndex;
+  final ValueChanged<int> onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return NavigationBar(
+      selectedIndex: currentIndex,
+      onDestinationSelected: onTap,
+      destinations: [
+        for (final item in items)
+          NavigationDestination(
+            icon: Icon(item.icon),
+            selectedIcon: Icon(item.activeIcon),
+            label: item.label,
+          ),
+      ],
+    );
+  }
+}

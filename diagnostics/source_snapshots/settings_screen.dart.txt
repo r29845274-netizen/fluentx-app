@@ -182,7 +182,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   const ProfileMenuTile(
                     icon: Icons.info_outline,
                     label: 'App Version',
-                    trailing: Text('0.1.0'),
+                    trailing: Text('1.0.0'),
                     onTap: null,
                   ),
                 ],
