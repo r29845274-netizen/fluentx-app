@@ -76,6 +76,9 @@ jobs:
       - name: Apply release-readiness polish
         run: python3 scripts/patch_release_readiness.py fluentx_admin_secure
 
+      - name: Apply final UI cleanup
+        run: python3 scripts/patch_final_ui_cleanup.py fluentx_admin_secure
+
       - name: Validate pubspec
         working-directory: fluentx_admin_secure
         run: flutter pub get
