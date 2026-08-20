@@ -36,6 +36,8 @@ jobs:
           python3 scripts/patch_reference_uiux.py fluentx_admin_secure
           python3 scripts/patch_interview_ai_coach.py fluentx_admin_secure
           python3 scripts/patch_settings_security.py fluentx_admin_secure
+          python3 scripts/patch_revenuecat_production.py fluentx_admin_secure
+          python3 scripts/patch_production_readiness.py fluentx_admin_secure
 
       - name: Build completion audit
         run: |
@@ -47,17 +49,11 @@ jobs:
             echo '=== INCOMPLETE / PLACEHOLDER SIGNALS ==='
             grep -RniE -C 3 'TODO|FIXME|placeholder|coming soon|not implemented|not available yet|mock|dummy|stub|under construction' fluentx_admin_secure/lib || true
             echo
-            echo '=== INTERVIEW / SPEAKING ==='
-            grep -RniE -C 3 'interview|speaking|pronunciation' fluentx_admin_secure/lib || true
+            echo '=== DISABLED INTERACTIONS ==='
+            grep -RniE -C 2 'onPressed:[[:space:]]*null|onTap:[[:space:]]*null|enabled:[[:space:]]*false' fluentx_admin_secure/lib || true
             echo
-            echo '=== PROGRESS / GOALS / ACHIEVEMENTS ==='
-            grep -RniE -C 3 'progress|daily goal|achievement|streak|Communication DNA' fluentx_admin_secure/lib || true
-            echo
-            echo '=== PROFILE / SETTINGS / DELETE ACCOUNT ==='
-            grep -RniE -C 3 'profile|settings|delete account|delete-account|privacy|terms' fluentx_admin_secure/lib || true
-            echo
-            echo '=== BILLING / SUBSCRIPTION ==='
-            grep -RniE -C 3 'RevenueCat|Purchases|purchase|subscription|billing|paywall|entitlement|apiKey|revenuecat' fluentx_admin_secure/lib fluentx_admin_secure/pubspec.yaml || true
+            echo '=== HARDCODED DEMO SIGNALS ==='
+            grep -RniE -C 2 'demo|sample|example|static' fluentx_admin_secure/lib/features || true
           } > diagnostics/app_completion_audit.txt
 
           cp fluentx_admin_secure/lib/main.dart diagnostics/source_snapshots/main.dart.txt
@@ -66,10 +62,23 @@ jobs:
           cp fluentx_admin_secure/lib/routes/app_router.dart diagnostics/source_snapshots/app_router.dart.txt
           cp fluentx_admin_secure/lib/routes/route_paths.dart diagnostics/source_snapshots/route_paths.dart.txt
           cp fluentx_admin_secure/lib/core/router/bootstrap_screen.dart diagnostics/source_snapshots/bootstrap_screen.dart.txt
+          cp fluentx_admin_secure/lib/shared/widgets/navigation/app_shell.dart diagnostics/source_snapshots/app_shell.dart.txt
+          cp fluentx_admin_secure/lib/shared/widgets/navigation/app_bottom_nav_bar.dart diagnostics/source_snapshots/app_bottom_nav_bar.dart.txt
+          cp fluentx_admin_secure/lib/features/home/presentation/screens/home_screen.dart diagnostics/source_snapshots/home_screen.dart.txt
+          cp fluentx_admin_secure/lib/features/learn/presentation/screens/learn_hub_screen.dart diagnostics/source_snapshots/learn_hub_screen.dart.txt
+          cp fluentx_admin_secure/lib/features/learn/presentation/screens/learning_path_screen.dart diagnostics/source_snapshots/learning_path_screen.dart.txt
+          cp fluentx_admin_secure/lib/features/ai_practice/presentation/screens/ai_practice_hub_screen.dart diagnostics/source_snapshots/ai_practice_hub_screen.dart.txt
+          cp fluentx_admin_secure/lib/features/vocabulary/presentation/screens/vocabulary_screen.dart diagnostics/source_snapshots/vocabulary_screen.dart.txt
+          cp fluentx_admin_secure/lib/features/grammar/presentation/screens/grammar_screen.dart diagnostics/source_snapshots/grammar_screen.dart.txt
+          cp fluentx_admin_secure/lib/features/listening/presentation/screens/listening_screen.dart diagnostics/source_snapshots/listening_screen.dart.txt
+          cp fluentx_admin_secure/lib/features/writing/presentation/screens/writing_screen.dart diagnostics/source_snapshots/writing_screen.dart.txt
           cp fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart diagnostics/source_snapshots/interview_prep_screen.dart.txt
           cp fluentx_admin_secure/lib/features/progress/presentation/screens/progress_screen.dart diagnostics/source_snapshots/progress_screen.dart.txt
+          cp fluentx_admin_secure/lib/features/achievements/presentation/screens/achievements_screen.dart diagnostics/source_snapshots/achievements_screen.dart.txt
+          cp fluentx_admin_secure/lib/features/communication_dna/presentation/screens/communication_dna_screen.dart diagnostics/source_snapshots/communication_dna_screen.dart.txt
           cp fluentx_admin_secure/lib/features/profile/presentation/screens/profile_screen.dart diagnostics/source_snapshots/profile_screen.dart.txt
           cp fluentx_admin_secure/lib/features/profile/presentation/screens/daily_goals_screen.dart diagnostics/source_snapshots/daily_goals_screen.dart.txt
+          cp fluentx_admin_secure/lib/features/profile/presentation/screens/help_support_screen.dart diagnostics/source_snapshots/help_support_screen.dart.txt
           cp fluentx_admin_secure/lib/features/settings/presentation/screens/settings_screen.dart diagnostics/source_snapshots/settings_screen.dart.txt
           cp fluentx_admin_secure/lib/features/settings/presentation/screens/edit_profile_screen.dart diagnostics/source_snapshots/edit_profile_screen.dart.txt
           cp fluentx_admin_secure/lib/features/settings/presentation/screens/legal_document_screen.dart diagnostics/source_snapshots/legal_document_screen.dart.txt
@@ -77,8 +86,6 @@ jobs:
           cp fluentx_admin_secure/lib/features/premium/data/datasources/purchase_remote_datasource.dart diagnostics/source_snapshots/purchase_remote_datasource.dart.txt
           cp fluentx_admin_secure/lib/features/premium/data/repositories/purchase_repository_impl.dart diagnostics/source_snapshots/purchase_repository_impl.dart.txt
           cp fluentx_admin_secure/lib/features/premium/presentation/screens/premium_screen.dart diagnostics/source_snapshots/premium_screen.dart.txt
-          cp fluentx_admin_secure/lib/features/home/data/datasources/home_remote_datasource.dart diagnostics/source_snapshots/home_remote_datasource.dart.txt
-          cp fluentx_admin_secure/lib/features/achievements/data/datasources/achievements_remote_datasource.dart diagnostics/source_snapshots/achievements_remote_datasource.dart.txt
           cp fluentx_admin_secure/pubspec.yaml diagnostics/source_snapshots/pubspec.yaml.txt
 
       - name: Save audit
@@ -87,6 +94,6 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add diagnostics
           if ! git diff --cached --quiet; then
-            git commit -m "Save FluentX implementation snapshots [skip ci]"
+            git commit -m "Save FluentX final UI snapshots [skip ci]"
             git push
           fi
