@@ -82,6 +82,9 @@ jobs:
       - name: Apply final visual consistency polish
         run: python3 scripts/patch_final_visual_consistency.py fluentx_admin_secure
 
+      - name: Apply Google Play billing compliance
+        run: python3 scripts/patch_billing_compliance.py fluentx_admin_secure
+
       - name: Validate pubspec
         working-directory: fluentx_admin_secure
         run: flutter pub get
