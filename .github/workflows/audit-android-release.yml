@@ -1,0 +1,50 @@
+name: FluentX Android Release Audit
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/audit-android-release.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  audit-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Extract source
+        run: |
+          rm -rf fluentx_admin_secure
+          unzip -q fluentx_mobile_test_ready.zip
+
+      - name: Bootstrap Android project
+        working-directory: fluentx_admin_secure
+        run: bash scripts/bootstrap_android.sh
+
+      - name: Save Android release snapshots
+        run: |
+          mkdir -p diagnostics/android_release
+          find fluentx_admin_secure/android -maxdepth 3 -type f | sort > diagnostics/android_release/file_tree.txt
+          cp fluentx_admin_secure/android/app/build.gradle.kts diagnostics/android_release/build.gradle.kts.txt 2>/dev/null || true
+          cp fluentx_admin_secure/android/app/build.gradle diagnostics/android_release/build.gradle.txt 2>/dev/null || true
+          cp fluentx_admin_secure/android/build.gradle.kts diagnostics/android_release/root_build.gradle.kts.txt 2>/dev/null || true
+          cp fluentx_admin_secure/android/build.gradle diagnostics/android_release/root_build.gradle.txt 2>/dev/null || true
+          cp fluentx_admin_secure/android/app/src/main/AndroidManifest.xml diagnostics/android_release/AndroidManifest.xml.txt 2>/dev/null || true
+          cp fluentx_admin_secure/android/gradle.properties diagnostics/android_release/gradle.properties.txt 2>/dev/null || true
+          cp fluentx_admin_secure/android/settings.gradle.kts diagnostics/android_release/settings.gradle.kts.txt 2>/dev/null || true
+          cp fluentx_admin_secure/android/settings.gradle diagnostics/android_release/settings.gradle.txt 2>/dev/null || true
+
+      - name: Commit snapshots
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add diagnostics/android_release
+          if ! git diff --cached --quiet; then
+            git commit -m "Save Android release structure [skip ci]"
+            git push
+          fi
