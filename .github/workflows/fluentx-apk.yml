@@ -94,6 +94,9 @@ jobs:
       - name: Apply subscription feature gating
         run: python3 scripts/patch_subscription_feature_gating.py fluentx_admin_secure
 
+      - name: Apply launch runtime completion
+        run: python3 scripts/patch_launch_runtime_completion.py fluentx_admin_secure
+
       - name: Validate pubspec
         working-directory: fluentx_admin_secure
         run: flutter pub get
@@ -122,7 +125,6 @@ jobs:
 
       - name: Analyze full source
         working-directory: fluentx_admin_secure
-        continue-on-error: true
         run: flutter analyze --no-fatal-infos --no-fatal-warnings
 
       - name: Run tests
