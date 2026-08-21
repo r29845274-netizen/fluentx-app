@@ -42,6 +42,8 @@ jobs:
           python3 scripts/patch_final_ui_cleanup.py fluentx_admin_secure
           python3 scripts/patch_final_visual_consistency.py fluentx_admin_secure
           python3 scripts/patch_billing_compliance.py fluentx_admin_secure
+          python3 scripts/patch_certificates.py fluentx_admin_secure
+          python3 scripts/patch_membership_tiers.py fluentx_admin_secure
 
       - name: Build completion audit
         run: |
@@ -79,6 +81,7 @@ jobs:
           cp fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart diagnostics/source_snapshots/interview_prep_screen.dart.txt
           cp fluentx_admin_secure/lib/features/progress/presentation/screens/progress_screen.dart diagnostics/source_snapshots/progress_screen.dart.txt
           cp fluentx_admin_secure/lib/features/achievements/presentation/screens/achievements_screen.dart diagnostics/source_snapshots/achievements_screen.dart.txt
+          cp fluentx_admin_secure/lib/features/certificates/presentation/screens/certificates_screen.dart diagnostics/source_snapshots/certificates_screen.dart.txt
           cp fluentx_admin_secure/lib/features/communication_dna/presentation/screens/communication_dna_screen.dart diagnostics/source_snapshots/communication_dna_screen.dart.txt
           cp fluentx_admin_secure/lib/features/profile/presentation/screens/profile_screen.dart diagnostics/source_snapshots/profile_screen.dart.txt
           cp fluentx_admin_secure/lib/features/profile/presentation/screens/daily_goals_screen.dart diagnostics/source_snapshots/daily_goals_screen.dart.txt
@@ -87,6 +90,8 @@ jobs:
           cp fluentx_admin_secure/lib/features/settings/presentation/screens/edit_profile_screen.dart diagnostics/source_snapshots/edit_profile_screen.dart.txt
           cp fluentx_admin_secure/lib/features/settings/presentation/screens/legal_document_screen.dart diagnostics/source_snapshots/legal_document_screen.dart.txt
           cp fluentx_admin_secure/lib/features/premium/application/providers/purchase_providers.dart diagnostics/source_snapshots/purchase_providers.dart.txt
+          cp fluentx_admin_secure/lib/features/premium/application/providers/membership_identity_provider.dart diagnostics/source_snapshots/membership_identity_provider.dart.txt
+          cp fluentx_admin_secure/lib/features/premium/presentation/widgets/membership_identity_card.dart diagnostics/source_snapshots/membership_identity_card.dart.txt
           cp fluentx_admin_secure/lib/features/premium/data/datasources/purchase_remote_datasource.dart diagnostics/source_snapshots/purchase_remote_datasource.dart.txt
           cp fluentx_admin_secure/lib/features/premium/data/repositories/purchase_repository_impl.dart diagnostics/source_snapshots/purchase_repository_impl.dart.txt
           cp fluentx_admin_secure/lib/features/premium/presentation/screens/premium_screen.dart diagnostics/source_snapshots/premium_screen.dart.txt
