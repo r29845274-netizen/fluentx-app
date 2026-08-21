@@ -85,6 +85,9 @@ jobs:
       - name: Apply Google Play billing compliance
         run: python3 scripts/patch_billing_compliance.py fluentx_admin_secure
 
+      - name: Apply course certificates
+        run: python3 scripts/patch_certificates.py fluentx_admin_secure
+
       - name: Validate pubspec
         working-directory: fluentx_admin_secure
         run: flutter pub get
