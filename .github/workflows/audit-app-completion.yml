@@ -22,7 +22,7 @@ jobs:
           rm -rf fluentx_admin_secure
           unzip -q fluentx_mobile_test_ready.zip
 
-      - name: Apply current build patches
+      - name: Apply current production patch stack
         run: |
           python3 scripts/ci_patch.py fluentx_admin_secure
           python3 scripts/patch_splash_redirect.py fluentx_admin_secure
@@ -38,6 +38,10 @@ jobs:
           python3 scripts/patch_settings_security.py fluentx_admin_secure
           python3 scripts/patch_revenuecat_production.py fluentx_admin_secure
           python3 scripts/patch_production_readiness.py fluentx_admin_secure
+          python3 scripts/patch_release_readiness.py fluentx_admin_secure
+          python3 scripts/patch_final_ui_cleanup.py fluentx_admin_secure
+          python3 scripts/patch_final_visual_consistency.py fluentx_admin_secure
+          python3 scripts/patch_billing_compliance.py fluentx_admin_secure
 
       - name: Build completion audit
         run: |
