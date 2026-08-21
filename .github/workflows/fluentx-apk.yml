@@ -88,6 +88,9 @@ jobs:
       - name: Apply course certificates
         run: python3 scripts/patch_certificates.py fluentx_admin_secure
 
+      - name: Apply membership tier identities
+        run: python3 scripts/patch_membership_tiers.py fluentx_admin_secure
+
       - name: Validate pubspec
         working-directory: fluentx_admin_secure
         run: flutter pub get
