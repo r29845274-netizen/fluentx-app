@@ -1,0 +1,413 @@
+from pathlib import Path
+import re, sys
+
+root = Path(sys.argv[1] if len(sys.argv) > 1 else 'fluentx_admin_secure')
+
+# -----------------------------------------------------------------------------
+# 1) RevenueCat identity must be the authenticated Supabase UUID.
+#    This makes server-side RevenueCat verification deterministic and prevents
+#    relying on an anonymous device-scoped RevenueCat customer ID.
+# -----------------------------------------------------------------------------
+main = root / 'lib/main.dart'
+text = main.read_text(encoding='utf-8')
+
+# Remove any early RevenueCat configure call injected immediately after binding;
+# Supabase must initialize first so we can link billing to the signed-in UUID.
+text = text.replace(
+    'WidgetsFlutterBinding.ensureInitialized();\n  await _configureRevenueCat();',
+    'WidgetsFlutterBinding.ensureInitialized();',
+    1,
+)
+
+# Remove the legacy second RevenueCat configuration block if present.
+text = re.sub(
+    r"\n\s*if \(EnvConfig\.revenueCatApiKey\.isNotEmpty\) \{\s*await Purchases\.setLogLevel\(LogLevel\.info\);\s*await Purchases\.configure\(PurchasesConfiguration\(EnvConfig\.revenueCatApiKey\)\);\s*\}\s*",
+    '\n',
+    text,
+    flags=re.S,
+)
+
+helper = r'''
+Future<void> _syncRevenueCatForCurrentUser() async {
+  if (EnvConfig.revenueCatAndroidApiKey.isEmpty) return;
+  final user = Supabase.instance.client.auth.currentUser;
+  if (user == null) return;
+  await Purchases.logIn(user.id);
+  try {
+    await Supabase.instance.client.functions.invoke('sync-subscription-access');
+  } catch (error) {
+    // Server access remains fail-closed if verification is unavailable.
+    debugPrint('Subscription server sync pending: $error');
+  }
+}
+
+void _watchBillingIdentity() {
+  Supabase.instance.client.auth.onAuthStateChange.listen((data) async {
+    if (EnvConfig.revenueCatAndroidApiKey.isEmpty) return;
+    final user = data.session?.user;
+    if (user != null) {
+      await Purchases.logIn(user.id);
+      try {
+        await Supabase.instance.client.functions.invoke('sync-subscription-access');
+      } catch (error) {
+        debugPrint('Subscription server sync pending: $error');
+      }
+    } else if (data.event == AuthChangeEvent.signedOut) {
+      try {
+        await Purchases.logOut();
+      } catch (_) {}
+    }
+  });
+}
+'''
+if 'Future<void> _syncRevenueCatForCurrentUser()' not in text:
+    idx = text.find('Future<void> main() async {')
+    if idx < 0:
+        raise SystemExit('main() marker not found')
+    text = text[:idx] + helper + '\n' + text[idx:]
+
+supabase_block = """  await Supabase.initialize(
+    url: EnvConfig.supabaseUrl,
+    publishableKey: EnvConfig.supabaseAnonKey,
+    authOptions: const FlutterAuthClientOptions(authFlowType: AuthFlowType.pkce),
+  );
+"""
+replacement = supabase_block + """  await _configureRevenueCat();
+  await _syncRevenueCatForCurrentUser();
+  _watchBillingIdentity();
+"""
+if 'await _syncRevenueCatForCurrentUser();' not in text:
+    if supabase_block not in text:
+        raise SystemExit('Supabase initialize block not found')
+    text = text.replace(supabase_block, replacement, 1)
+
+main.write_text(text, encoding='utf-8')
+print('RevenueCat/Supabase identity linking applied.')
+
+# -----------------------------------------------------------------------------
+# 2) Complete 60-week runtime UI. Progress is tracked component-by-component,
+#    while next-week unlocking only happens through server-side mastery scoring.
+# -----------------------------------------------------------------------------
+learning = root / 'lib/features/learn/presentation/screens/learning_path_screen.dart'
+learning.parent.mkdir(parents=True, exist_ok=True)
+learning.write_text(r'''import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
+
+import '../../../../core/constants/app_spacing.dart';
+import '../../../../shared/widgets/widgets.dart';
+
+class LearningPathScreen extends StatefulWidget {
+  const LearningPathScreen({super.key});
+
+  @override
+  State<LearningPathScreen> createState() => _LearningPathScreenState();
+}
+
+class _LearningPathScreenState extends State<LearningPathScreen> {
+  bool _loading = true;
+  String? _error;
+  Map<String, dynamic> _state = {};
+  Map<String, dynamic> _recommendation = {};
+  List<Map<String, dynamic>> _weeks = [];
+  List<Map<String, dynamic>> _components = [];
+
+  supabase.SupabaseClient get _client => supabase.Supabase.instance.client;
+
+  Map<String, dynamic> _map(dynamic value) => value is Map ? Map<String, dynamic>.from(value) : <String, dynamic>{};
+  List<Map<String, dynamic>> _rows(dynamic value) => value is List
+      ? value.whereType<Map>().map((e) => Map<String, dynamic>.from(e)).toList()
+      : <Map<String, dynamic>>[];
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    if (mounted) setState(() { _loading = true; _error = null; });
+    try {
+      final values = await Future.wait<dynamic>([
+        _client.rpc('get_my_onboarding_state'),
+        _client.rpc('get_my_learning_path'),
+        _client.rpc('get_my_week_dashboard'),
+        _client.rpc('get_my_learning_recommendation'),
+      ]);
+      if (!mounted) return;
+      setState(() {
+        _state = _map(values[0]);
+        _weeks = _rows(values[1]);
+        _components = _rows(values[2]);
+        _recommendation = _map(values[3]);
+        _loading = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() { _loading = false; _error = e.toString(); });
+    }
+  }
+
+  Future<void> _completeComponent(Map<String, dynamic> component) async {
+    final id = component['component_id']?.toString();
+    if (id == null) return;
+    try {
+      await _client.rpc('complete_my_week_component', params: {'p_component_id': id});
+      await _load();
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Could not save activity: $e')));
+    }
+  }
+
+  Future<void> _openMasteryTest() async {
+    final result = await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      builder: (_) => const _MasteryTestSheet(),
+    );
+    if (result == true) await _load();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_loading) return const Scaffold(appBar: _LearningAppBar(), body: Center(child: CircularProgressIndicator()));
+    if (_error != null) {
+      return Scaffold(
+        appBar: const _LearningAppBar(),
+        body: Center(child: Padding(
+          padding: const EdgeInsets.all(AppSpacing.xl),
+          child: Column(mainAxisSize: MainAxisSize.min, children: [
+            const Icon(Icons.cloud_off_outlined, size: 52),
+            const SizedBox(height: AppSpacing.md),
+            const Text('We could not load your learning path.', textAlign: TextAlign.center),
+            const SizedBox(height: AppSpacing.md),
+            FilledButton(onPressed: _load, child: const Text('Try Again')),
+          ]),
+        )),
+      );
+    }
+
+    final currentWeek = int.tryParse((_state['current_week'] ?? 1).toString()) ?? 1;
+    final level = (_state['current_cefr_level'] ?? 'A1').toString();
+    final checkpointReady = _components.any((c) => c['checkpoint_ready'] == true);
+    final regular = _components.where((c) => c['component_type'] != 'checkpoint').toList();
+    final regularDone = regular.where((c) => c['component_status'] == 'completed').length;
+
+    return Scaffold(
+      appBar: const _LearningAppBar(),
+      body: RefreshIndicator(
+        onRefresh: _load,
+        child: ListView(
+          padding: const EdgeInsets.all(AppSpacing.base),
+          children: [
+            AppCard(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Row(children: [
+                CircleAvatar(child: Text(level, style: const TextStyle(fontWeight: FontWeight.w800))),
+                const SizedBox(width: AppSpacing.md),
+                Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Text('Week $currentWeek of 60', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
+                  Text('$regularDone of ${regular.length} weekly activities completed'),
+                ])),
+              ]),
+              const SizedBox(height: AppSpacing.md),
+              LinearProgressIndicator(value: regular.isEmpty ? 0 : regularDone / regular.length, minHeight: 8),
+              const SizedBox(height: AppSpacing.sm),
+              const Text('A1 → A2 → B1 → B2 → C1'),
+            ])),
+            const SizedBox(height: AppSpacing.lg),
+            Text('Recommended Next', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
+            const SizedBox(height: AppSpacing.sm),
+            AppCard(child: ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: const Icon(Icons.auto_awesome_rounded),
+              title: Text((_recommendation['title'] ?? 'Continue your current week').toString()),
+              subtitle: Text((_recommendation['reason'] ?? 'Complete the next activity in your plan.').toString()),
+            )),
+            const SizedBox(height: AppSpacing.lg),
+            Text('This Week', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
+            const SizedBox(height: AppSpacing.sm),
+            ..._components.map((component) {
+              final type = (component['component_type'] ?? '').toString();
+              final required = int.tryParse((component['required_count'] ?? 1).toString()) ?? 1;
+              final completed = int.tryParse((component['completed_count'] ?? 0).toString()) ?? 0;
+              final done = component['component_status'] == 'completed';
+              final isCheckpoint = type == 'checkpoint';
+              return Padding(
+                padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                child: AppCard(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Row(children: [
+                    Icon(done ? Icons.check_circle_rounded : (isCheckpoint ? Icons.verified_outlined : Icons.play_circle_outline_rounded)),
+                    const SizedBox(width: AppSpacing.sm),
+                    Expanded(child: Text((component['title'] ?? type).toString(), style: const TextStyle(fontWeight: FontWeight.w700))),
+                    Text(isCheckpoint ? (checkpointReady ? 'Ready' : 'Locked') : '$completed/$required'),
+                  ]),
+                  const SizedBox(height: AppSpacing.sm),
+                  if (isCheckpoint)
+                    FilledButton.icon(
+                      onPressed: checkpointReady && !done ? _openMasteryTest : null,
+                      icon: const Icon(Icons.fact_check_outlined),
+                      label: Text(done ? 'Mastered' : checkpointReady ? 'Start Mastery Test' : 'Complete Activities First'),
+                    )
+                  else
+                    FilledButton.tonal(
+                      onPressed: done ? null : () => _completeComponent(component),
+                      child: Text(done ? 'Completed' : required > 1 ? 'Complete Practice (${completed + 1}/$required)' : 'Mark Activity Complete'),
+                    ),
+                ])),
+              );
+            }),
+            const SizedBox(height: AppSpacing.lg),
+            Text('60-Week Roadmap', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
+            const SizedBox(height: AppSpacing.sm),
+            ...['A1','A2','B1','B2','C1'].map((cefr) {
+              final rows = _weeks.where((w) => w['cefr_level']?.toString() == cefr).toList();
+              return Card(child: ExpansionTile(
+                initiallyExpanded: cefr == level,
+                title: Text('$cefr · ${rows.length} weeks', style: const TextStyle(fontWeight: FontWeight.w700)),
+                children: rows.map((week) {
+                  final number = int.tryParse((week['week_number'] ?? 0).toString()) ?? 0;
+                  final status = (week['progress_status'] ?? 'locked').toString();
+                  return ListTile(
+                    leading: CircleAvatar(child: Text('$number')),
+                    title: Text((week['title'] ?? 'Week $number').toString()),
+                    subtitle: Text((week['focus'] ?? '').toString()),
+                    trailing: Icon(status == 'mastered' ? Icons.check_circle_rounded : number == currentWeek ? Icons.play_circle_fill_rounded : number > currentWeek ? Icons.lock_outline_rounded : Icons.history_rounded),
+                  );
+                }).toList(),
+              ));
+            }),
+            const SizedBox(height: AppSpacing.xl),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _LearningAppBar extends StatelessWidget implements PreferredSizeWidget {
+  const _LearningAppBar();
+  @override Size get preferredSize => const Size.fromHeight(kToolbarHeight);
+  @override Widget build(BuildContext context) => AppBar(title: const Text('My Learning Path'));
+}
+
+class _MasteryTestSheet extends StatefulWidget {
+  const _MasteryTestSheet();
+  @override State<_MasteryTestSheet> createState() => _MasteryTestSheetState();
+}
+
+class _MasteryTestSheetState extends State<_MasteryTestSheet> {
+  bool _loading = true;
+  bool _submitting = false;
+  String? _error;
+  String? _sessionId;
+  String _speakingPrompt = '';
+  List<Map<String, dynamic>> _questions = [];
+  final Map<int, int> _answers = {};
+  final TextEditingController _speaking = TextEditingController();
+
+  supabase.SupabaseClient get _client => supabase.Supabase.instance.client;
+
+  @override
+  void initState() { super.initState(); _start(); }
+
+  @override
+  void dispose() { _speaking.dispose(); super.dispose(); }
+
+  Future<void> _start() async {
+    try {
+      final response = await _client.functions.invoke('weekly-mastery-test', body: {'action':'start'});
+      final data = response.data is Map ? Map<String,dynamic>.from(response.data as Map) : <String,dynamic>{};
+      final questions = data['questions'] is List
+          ? (data['questions'] as List).whereType<Map>().map((q) => Map<String,dynamic>.from(q)).toList()
+          : <Map<String,dynamic>>[];
+      if (!mounted) return;
+      setState(() {
+        _sessionId = data['session_id']?.toString();
+        _speakingPrompt = (data['speaking_prompt'] ?? '').toString();
+        _questions = questions;
+        _loading = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() { _loading = false; _error = e.toString(); });
+    }
+  }
+
+  Future<void> _submit() async {
+    if (_sessionId == null || _answers.length != _questions.length || _speaking.text.trim().length < 20) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Answer all questions and complete the speaking response.')));
+      return;
+    }
+    setState(() => _submitting = true);
+    try {
+      final ordered = List<int>.generate(_questions.length, (i) => _answers[i] ?? -1);
+      final response = await _client.functions.invoke('weekly-mastery-test', body: {
+        'action':'submit',
+        'session_id':_sessionId,
+        'answers':ordered,
+        'speaking_answer':_speaking.text.trim(),
+      });
+      final data = response.data is Map ? Map<String,dynamic>.from(response.data as Map) : <String,dynamic>{};
+      if (!mounted) return;
+      final passed = data['passed'] == true;
+      final score = data['overall_score'] ?? 0;
+      await showDialog<void>(context: context, builder: (_) => AlertDialog(
+        title: Text(passed ? 'Week Mastered 🎉' : 'Keep Practicing'),
+        content: Text(passed
+            ? 'You scored $score%. Your next week is now unlocked.'
+            : 'You scored $score%. Review your weak areas and retry the mastery test.'),
+        actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('Continue'))],
+      ));
+      if (mounted) Navigator.pop(context, true);
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _submitting = false);
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Could not submit mastery test: $e')));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(AppSpacing.base, AppSpacing.base, AppSpacing.base, MediaQuery.of(context).viewInsets.bottom + AppSpacing.base),
+      child: _loading
+          ? const Center(child: Padding(padding: EdgeInsets.all(AppSpacing.xl), child: CircularProgressIndicator()))
+          : _error != null
+              ? Center(child: Column(mainAxisSize: MainAxisSize.min, children: [Text(_error!), const SizedBox(height: AppSpacing.md), FilledButton(onPressed: _start, child: const Text('Try Again'))]))
+              : ListView(children: [
+                  Text('Weekly Mastery Test', style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800)),
+                  const SizedBox(height: AppSpacing.sm),
+                  const Text('Your answers are scored on the server. Passing unlocks the next week.'),
+                  const SizedBox(height: AppSpacing.lg),
+                  ...List.generate(_questions.length, (index) {
+                    final q = _questions[index];
+                    final options = q['options'] is List ? List<dynamic>.from(q['options'] as List) : const <dynamic>[];
+                    return Padding(padding: const EdgeInsets.only(bottom: AppSpacing.md), child: AppCard(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                      Text('${index + 1}. ${(q['prompt'] ?? '').toString()}', style: const TextStyle(fontWeight: FontWeight.w700)),
+                      ...List.generate(options.length, (optionIndex) => RadioListTile<int>(
+                        dense: true,
+                        contentPadding: EdgeInsets.zero,
+                        value: optionIndex,
+                        groupValue: _answers[index],
+                        onChanged: (value) => setState(() => _answers[index] = value!),
+                        title: Text(options[optionIndex].toString()),
+                      )),
+                    ])));
+                  }),
+                  AppCard(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    Text('Speaking Response', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
+                    const SizedBox(height: AppSpacing.sm),
+                    Text(_speakingPrompt),
+                    const SizedBox(height: AppSpacing.sm),
+                    TextField(controller: _speaking, minLines: 4, maxLines: 8, decoration: const InputDecoration(hintText: 'Answer in 3–6 sentences...')),
+                  ])),
+                  const SizedBox(height: AppSpacing.lg),
+                  FilledButton.icon(onPressed: _submitting ? null : _submit, icon: const Icon(Icons.verified_outlined), label: Text(_submitting ? 'Scoring...' : 'Submit Mastery Test')),
+                  const SizedBox(height: AppSpacing.xl),
+                ]),
+    );
+  }
+}
+''', encoding='utf-8')
+print('60-week progression UI + secure mastery test flow applied.')
