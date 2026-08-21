@@ -59,9 +59,18 @@ jobs:
           python3 scripts/patch_settings_security.py fluentx_admin_secure
           python3 scripts/patch_revenuecat_production.py fluentx_admin_secure
           python3 scripts/patch_production_readiness.py fluentx_admin_secure
+          python3 scripts/patch_release_readiness.py fluentx_admin_secure
           python3 scripts/patch_final_ui_cleanup.py fluentx_admin_secure
           python3 scripts/patch_final_visual_consistency.py fluentx_admin_secure
           python3 scripts/patch_billing_compliance.py fluentx_admin_secure
+
+      - name: Install dependencies
+        working-directory: fluentx_admin_secure
+        run: flutter pub get
+
+      - name: Source preflight
+        working-directory: fluentx_admin_secure
+        run: python3 scripts/preflight_check.py
 
       - name: Bootstrap Android
         working-directory: fluentx_admin_secure
@@ -87,13 +96,20 @@ jobs:
           storeFile=upload-keystore.jks
           EOF
 
-      - name: Install dependencies
-        working-directory: fluentx_admin_secure
-        run: flutter pub get
+      - name: Remove generated template test
+        run: rm -f fluentx_admin_secure/test/widget_test.dart
 
       - name: Generate code
         working-directory: fluentx_admin_secure
         run: dart run build_runner build --delete-conflicting-outputs
+
+      - name: Analyze release source
+        working-directory: fluentx_admin_secure
+        run: flutter analyze --no-fatal-infos --no-fatal-warnings
+
+      - name: Run tests
+        working-directory: fluentx_admin_secure
+        run: flutter test
 
       - name: Build production AAB
         working-directory: fluentx_admin_secure
