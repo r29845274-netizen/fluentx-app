@@ -91,6 +91,9 @@ jobs:
       - name: Apply membership tier identities
         run: python3 scripts/patch_membership_tiers.py fluentx_admin_secure
 
+      - name: Apply subscription feature gating
+        run: python3 scripts/patch_subscription_feature_gating.py fluentx_admin_secure
+
       - name: Validate pubspec
         working-directory: fluentx_admin_secure
         run: flutter pub get
