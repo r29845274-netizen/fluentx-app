@@ -28,9 +28,35 @@ jobs:
           rm -rf fluentx_admin_secure
           unzip -q fluentx_mobile_test_ready.zip
 
+      - name: Apply production source patches
+        run: |
+          python3 scripts/ci_patch.py fluentx_admin_secure
+          python3 scripts/patch_splash_redirect.py fluentx_admin_secure
+          python3 scripts/patch_personalized_onboarding.py fluentx_admin_secure
+          python3 scripts/fix_personalized_onboarding_compile.py fluentx_admin_secure
+          python3 scripts/patch_full_placement_test_ui.py fluentx_admin_secure
+          python3 scripts/patch_learning_path_minimal.py fluentx_admin_secure
+          python3 scripts/patch_market_ready_completion.py fluentx_admin_secure
+          python3 scripts/patch_learning_path_detail.py fluentx_admin_secure
+          python3 scripts/patch_fluentx_visual_system.py fluentx_admin_secure
+          python3 scripts/patch_reference_uiux.py fluentx_admin_secure
+          python3 scripts/patch_interview_ai_coach.py fluentx_admin_secure
+          python3 scripts/patch_settings_security.py fluentx_admin_secure
+          python3 scripts/patch_revenuecat_production.py fluentx_admin_secure
+          python3 scripts/patch_production_readiness.py fluentx_admin_secure
+          python3 scripts/patch_release_readiness.py fluentx_admin_secure
+          python3 scripts/patch_final_ui_cleanup.py fluentx_admin_secure
+          python3 scripts/patch_final_visual_consistency.py fluentx_admin_secure
+          python3 scripts/patch_billing_compliance.py fluentx_admin_secure
+
       - name: Bootstrap Android project
         working-directory: fluentx_admin_secure
         run: bash scripts/bootstrap_android.sh
+
+      - name: Apply Android release config
+        run: |
+          python3 scripts/patch_android_desugaring.py fluentx_admin_secure
+          python3 scripts/patch_android_release.py fluentx_admin_secure
 
       - name: Save Android release snapshots
         run: |
@@ -51,6 +77,6 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add diagnostics/android_release
           if ! git diff --cached --quiet; then
-            git commit -m "Save Android release structure [skip ci]"
+            git commit -m "Save production Android release structure [skip ci]"
             git push
           fi
