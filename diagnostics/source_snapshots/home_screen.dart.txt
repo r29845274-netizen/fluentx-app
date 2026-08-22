@@ -59,9 +59,8 @@ class _HomeContent extends ConsumerWidget {
                 ),
               ),
               IconButton(
-                onPressed: () {
-                  // Notifications inbox ships in Sprint 6.
-                },
+                tooltip: 'Notification settings',
+                onPressed: () => context.push(RoutePaths.settings),
                 icon: Icon(Icons.notifications_none, color: colorScheme.onSurfaceVariant),
               ),
             ],

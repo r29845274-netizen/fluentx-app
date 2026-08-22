@@ -6,6 +6,7 @@ import '../core/router/auth_status.dart';
 import '../core/router/page_transitions.dart';
 import '../core/router/router_notifier.dart';
 import '../features/achievements/presentation/screens/achievements_screen.dart';
+import '../features/certificates/presentation/screens/certificates_screen.dart';
 import '../features/admin/presentation/screens/admin_console_screen.dart';
 import '../features/ai_practice/presentation/screens/ai_practice_hub_screen.dart';
 import '../features/authentication/presentation/screens/forgot_password_screen.dart';
@@ -162,7 +163,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         },
       ),
 
-      // ---- Bottom-nav shell: Home / AI Practice / Progress / Profile ----
+      // ---- Bottom-nav shell: Home / Learn / Practice / Progress / Profile ----
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) => AppShell(
           navigationShell: navigationShell,
@@ -183,11 +184,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           StatefulShellBranch(
             routes: [
               GoRoute(
-                path: RoutePaths.aiPractice,
+                path: RoutePaths.learn,
                 pageBuilder: (context, state) => buildPageWithTransition(
                   context: context,
                   state: state,
-                  child: const AiPracticeHubScreen(),
+                  child: const LearnHubScreen(),
                 ),
               ),
             ],
@@ -195,11 +196,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           StatefulShellBranch(
             routes: [
               GoRoute(
-                path: RoutePaths.learn,
+                path: RoutePaths.aiPractice,
                 pageBuilder: (context, state) => buildPageWithTransition(
                   context: context,
                   state: state,
-                  child: const LearnHubScreen(),
+                  child: const AiPracticeHubScreen(),
                 ),
               ),
             ],
@@ -320,6 +321,15 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           context: context,
           state: state,
           child: const AchievementsScreen(),
+        ),
+      ),
+      GoRoute(
+        parentNavigatorKey: _rootNavigatorKey,
+        path: RoutePaths.certificates,
+        pageBuilder: (context, state) => buildPageWithTransition(
+          context: context,
+          state: state,
+          child: const CertificatesScreen(),
         ),
       ),
       GoRoute(

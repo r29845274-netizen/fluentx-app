@@ -28,9 +28,41 @@ Future<void> _configureRevenueCat() async {
   await Purchases.configure(PurchasesConfiguration(apiKey));
 }
 
+
+Future<void> _syncRevenueCatForCurrentUser() async {
+  if (EnvConfig.revenueCatAndroidApiKey.isEmpty) return;
+  final user = Supabase.instance.client.auth.currentUser;
+  if (user == null) return;
+  await Purchases.logIn(user.id);
+  try {
+    await Supabase.instance.client.functions.invoke('sync-subscription-access');
+  } catch (error) {
+    // Server access remains fail-closed if verification is unavailable.
+    debugPrint('Subscription server sync pending: $error');
+  }
+}
+
+void _watchBillingIdentity() {
+  Supabase.instance.client.auth.onAuthStateChange.listen((data) async {
+    if (EnvConfig.revenueCatAndroidApiKey.isEmpty) return;
+    final user = data.session?.user;
+    if (user != null) {
+      await Purchases.logIn(user.id);
+      try {
+        await Supabase.instance.client.functions.invoke('sync-subscription-access');
+      } catch (error) {
+        debugPrint('Subscription server sync pending: $error');
+      }
+    } else if (data.event == AuthChangeEvent.signedOut) {
+      try {
+        await Purchases.logOut();
+      } catch (_) {}
+    }
+  });
+}
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await _configureRevenueCat();
 
   await Hive.initFlutter();
   await Hive.openBox(kSettingsBoxName);
@@ -48,6 +80,9 @@ Future<void> main() async {
     publishableKey: EnvConfig.supabaseAnonKey,
     authOptions: const FlutterAuthClientOptions(authFlowType: AuthFlowType.pkce),
   );
+  await _configureRevenueCat();
+  await _syncRevenueCatForCurrentUser();
+  _watchBillingIdentity();
 
   // Firebase: requires platform config files (google-services.json /
   // GoogleService-Info.plist) from your Firebase project — see
@@ -63,11 +98,5 @@ Future<void> main() async {
   } catch (e) {
     debugPrint('Firebase initialization skipped/failed: $e');
   }
-
-  if (EnvConfig.revenueCatApiKey.isNotEmpty) {
-    await Purchases.setLogLevel(LogLevel.info);
-    await Purchases.configure(PurchasesConfiguration(EnvConfig.revenueCatApiKey));
-  }
-
-  runApp(const ProviderScope(child: FluentXApp()));
+runApp(const ProviderScope(child: FluentXApp()));
 }

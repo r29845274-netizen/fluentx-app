@@ -1,0 +1,94 @@
+import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
+
+import '../../../../core/error/exceptions.dart';
+import '../../domain/entities/practice_scenario.dart';
+import '../models/practice_scenario_model.dart';
+
+abstract class AiPracticeRemoteDataSource {
+  Future<List<PracticeScenario>> getScenarios();
+  Future<String> startSession({required String userId, required String scenarioId});
+  Future<PracticeMessage> sendMessage({required String sessionId, required String userMessage});
+  Future<PracticeSessionSummary> endSession(String sessionId);
+}
+
+/// All conversational AI logic (system prompts, OpenAI calls, scoring)
+/// lives in the `ai-practice-chat` Edge Function — this datasource only
+/// invokes it and persists the resulting session row reference. Same
+/// "AI key never touches the client" boundary as Writing's scoring.
+class AiPracticeRemoteDataSourceImpl implements AiPracticeRemoteDataSource {
+  AiPracticeRemoteDataSourceImpl(this._client);
+
+  final supabase.SupabaseClient _client;
+
+  @override
+  Future<List<PracticeScenario>> getScenarios() async {
+    try {
+      final rows = await _client
+          .from('ai_practice_scenarios')
+          .select('id, title, category, description') // never selects system_prompt
+          .order('created_at');
+      return (rows as List)
+          .map((row) => (row as Map<String, dynamic>).toPracticeScenario())
+          .toList();
+    } on supabase.PostgrestException catch (e) {
+      throw ServerException(e.message);
+    } catch (e) {
+      throw ServerException(e.toString());
+    }
+  }
+
+  @override
+  Future<String> startSession({required String userId, required String scenarioId}) async {
+    try {
+      final row = await _client
+          .from('ai_practice_sessions')
+          .insert({'user_id': userId, 'scenario_id': scenarioId})
+          .select('id')
+          .single();
+      return row['id'] as String;
+    } on supabase.PostgrestException catch (e) {
+      throw ServerException(e.message);
+    } catch (e) {
+      throw ServerException(e.toString());
+    }
+  }
+
+  @override
+  Future<PracticeMessage> sendMessage({
+    required String sessionId,
+    required String userMessage,
+  }) async {
+    try {
+      final response = await _client.functions.invoke(
+        'ai-practice-chat',
+        body: {'action': 'reply', 'session_id': sessionId, 'user_message': userMessage},
+      );
+      if (response.status != 200) {
+        throw ServerException('The AI coach is unavailable right now (${response.status}).');
+      }
+      return (response.data as Map<String, dynamic>).toPracticeMessage();
+    } on supabase.FunctionException catch (e) {
+      throw ServerException(e.details?.toString() ?? 'The AI coach is unavailable right now.');
+    } catch (e) {
+      throw ServerException(e.toString());
+    }
+  }
+
+  @override
+  Future<PracticeSessionSummary> endSession(String sessionId) async {
+    try {
+      final response = await _client.functions.invoke(
+        'ai-practice-chat',
+        body: {'action': 'summarize', 'session_id': sessionId},
+      );
+      if (response.status != 200) {
+        throw ServerException('Could not generate your session summary. Please try again.');
+      }
+      return (response.data as Map<String, dynamic>).toPracticeSessionSummary();
+    } on supabase.FunctionException catch (e) {
+      throw ServerException(e.details?.toString() ?? 'Could not generate your session summary.');
+    } catch (e) {
+      throw ServerException(e.toString());
+    }
+  }
+}

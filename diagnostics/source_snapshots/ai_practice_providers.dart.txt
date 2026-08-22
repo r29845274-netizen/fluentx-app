@@ -1,0 +1,156 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_tts/flutter_tts.dart';
+
+import '../../../../core/error/failures.dart';
+import '../../../../core/network/supabase_provider.dart';
+import '../../../authentication/application/providers/auth_providers.dart';
+import '../../data/datasources/ai_practice_remote_datasource.dart';
+import '../../data/repositories/ai_practice_repository_impl.dart';
+import '../../domain/entities/practice_scenario.dart';
+import '../../domain/repositories/ai_practice_repository.dart';
+import '../../domain/usecases/end_practice_session.dart';
+import '../../domain/usecases/get_practice_scenarios.dart';
+import '../../domain/usecases/send_practice_message.dart';
+import '../../domain/usecases/start_practice_session.dart';
+
+final aiPracticeRemoteDataSourceProvider = Provider<AiPracticeRemoteDataSource>((ref) {
+  return AiPracticeRemoteDataSourceImpl(ref.watch(supabaseClientProvider));
+});
+
+final aiPracticeRepositoryProvider = Provider<AiPracticeRepository>((ref) {
+  return AiPracticeRepositoryImpl(ref.watch(aiPracticeRemoteDataSourceProvider));
+});
+
+final getPracticeScenariosUseCaseProvider = Provider<GetPracticeScenarios>((ref) {
+  return GetPracticeScenarios(ref.watch(aiPracticeRepositoryProvider));
+});
+
+final startPracticeSessionUseCaseProvider = Provider<StartPracticeSession>((ref) {
+  return StartPracticeSession(ref.watch(aiPracticeRepositoryProvider));
+});
+
+final sendPracticeMessageUseCaseProvider = Provider<SendPracticeMessage>((ref) {
+  return SendPracticeMessage(ref.watch(aiPracticeRepositoryProvider));
+});
+
+final endPracticeSessionUseCaseProvider = Provider<EndPracticeSession>((ref) {
+  return EndPracticeSession(ref.watch(aiPracticeRepositoryProvider));
+});
+
+final practiceScenariosProvider = FutureProvider.autoDispose<List<PracticeScenario>>((ref) async {
+  final result = await ref.watch(getPracticeScenariosUseCaseProvider).call();
+  return result.match((failure) => throw failure, (scenarios) => scenarios);
+});
+
+/// Own `FlutterTts` instance for this feature (Listening has its own —
+/// small, acceptable duplication rather than a shared-state seam
+/// between two otherwise-independent features).
+final practiceTtsProvider = Provider<FlutterTts>((ref) {
+  final tts = FlutterTts();
+  ref.onDispose(tts.stop);
+  return tts;
+});
+
+class PracticeSessionState {
+  const PracticeSessionState({
+    this.sessionId,
+    this.messages = const [],
+    this.isSending = false,
+    this.summary,
+    this.error,
+  });
+
+  final String? sessionId;
+  final List<PracticeMessage> messages;
+  final bool isSending;
+  final PracticeSessionSummary? summary;
+  final Failure? error;
+
+  PracticeSessionState copyWith({
+    String? sessionId,
+    List<PracticeMessage>? messages,
+    bool? isSending,
+    PracticeSessionSummary? summary,
+    Failure? error,
+    bool clearError = false,
+  }) {
+    return PracticeSessionState(
+      sessionId: sessionId ?? this.sessionId,
+      messages: messages ?? this.messages,
+      isSending: isSending ?? this.isSending,
+      summary: summary ?? this.summary,
+      error: clearError ? null : (error ?? this.error),
+    );
+  }
+}
+
+/// Drives one AI Practice conversation: starting the session, sending
+/// each transcribed user turn, tracking the reply/correction, speaking
+/// the AI's reply aloud, and generating the end-of-session summary.
+class AiPracticeSessionController extends AutoDisposeNotifier<PracticeSessionState> {
+  @override
+  PracticeSessionState build() => const PracticeSessionState();
+
+  Future<void> startSession(String scenarioId) async {
+    final userId = ref.read(authStateChangesProvider).value?.id;
+    if (userId == null) return;
+
+    final result =
+        await ref.read(startPracticeSessionUseCaseProvider).call(userId: userId, scenarioId: scenarioId);
+
+    state = result.match(
+      (failure) => state.copyWith(error: failure),
+      (id) => PracticeSessionState(sessionId: id),
+    );
+  }
+
+  Future<void> sendUserMessage(String text) async {
+    if (state.sessionId == null || text.trim().isEmpty) return;
+
+    state = state.copyWith(
+      messages: [
+        ...state.messages,
+        PracticeMessage(role: PracticeMessageRole.user, text: text.trim()),
+      ],
+      isSending: true,
+      clearError: true,
+    );
+
+    final result = await ref
+        .read(sendPracticeMessageUseCaseProvider)
+        .call(sessionId: state.sessionId!, userMessage: text.trim());
+
+    result.match(
+      (failure) => state = state.copyWith(isSending: false, error: failure),
+      (aiMessage) {
+        final messages = [...state.messages];
+        if (aiMessage.correction != null && messages.isNotEmpty) {
+          messages[messages.length - 1] =
+              messages.last.copyWith(correction: aiMessage.correction);
+        }
+        messages.add(aiMessage);
+        state = state.copyWith(messages: messages, isSending: false);
+        ref.read(practiceTtsProvider).speak(aiMessage.text);
+      },
+    );
+  }
+
+  Future<void> endSession() async {
+    if (state.sessionId == null) return;
+    state = state.copyWith(isSending: true);
+
+    final result = await ref.read(endPracticeSessionUseCaseProvider).call(state.sessionId!);
+
+    state = result.match(
+      (failure) => state.copyWith(isSending: false, error: failure),
+      (summary) => state.copyWith(isSending: false, summary: summary),
+    );
+  }
+
+  void reset() => state = const PracticeSessionState();
+}
+
+final aiPracticeSessionControllerProvider =
+    AutoDisposeNotifierProvider<AiPracticeSessionController, PracticeSessionState>(
+  AiPracticeSessionController.new,
+);

@@ -1,0 +1,45 @@
+import 'package:freezed_annotation/freezed_annotation.dart';
+
+part 'practice_scenario.freezed.dart';
+
+@freezed
+class PracticeScenario with _$PracticeScenario {
+  const factory PracticeScenario({
+    required String id,
+    required String title,
+    required String category,
+    required String description,
+  }) = _PracticeScenario;
+}
+
+enum PracticeMessageRole { user, assistant }
+
+@freezed
+class PracticeMessage with _$PracticeMessage {
+  const factory PracticeMessage({
+    required PracticeMessageRole role,
+    required String text,
+
+    /// Brief inline correction of the user's grammar/word choice for
+    /// this turn, if the AI flagged one. Null for assistant messages
+    /// and for user turns with nothing to correct.
+    String? correction,
+  }) = _PracticeMessage;
+}
+
+@freezed
+class CorrectedSentence with _$CorrectedSentence {
+  const factory CorrectedSentence({
+    required String original,
+    required String corrected,
+  }) = _CorrectedSentence;
+}
+
+@freezed
+class PracticeSessionSummary with _$PracticeSessionSummary {
+  const factory PracticeSessionSummary({
+    required int accuracyScore,
+    required String fluencyNotes,
+    required List<CorrectedSentence> correctedSentences,
+  }) = _PracticeSessionSummary;
+}

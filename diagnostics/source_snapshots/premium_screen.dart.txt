@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/constants/app_radius.dart';
 import '../../../../core/constants/app_spacing.dart';
@@ -7,6 +8,28 @@ import '../../../../core/error/failures.dart';
 import '../../../../shared/widgets/widgets.dart';
 import '../../application/providers/purchase_providers.dart';
 import '../../domain/entities/subscription_status.dart';
+
+
+Future<void> _openGooglePlaySubscriptionManagement(BuildContext context) async {
+  final uri = Uri.parse(
+    'https://play.google.com/store/account/subscriptions?sku=fluentx_premium&package=io.fluentx.app',
+  );
+
+  try {
+    final opened = await launchUrl(uri, mode: LaunchMode.externalApplication);
+    if (!opened && context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Could not open Google Play subscriptions.')),
+      );
+    }
+  } catch (_) {
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Could not open Google Play subscriptions.')),
+      );
+    }
+  }
+}
 
 class PremiumScreen extends ConsumerStatefulWidget {
   const PremiumScreen({super.key});
@@ -59,7 +82,7 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
                 Text('Unlock your full potential', style: Theme.of(context).textTheme.displayLarge),
                 const SizedBox(height: AppSpacing.sm),
                 Text(
-                  '7-day free trial, cancel anytime.',
+                  'Choose a plan below. Billing, trial eligibility and renewal details are confirmed by Google Play.',
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                         color: colorScheme.onSurfaceVariant,
                       ),
@@ -107,7 +130,7 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
                 ),
                 const SizedBox(height: AppSpacing.base),
                 PrimaryButton(
-                  label: 'Start Free Trial',
+                  label: 'Continue',
                   isLoading: purchaseState.isLoading,
                   onPressed: _selectedPackageId == null
                       ? null
@@ -122,6 +145,12 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
                         ? null
                         : () => ref.read(purchaseControllerProvider.notifier).restore(),
                     child: const Text('Restore Purchases'),
+                  ),
+                ),
+                Center(
+                  child: TextButton(
+                    onPressed: () => _openGooglePlaySubscriptionManagement(context),
+                    child: const Text('Manage Google Play subscription'),
                   ),
                 ),
               ],
@@ -179,6 +208,16 @@ class _PlanTile extends StatelessWidget {
                         ),
                   ),
                   Text(package.priceString, style: Theme.of(context).textTheme.bodySmall),
+                  const SizedBox(height: 3),
+                  Text(
+                    package.period == 'yearly'
+                        ? 'ELITE ID • Mastery Certificate • Gold profile identity'
+                        : 'PRO ID • Level certificates • Premium profile identity',
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          fontWeight: FontWeight.w600,
+                        ),
+                  ),
                 ],
               ),
             ),
@@ -227,6 +266,12 @@ class _AlreadyPremium extends StatelessWidget {
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
             ],
+            const SizedBox(height: AppSpacing.lg),
+            OutlinedButton.icon(
+              onPressed: () => _openGooglePlaySubscriptionManagement(context),
+              icon: const Icon(Icons.open_in_new, size: 18),
+              label: const Text('Manage subscription'),
+            ),
           ],
         ),
       ),

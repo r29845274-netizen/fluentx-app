@@ -8,7 +8,6 @@ fluentx_admin_secure/lib/core/error/exceptions.dart
 fluentx_admin_secure/lib/core/error/failures.dart
 fluentx_admin_secure/lib/core/network/supabase_provider.dart
 fluentx_admin_secure/lib/core/router/auth_status.dart
-fluentx_admin_secure/lib/core/router/bootstrap_screen.dart
 fluentx_admin_secure/lib/core/router/onboarding_status_provider.dart
 fluentx_admin_secure/lib/core/router/page_transitions.dart
 fluentx_admin_secure/lib/core/router/router_notifier.dart
@@ -64,6 +63,7 @@ fluentx_admin_secure/lib/features/authentication/presentation/screens/login_scre
 fluentx_admin_secure/lib/features/authentication/presentation/screens/otp_verification_screen.dart
 fluentx_admin_secure/lib/features/authentication/presentation/screens/signup_screen.dart
 fluentx_admin_secure/lib/features/authentication/presentation/widgets/social_sign_in_button.dart
+fluentx_admin_secure/lib/features/certificates/presentation/screens/certificates_screen.dart
 fluentx_admin_secure/lib/features/communication_dna/application/providers/communication_dna_providers.dart
 fluentx_admin_secure/lib/features/communication_dna/data/datasources/communication_dna_remote_datasource.dart
 fluentx_admin_secure/lib/features/communication_dna/data/models/communication_dna_model.dart
@@ -121,6 +121,7 @@ fluentx_admin_secure/lib/features/onboarding/domain/usecases/save_learning_goal.
 fluentx_admin_secure/lib/features/onboarding/presentation/screens/onboarding_screen.dart
 fluentx_admin_secure/lib/features/onboarding/presentation/widgets/goal_option_card.dart
 fluentx_admin_secure/lib/features/onboarding/presentation/widgets/onboarding_progress_dots.dart
+fluentx_admin_secure/lib/features/premium/application/providers/membership_identity_provider.dart
 fluentx_admin_secure/lib/features/premium/application/providers/purchase_providers.dart
 fluentx_admin_secure/lib/features/premium/data/datasources/purchase_remote_datasource.dart
 fluentx_admin_secure/lib/features/premium/data/repositories/purchase_repository_impl.dart
@@ -130,6 +131,7 @@ fluentx_admin_secure/lib/features/premium/domain/usecases/get_premium_packages.d
 fluentx_admin_secure/lib/features/premium/domain/usecases/purchase_package.dart
 fluentx_admin_secure/lib/features/premium/domain/usecases/restore_purchases.dart
 fluentx_admin_secure/lib/features/premium/presentation/screens/premium_screen.dart
+fluentx_admin_secure/lib/features/premium/presentation/widgets/membership_identity_card.dart
 fluentx_admin_secure/lib/features/profile/domain/level_progress.dart
 fluentx_admin_secure/lib/features/profile/presentation/screens/daily_goals_screen.dart
 fluentx_admin_secure/lib/features/profile/presentation/screens/help_support_screen.dart
@@ -192,14 +194,6 @@ fluentx_admin_secure/lib/shared/widgets/states/loading_widget.dart-74-/// across
 fluentx_admin_secure/lib/shared/widgets/states/loading_widget.dart-75-class LoadingCardSkeleton extends StatelessWidget {
 fluentx_admin_secure/lib/shared/widgets/states/loading_widget.dart-76-  const LoadingCardSkeleton({super.key, this.lines = 2});
 --
-fluentx_admin_secure/lib/core/router/bootstrap_screen.dart-2-
-fluentx_admin_secure/lib/core/router/bootstrap_screen.dart-3-import '../../core/constants/app_spacing.dart';
-fluentx_admin_secure/lib/core/router/bootstrap_screen.dart-4-
-fluentx_admin_secure/lib/core/router/bootstrap_screen.dart:5:/// Scaffolding placeholder for a feature screen whose real UI hasn't
-fluentx_admin_secure/lib/core/router/bootstrap_screen.dart-6-/// been built yet in the current sprint.
-fluentx_admin_secure/lib/core/router/bootstrap_screen.dart-7-///
-fluentx_admin_secure/lib/core/router/bootstrap_screen.dart-8-/// This is NOT a fake implementation of feature logic — it renders no
---
 fluentx_admin_secure/lib/features/profile/presentation/screens/daily_goals_screen.dart-55-        top: false,
 fluentx_admin_secure/lib/features/profile/presentation/screens/daily_goals_screen.dart-56-        child: summaryAsync.when(
 fluentx_admin_secure/lib/features/profile/presentation/screens/daily_goals_screen.dart-57-          data: (summary) {
@@ -207,6 +201,14 @@ fluentx_admin_secure/lib/features/profile/presentation/screens/daily_goals_scree
 fluentx_admin_secure/lib/features/profile/presentation/screens/daily_goals_screen.dart-59-            final minutes = _minutes!;
 fluentx_admin_secure/lib/features/profile/presentation/screens/daily_goals_screen.dart-60-            return ListView(
 fluentx_admin_secure/lib/features/profile/presentation/screens/daily_goals_screen.dart-61-              padding: const EdgeInsets.all(AppSpacing.base),
+--
+fluentx_admin_secure/lib/features/ai_practice/presentation/screens/ai_practice_hub_screen.dart-637-  }
+fluentx_admin_secure/lib/features/ai_practice/presentation/screens/ai_practice_hub_screen.dart-638-
+fluentx_admin_secure/lib/features/ai_practice/presentation/screens/ai_practice_hub_screen.dart-639-  Widget _dailyTimeCard() {
+fluentx_admin_secure/lib/features/ai_practice/presentation/screens/ai_practice_hub_screen.dart:640:    final progress = _dailyLimitSeconds <= 0 ? 0.0 : (_usedSeconds / _dailyLimitSeconds).clamp(0.0, 1.0).toDouble();
+fluentx_admin_secure/lib/features/ai_practice/presentation/screens/ai_practice_hub_screen.dart-641-    final remaining = (_dailyLimitSeconds - _usedSeconds).clamp(0, _dailyLimitSeconds).toInt();
+fluentx_admin_secure/lib/features/ai_practice/presentation/screens/ai_practice_hub_screen.dart-642-    return Container(
+fluentx_admin_secure/lib/features/ai_practice/presentation/screens/ai_practice_hub_screen.dart-643-      padding: const EdgeInsets.all(14),
 --
 fluentx_admin_secure/lib/features/home/data/models/home_summary_model.dart-21-              title: continueTitle,
 fluentx_admin_secure/lib/features/home/data/models/home_summary_model.dart-22-              levelLabel: this['continue_level_label'] as String? ?? '',
@@ -216,13 +218,13 @@ fluentx_admin_secure/lib/features/home/data/models/home_summary_model.dart-25-  
 fluentx_admin_secure/lib/features/home/data/models/home_summary_model.dart-26-    );
 fluentx_admin_secure/lib/features/home/data/models/home_summary_model.dart-27-  }
 --
-fluentx_admin_secure/lib/features/learn/presentation/screens/learn_hub_screen.dart-157-                      ClipRRect(
-fluentx_admin_secure/lib/features/learn/presentation/screens/learn_hub_screen.dart-158-                        borderRadius: BorderRadius.circular(99),
-fluentx_admin_secure/lib/features/learn/presentation/screens/learn_hub_screen.dart-159-                        child: LinearProgressIndicator(
-fluentx_admin_secure/lib/features/learn/presentation/screens/learn_hub_screen.dart:160:                          value: (currentWeek / 60.0).clamp(0.0, 1.0).toDouble(),
-fluentx_admin_secure/lib/features/learn/presentation/screens/learn_hub_screen.dart-161-                          minHeight: 7,
-fluentx_admin_secure/lib/features/learn/presentation/screens/learn_hub_screen.dart-162-                        ),
-fluentx_admin_secure/lib/features/learn/presentation/screens/learn_hub_screen.dart-163-                      ),
+fluentx_admin_secure/lib/features/learn/presentation/screens/learn_hub_screen.dart-173-                      ClipRRect(
+fluentx_admin_secure/lib/features/learn/presentation/screens/learn_hub_screen.dart-174-                        borderRadius: BorderRadius.circular(99),
+fluentx_admin_secure/lib/features/learn/presentation/screens/learn_hub_screen.dart-175-                        child: LinearProgressIndicator(
+fluentx_admin_secure/lib/features/learn/presentation/screens/learn_hub_screen.dart:176:                          value: (currentWeek / 60.0).clamp(0.0, 1.0).toDouble(),
+fluentx_admin_secure/lib/features/learn/presentation/screens/learn_hub_screen.dart-177-                          minHeight: 7,
+fluentx_admin_secure/lib/features/learn/presentation/screens/learn_hub_screen.dart-178-                        ),
+fluentx_admin_secure/lib/features/learn/presentation/screens/learn_hub_screen.dart-179-                      ),
 --
 fluentx_admin_secure/lib/features/vocabulary/domain/services/sm2_scheduler.dart-18-
 fluentx_admin_secure/lib/features/vocabulary/domain/services/sm2_scheduler.dart-19-/// Standard SM-2 spaced-repetition algorithm (SuperMemo 2), pure and
@@ -241,6 +243,12 @@ fluentx_admin_secure/lib/features/vocabulary/data/models/due_word_model.dart-14-
 fluentx_admin_secure/lib/features/vocabulary/data/models/due_word_model.dart-15-    );
 
 === DISABLED INTERACTIONS ===
+fluentx_admin_secure/lib/features/certificates/presentation/screens/certificates_screen.dart-225-                                      )
+fluentx_admin_secure/lib/features/certificates/presentation/screens/certificates_screen.dart-226-                                    : OutlinedButton.icon(
+fluentx_admin_secure/lib/features/certificates/presentation/screens/certificates_screen.dart:227:                                        onPressed: null,
+fluentx_admin_secure/lib/features/certificates/presentation/screens/certificates_screen.dart-228-                                        icon: const Icon(Icons.lock_outline_rounded),
+fluentx_admin_secure/lib/features/certificates/presentation/screens/certificates_screen.dart-229-                                        label: Text(upgradeLabel),
+--
 fluentx_admin_secure/lib/features/settings/presentation/screens/edit_profile_screen.dart-75-                TextFormField(
 fluentx_admin_secure/lib/features/settings/presentation/screens/edit_profile_screen.dart-76-                  initialValue: user?.email ?? '',
 fluentx_admin_secure/lib/features/settings/presentation/screens/edit_profile_screen.dart:77:                  enabled: false,
@@ -254,11 +262,11 @@ fluentx_admin_secure/lib/features/settings/presentation/screens/settings_screen.
 fluentx_admin_secure/lib/features/settings/presentation/screens/settings_screen.dart-188-                ],
 
 === HARDCODED DEMO SIGNALS ===
-fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-30-  final List<int> _scores = [];
-fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-31-
-fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart:32:  static const _categories = ['HR Essentials', 'Behavioral', 'Leadership'];
-fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-33-
-fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-34-  @override
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-33-  final List<int> _scores = [];
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-34-
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart:35:  static const _categories = ['HR Essentials', 'Behavioral', 'Leadership'];
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-36-
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-37-  @override
 --
 fluentx_admin_secure/lib/features/profile/domain/level_progress.dart-25-      xpForNextLevel == 0 ? 0 : (currentLevelXp / xpForNextLevel).clamp(0, 1);
 fluentx_admin_secure/lib/features/profile/domain/level_progress.dart-26-
@@ -284,11 +292,11 @@ fluentx_admin_secure/lib/features/premium/data/datasources/purchase_remote_datas
 fluentx_admin_secure/lib/features/premium/data/datasources/purchase_remote_datasource.dart-21-
 fluentx_admin_secure/lib/features/premium/data/datasources/purchase_remote_datasource.dart-22-  SubscriptionStatus _mapCustomerInfo(CustomerInfo info) {
 --
-fluentx_admin_secure/lib/features/premium/presentation/screens/premium_screen.dart-19-  String? _selectedPackageId;
-fluentx_admin_secure/lib/features/premium/presentation/screens/premium_screen.dart-20-
-fluentx_admin_secure/lib/features/premium/presentation/screens/premium_screen.dart:21:  static const _features = [
-fluentx_admin_secure/lib/features/premium/presentation/screens/premium_screen.dart-22-    'Unlimited AI Practice sessions',
-fluentx_admin_secure/lib/features/premium/presentation/screens/premium_screen.dart-23-    'Full Interview Skills module',
+fluentx_admin_secure/lib/features/premium/presentation/screens/premium_screen.dart-42-  String? _selectedPackageId;
+fluentx_admin_secure/lib/features/premium/presentation/screens/premium_screen.dart-43-
+fluentx_admin_secure/lib/features/premium/presentation/screens/premium_screen.dart:44:  static const _features = [
+fluentx_admin_secure/lib/features/premium/presentation/screens/premium_screen.dart-45-    'Unlimited AI Practice sessions',
+fluentx_admin_secure/lib/features/premium/presentation/screens/premium_screen.dart-46-    'Full Interview Skills module',
 --
 fluentx_admin_secure/lib/features/authentication/data/datasources/auth_remote_datasource.dart-53-  /// for OAuth redirects to land back in the app. See
 fluentx_admin_secure/lib/features/authentication/data/datasources/auth_remote_datasource.dart-54-  /// SPRINT_1_AUTH_README.md for the exact platform config.
@@ -311,14 +319,14 @@ fluentx_admin_secure/lib/features/authentication/presentation/screens/signup_scr
 fluentx_admin_secure/lib/features/settings/presentation/screens/legal_document_screen.dart-9-  final List<(String, String)> sections;
 fluentx_admin_secure/lib/features/settings/presentation/screens/legal_document_screen.dart-10-
 fluentx_admin_secure/lib/features/settings/presentation/screens/legal_document_screen.dart:11:  static const privacySections = <(String, String)>[
-fluentx_admin_secure/lib/features/settings/presentation/screens/legal_document_screen.dart-12-    ('Information we use', 'FluentX uses account information, profile details, learning progress, practice activity and app settings to provide the learning experience.'),
-fluentx_admin_secure/lib/features/settings/presentation/screens/legal_document_screen.dart-13-    ('Voice and AI practice', 'When you use speaking or AI features, the content you submit may be processed by service providers that power speech, AI feedback and app infrastructure.'),
+fluentx_admin_secure/lib/features/settings/presentation/screens/legal_document_screen.dart-12-    ('Data we collect', 'FluentX may process account details, profile information, learning goals, placement results, lesson progress, vocabulary and grammar activity, writing submissions, speaking or interview responses, AI practice messages, device notification tokens, subscription status, and technical diagnostics needed to operate the service.'),
+fluentx_admin_secure/lib/features/settings/presentation/screens/legal_document_screen.dart-13-    ('How we use data', 'We use this information to authenticate your account, personalize learning paths, save progress, provide practice features, generate AI-assisted feedback, maintain streaks and achievements, deliver notifications you enable, support subscriptions, prevent abuse, troubleshoot errors, and improve reliability.'),
 --
-fluentx_admin_secure/lib/features/settings/presentation/screens/legal_document_screen.dart-17-  ];
-fluentx_admin_secure/lib/features/settings/presentation/screens/legal_document_screen.dart-18-
-fluentx_admin_secure/lib/features/settings/presentation/screens/legal_document_screen.dart:19:  static const termsSections = <(String, String)>[
-fluentx_admin_secure/lib/features/settings/presentation/screens/legal_document_screen.dart-20-    ('Using FluentX', 'Use FluentX for lawful personal learning. Do not attempt to abuse the service, bypass security controls or interfere with other users.'),
-fluentx_admin_secure/lib/features/settings/presentation/screens/legal_document_screen.dart-21-    ('AI feedback', 'AI-generated corrections and scores are learning aids and may occasionally be incomplete or inaccurate. Review important communication before relying on it.'),
+fluentx_admin_secure/lib/features/settings/presentation/screens/legal_document_screen.dart-23-  ];
+fluentx_admin_secure/lib/features/settings/presentation/screens/legal_document_screen.dart-24-
+fluentx_admin_secure/lib/features/settings/presentation/screens/legal_document_screen.dart:25:  static const termsSections = <(String, String)>[
+fluentx_admin_secure/lib/features/settings/presentation/screens/legal_document_screen.dart-26-    ('Using FluentX', 'FluentX is a language-learning and communication-practice service. You may use it only for lawful purposes and in accordance with these terms and applicable platform rules.'),
+fluentx_admin_secure/lib/features/settings/presentation/screens/legal_document_screen.dart-27-    ('Your account', 'You are responsible for maintaining the security of your account and for activity performed through it. Provide accurate account information and do not attempt to access another user account.'),
 --
 fluentx_admin_secure/lib/features/home/data/datasources/home_remote_datasource.dart-17-  final supabase.SupabaseClient _client;
 fluentx_admin_secure/lib/features/home/data/datasources/home_remote_datasource.dart-18-

@@ -1,0 +1,88 @@
+import 'package:flutter/material.dart';
+
+import '../../../../core/constants/app_radius.dart';
+import '../../../../core/constants/app_spacing.dart';
+import '../../../../shared/widgets/widgets.dart';
+import '../../domain/entities/practice_scenario.dart';
+
+class PracticeSummaryView extends StatelessWidget {
+  const PracticeSummaryView({required this.summary, required this.onDone, super.key});
+
+  final PracticeSessionSummary summary;
+  final VoidCallback onDone;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return SafeArea(
+      child: ListView(
+        padding: const EdgeInsets.all(AppSpacing.base),
+        children: [
+          Text('Session Summary', style: Theme.of(context).textTheme.displayLarge),
+          const SizedBox(height: AppSpacing.xs),
+          Text(
+            'AI-generated coaching based on this practice session.',
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant),
+          ),
+          const SizedBox(height: AppSpacing.lg),
+          AppCard(
+            child: Column(
+              children: [
+                Text('Accuracy Score', style: Theme.of(context).textTheme.bodySmall),
+                const SizedBox(height: AppSpacing.xs),
+                Text(
+                  '${summary.accuracyScore}%',
+                  style: Theme.of(context).textTheme.displayLarge?.copyWith(
+                        color: colorScheme.primary,
+                      ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: AppSpacing.base),
+          Text('Fluency Notes', style: Theme.of(context).textTheme.headlineSmall),
+          const SizedBox(height: AppSpacing.sm),
+          Text(summary.fluencyNotes, style: Theme.of(context).textTheme.bodyLarge),
+          if (summary.correctedSentences.isNotEmpty) ...[
+            const SizedBox(height: AppSpacing.lg),
+            Text('Corrected Sentences', style: Theme.of(context).textTheme.headlineSmall),
+            const SizedBox(height: AppSpacing.sm),
+            for (final sentence in summary.correctedSentences)
+              Container(
+                width: double.infinity,
+                margin: const EdgeInsets.only(bottom: AppSpacing.sm),
+                padding: const EdgeInsets.all(AppSpacing.md),
+                decoration: BoxDecoration(
+                  color: colorScheme.surfaceContainerHighest,
+                  borderRadius: AppRadius.mdAll,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      sentence.original,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            decoration: TextDecoration.lineThrough,
+                            color: colorScheme.onSurfaceVariant,
+                          ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      sentence.corrected,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: colorScheme.primary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                    ),
+                  ],
+                ),
+              ),
+          ],
+          const SizedBox(height: AppSpacing.lg),
+          PrimaryButton(label: 'Done', onPressed: onDone),
+        ],
+      ),
+    );
+  }
+}

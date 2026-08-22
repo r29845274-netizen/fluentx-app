@@ -90,6 +90,20 @@ class ProgressScreen extends ConsumerWidget {
                 ],
               ),
             ),
+            const SizedBox(height: AppSpacing.xl),
+            Text('Certificates', style: textTheme.headlineSmall),
+            const SizedBox(height: AppSpacing.sm),
+            AppCard(
+              onTap: () => context.push(RoutePaths.certificates),
+              child: Row(
+                children: [
+                  Icon(Icons.verified_outlined, color: colorScheme.primary),
+                  const SizedBox(width: AppSpacing.md),
+                  const Expanded(child: Text('View, download and share earned certificates')),
+                  Icon(Icons.chevron_right, color: colorScheme.onSurfaceVariant),
+                ],
+              ),
+            ),
           ],
         ),
       ),

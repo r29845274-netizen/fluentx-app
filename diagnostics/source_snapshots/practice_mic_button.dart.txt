@@ -1,0 +1,124 @@
+import 'package:flutter/material.dart';
+import 'package:speech_to_text/speech_to_text.dart' as stt;
+
+import '../../../../core/constants/app_spacing.dart';
+
+/// Tap-to-talk mic button. Uses on-device platform speech recognition
+/// (`speech_to_text`) — no Google/Azure STT key wired yet (flagged as
+/// a future upgrade in the product spec's AI provider section); this
+/// works fully offline-capable on most devices and needs no server key.
+class PracticeMicButton extends StatefulWidget {
+  const PracticeMicButton({required this.onResult, super.key, this.enabled = true});
+
+  final ValueChanged<String> onResult;
+  final bool enabled;
+
+  @override
+  State<PracticeMicButton> createState() => _PracticeMicButtonState();
+}
+
+class _PracticeMicButtonState extends State<PracticeMicButton> {
+  final stt.SpeechToText _speech = stt.SpeechToText();
+  bool _isListening = false;
+  bool _isAvailable = false;
+  String _partialText = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _init();
+  }
+
+  Future<void> _init() async {
+    final available = await _speech.initialize(
+      onStatus: (status) {
+        if (status == 'done' || status == 'notListening') {
+          if (mounted) setState(() => _isListening = false);
+        }
+      },
+      onError: (_) {
+        if (mounted) setState(() => _isListening = false);
+      },
+    );
+    if (mounted) setState(() => _isAvailable = available);
+  }
+
+  Future<void> _toggleListening() async {
+    if (!_isAvailable || !widget.enabled) return;
+
+    if (_isListening) {
+      await _speech.stop();
+      setState(() => _isListening = false);
+      if (_partialText.trim().isNotEmpty) {
+        widget.onResult(_partialText.trim());
+      }
+      _partialText = '';
+      return;
+    }
+
+    setState(() {
+      _isListening = true;
+      _partialText = '';
+    });
+
+    await _speech.listen(
+      onResult: (result) => setState(() => _partialText = result.recognizedWords),
+      listenFor: const Duration(seconds: 30),
+      pauseFor: const Duration(seconds: 3),
+    );
+  }
+
+  @override
+  void dispose() {
+    _speech.stop();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (_isListening && _partialText.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+            child: Text(
+              _partialText,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                    fontStyle: FontStyle.italic,
+                  ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+        GestureDetector(
+          onTap: _toggleListening,
+          child: Container(
+            width: 64,
+            height: 64,
+            decoration: BoxDecoration(
+              color: _isListening ? colorScheme.error : colorScheme.primary,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              _isListening ? Icons.crop_square : Icons.mic_none,
+              color: Colors.white,
+              size: 26,
+            ),
+          ),
+        ),
+        const SizedBox(height: AppSpacing.xs),
+        Text(
+          !_isAvailable
+              ? 'Microphone unavailable'
+              : _isListening
+                  ? 'Tap to stop'
+                  : 'Tap to speak',
+          style: Theme.of(context).textTheme.labelSmall,
+        ),
+      ],
+    );
+  }
+}

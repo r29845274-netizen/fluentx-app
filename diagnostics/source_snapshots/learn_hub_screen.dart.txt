@@ -87,6 +87,22 @@ class LearnHubScreen extends StatelessWidget {
                 supabase.Supabase.instance.client.rpc('get_my_learning_path'),
               ]),
               builder: (context, snapshot) {
+                if (snapshot.hasError) {
+                  return const AppCard(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(vertical: AppSpacing.md),
+                      child: Row(
+                        children: [
+                          Icon(Icons.cloud_off_outlined),
+                          SizedBox(width: AppSpacing.md),
+                          Expanded(
+                            child: Text('Your learning path could not be loaded right now. Pull down or reopen Learn to retry.'),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }
                 if (!snapshot.hasData) {
                   return const AppCard(
                     child: Padding(

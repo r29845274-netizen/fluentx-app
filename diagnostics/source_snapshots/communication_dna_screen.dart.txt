@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_radius.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../shared/widgets/widgets.dart';
+import '../../../../routes/route_paths.dart';
+import '../../../premium/application/providers/membership_identity_provider.dart';
 import '../../application/providers/communication_dna_providers.dart';
 import '../../domain/entities/communication_dna.dart';
 
@@ -12,6 +15,41 @@ class CommunicationDnaScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final identityAsync = ref.watch(memberIdentityProvider);
+    if (identityAsync.isLoading) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+    final identity = identityAsync.valueOrNull;
+    if (identity == null || identity.tier != FluentXMembershipTier.annual) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('Communication DNA™')),
+        body: SafeArea(
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(AppSpacing.xl),
+              child: AppCard(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.insights_rounded, size: 50, color: Color(0xFFD97706)),
+                    const SizedBox(height: AppSpacing.md),
+                    Text('Advanced Elite insights', style: Theme.of(context).textTheme.headlineSmall, textAlign: TextAlign.center),
+                    const SizedBox(height: AppSpacing.sm),
+                    const Text('Annual Elite unlocks your full Communication DNA analysis, skill breakdown, strengths and focus-area insights.', textAlign: TextAlign.center),
+                    const SizedBox(height: AppSpacing.lg),
+                    FilledButton(
+                      onPressed: () => context.push(RoutePaths.premium),
+                      child: const Text('Unlock Annual Elite'),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
     final dnaAsync = ref.watch(communicationDnaProvider);
 
     return Scaffold(

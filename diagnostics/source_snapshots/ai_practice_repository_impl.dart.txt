@@ -1,0 +1,68 @@
+import 'package:fpdart/fpdart.dart';
+
+import '../../../../core/error/exceptions.dart';
+import '../../../../core/error/failures.dart';
+import '../../domain/entities/practice_scenario.dart';
+import '../../domain/repositories/ai_practice_repository.dart';
+import '../datasources/ai_practice_remote_datasource.dart';
+
+class AiPracticeRepositoryImpl implements AiPracticeRepository {
+  AiPracticeRepositoryImpl(this._remoteDataSource);
+
+  final AiPracticeRemoteDataSource _remoteDataSource;
+
+  @override
+  Future<Either<Failure, List<PracticeScenario>>> getScenarios() async {
+    try {
+      return right(await _remoteDataSource.getScenarios());
+    } on ServerException catch (e) {
+      return left(Failure.server(message: e.message));
+    } catch (e) {
+      return left(const Failure.unexpected());
+    }
+  }
+
+  @override
+  Future<Either<Failure, String>> startSession({
+    required String userId,
+    required String scenarioId,
+  }) async {
+    try {
+      final id = await _remoteDataSource.startSession(userId: userId, scenarioId: scenarioId);
+      return right(id);
+    } on ServerException catch (e) {
+      return left(Failure.server(message: e.message));
+    } catch (e) {
+      return left(const Failure.unexpected());
+    }
+  }
+
+  @override
+  Future<Either<Failure, PracticeMessage>> sendMessage({
+    required String sessionId,
+    required String userMessage,
+  }) async {
+    try {
+      final message = await _remoteDataSource.sendMessage(
+        sessionId: sessionId,
+        userMessage: userMessage,
+      );
+      return right(message);
+    } on ServerException catch (e) {
+      return left(Failure.server(message: e.message));
+    } catch (e) {
+      return left(const Failure.unexpected());
+    }
+  }
+
+  @override
+  Future<Either<Failure, PracticeSessionSummary>> endSession(String sessionId) async {
+    try {
+      return right(await _remoteDataSource.endSession(sessionId));
+    } on ServerException catch (e) {
+      return left(Failure.server(message: e.message));
+    } catch (e) {
+      return left(const Failure.unexpected());
+    }
+  }
+}

@@ -17,15 +17,15 @@ class AppShell extends StatelessWidget {
   final StatefulNavigationShell navigationShell;
 
   static const _items = [
-    AppNavItem(icon: Icons.home_outlined, activeIcon: Icons.home_outlined, label: 'Home'),
-    AppNavItem(icon: Icons.mic_none, activeIcon: Icons.mic_none, label: 'Practice'),
-    AppNavItem(icon: Icons.menu_book_outlined, activeIcon: Icons.menu_book_outlined, label: 'Learn'),
+    AppNavItem(icon: Icons.home_outlined, activeIcon: Icons.home, label: 'Home'),
+    AppNavItem(icon: Icons.menu_book_outlined, activeIcon: Icons.menu_book, label: 'Learn'),
+    AppNavItem(icon: Icons.mic_none, activeIcon: Icons.mic, label: 'Practice'),
     AppNavItem(
-      icon: Icons.bar_chart,
+      icon: Icons.bar_chart_outlined,
       activeIcon: Icons.bar_chart,
       label: 'Progress',
     ),
-    AppNavItem(icon: Icons.person_outline, activeIcon: Icons.person_outline, label: 'Profile'),
+    AppNavItem(icon: Icons.person_outline, activeIcon: Icons.person, label: 'Profile'),
   ];
 
   void _onTap(int index) {

@@ -9,6 +9,7 @@ import '../../../authentication/application/providers/auth_controller.dart';
 import '../../../authentication/application/providers/auth_providers.dart';
 import '../../../home/application/providers/home_providers.dart';
 import '../../../premium/application/providers/purchase_providers.dart';
+import '../../../premium/presentation/widgets/membership_identity_card.dart';
 import '../../domain/level_progress.dart';
 import '../widgets/profile_header.dart';
 import '../widgets/profile_menu_tile.dart';
@@ -61,6 +62,8 @@ class ProfileScreen extends ConsumerWidget {
                   levelProgress: levelProgress,
                   isPremium: isPremium,
                 ),
+                const SizedBox(height: AppSpacing.base),
+                const MembershipIdentityCard(),
                 const SizedBox(height: AppSpacing.xl),
                 AppCard(
                   padding: const EdgeInsets.symmetric(horizontal: AppSpacing.base),
@@ -70,6 +73,12 @@ class ProfileScreen extends ConsumerWidget {
                         icon: Icons.workspace_premium_outlined,
                         label: 'Achievements',
                         onTap: () => context.push(RoutePaths.achievements),
+                      ),
+                      const Divider(height: 1),
+                      ProfileMenuTile(
+                        icon: Icons.verified_outlined,
+                        label: 'Certificates',
+                        onTap: () => context.push(RoutePaths.certificates),
                       ),
                       const Divider(height: 1),
                       ProfileMenuTile(
