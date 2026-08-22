@@ -1,2 +1,8 @@
-exit_code=2
-/usr/bin/python3: can't open file '/home/runner/work/fluentx-app/fluentx-app/fluentx_admin_secure/fluentx_admin_secure/scripts/preflight_check.py': [Errno 2] No such file or directory
+exit_code=0
+FluentX preflight PASSED
+ - required assets present
+ - relative imports resolve
+ - six Learn modules present
+ - no feature-screen placeholders remain
+ - AI + account Edge Functions present
+ - Firebase Android config present and package-matched
