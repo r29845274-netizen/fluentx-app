@@ -6,7 +6,7 @@ on:
 jobs:
   build-release-aab:
     runs-on: ubuntu-latest
-    timeout-minutes: 75
+    timeout-minutes: 90
 
     steps:
       - name: Checkout
@@ -69,10 +69,10 @@ jobs:
           python3 scripts/patch_launch_runtime_completion.py fluentx_admin_secure
           python3 scripts/patch_maya_ai_conversation.py fluentx_admin_secure
           python3 scripts/fix_maya_compile.py fluentx_admin_secure
-          python3 scripts/patch_ci_generator_compat.py fluentx_admin_secure
 
       - name: Install dependencies
         working-directory: fluentx_admin_secure
+        timeout-minutes: 10
         run: flutter pub get
 
       - name: Source preflight
@@ -81,10 +81,8 @@ jobs:
 
       - name: Bootstrap Android
         working-directory: fluentx_admin_secure
+        timeout-minutes: 10
         run: bash scripts/bootstrap_android.sh
-
-      - name: Normalize Flutter Android toolchain
-        run: python3 scripts/patch_android_flutter_compat.py fluentx_admin_secure
 
       - name: Apply Android release config
         run: |
@@ -111,14 +109,17 @@ jobs:
 
       - name: Generate code
         working-directory: fluentx_admin_secure
+        timeout-minutes: 12
         run: dart run build_runner build --delete-conflicting-outputs
 
       - name: Analyze release source
         working-directory: fluentx_admin_secure
+        timeout-minutes: 12
         run: flutter analyze --no-fatal-infos --no-fatal-warnings
 
       - name: Run tests if present
         working-directory: fluentx_admin_secure
+        timeout-minutes: 10
         run: |
           if find test -type f -name '*_test.dart' | grep -q .; then
             flutter test
@@ -128,6 +129,7 @@ jobs:
 
       - name: Build production AAB
         working-directory: fluentx_admin_secure
+        timeout-minutes: 35
         env:
           REVENUECAT_ANDROID_API_KEY: ${{ secrets.REVENUECAT_ANDROID_API_KEY }}
         run: >-
