@@ -17,6 +17,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
 
+      - name: Prepare diagnostics
+        run: mkdir -p diagnostics/ci
+
       - name: Set up Java
         uses: actions/setup-java@v5
         with:
@@ -30,113 +33,121 @@ jobs:
           cache: true
 
       - name: Flutter version
-        run: flutter --version
+        run: flutter --version 2>&1 | tee diagnostics/ci/flutter_version.log
 
       - name: Extract source
         run: |
+          set -o pipefail
           rm -rf fluentx_admin_secure
-          unzip -q fluentx_mobile_test_ready.zip
+          unzip -q fluentx_mobile_test_ready.zip 2>&1 | tee diagnostics/ci/extract.log
 
       - name: Apply compatibility patch
-        run: python3 scripts/ci_patch.py fluentx_admin_secure
+        run: python3 scripts/ci_patch.py fluentx_admin_secure 2>&1 | tee diagnostics/ci/ci_patch.log
 
       - name: Fix splash routing
-        run: python3 scripts/patch_splash_redirect.py fluentx_admin_secure
+        run: python3 scripts/patch_splash_redirect.py fluentx_admin_secure 2>&1 | tee diagnostics/ci/splash.log
 
       - name: Apply personalized onboarding
-        run: python3 scripts/patch_personalized_onboarding.py fluentx_admin_secure
+        run: python3 scripts/patch_personalized_onboarding.py fluentx_admin_secure 2>&1 | tee diagnostics/ci/onboarding.log
 
       - name: Fix personalized onboarding compile imports
-        run: python3 scripts/fix_personalized_onboarding_compile.py fluentx_admin_secure
+        run: python3 scripts/fix_personalized_onboarding_compile.py fluentx_admin_secure 2>&1 | tee diagnostics/ci/onboarding_compile.log
 
       - name: Apply full placement test UI
-        run: python3 scripts/patch_full_placement_test_ui.py fluentx_admin_secure
+        run: python3 scripts/patch_full_placement_test_ui.py fluentx_admin_secure 2>&1 | tee diagnostics/ci/placement.log
 
       - name: Apply conservative personalized learning path
-        run: python3 scripts/patch_learning_path_minimal.py fluentx_admin_secure
+        run: python3 scripts/patch_learning_path_minimal.py fluentx_admin_secure 2>&1 | tee diagnostics/ci/learning_path.log
 
       - name: Apply market-ready backend and content
-        run: python3 scripts/patch_market_ready_completion.py fluentx_admin_secure
+        run: python3 scripts/patch_market_ready_completion.py fluentx_admin_secure 2>&1 | tee diagnostics/ci/market_ready.log
 
       - name: Apply detailed learning path screen
-        run: python3 scripts/patch_learning_path_detail.py fluentx_admin_secure
+        run: python3 scripts/patch_learning_path_detail.py fluentx_admin_secure 2>&1 | tee diagnostics/ci/learning_detail.log
 
       - name: Apply FluentX premium visual system
-        run: python3 scripts/patch_fluentx_visual_system.py fluentx_admin_secure
+        run: python3 scripts/patch_fluentx_visual_system.py fluentx_admin_secure 2>&1 | tee diagnostics/ci/visual_system.log
 
       - name: Apply reference-inspired full app UI UX
-        run: python3 scripts/patch_reference_uiux.py fluentx_admin_secure
+        run: python3 scripts/patch_reference_uiux.py fluentx_admin_secure 2>&1 | tee diagnostics/ci/reference_ui.log
 
       - name: Apply AI Interview Coach
-        run: python3 scripts/patch_interview_ai_coach.py fluentx_admin_secure
+        run: python3 scripts/patch_interview_ai_coach.py fluentx_admin_secure 2>&1 | tee diagnostics/ci/interview.log
 
       - name: Apply settings security polish
-        run: python3 scripts/patch_settings_security.py fluentx_admin_secure
+        run: python3 scripts/patch_settings_security.py fluentx_admin_secure 2>&1 | tee diagnostics/ci/settings.log
 
       - name: Apply RevenueCat production bootstrap
-        run: python3 scripts/patch_revenuecat_production.py fluentx_admin_secure
+        run: python3 scripts/patch_revenuecat_production.py fluentx_admin_secure 2>&1 | tee diagnostics/ci/revenuecat.log
 
       - name: Apply release-readiness polish
-        run: python3 scripts/patch_release_readiness.py fluentx_admin_secure
+        run: python3 scripts/patch_release_readiness.py fluentx_admin_secure 2>&1 | tee diagnostics/ci/release_readiness.log
 
       - name: Apply final UI cleanup
-        run: python3 scripts/patch_final_ui_cleanup.py fluentx_admin_secure
+        run: python3 scripts/patch_final_ui_cleanup.py fluentx_admin_secure 2>&1 | tee diagnostics/ci/ui_cleanup.log
 
       - name: Apply final visual consistency polish
-        run: python3 scripts/patch_final_visual_consistency.py fluentx_admin_secure
+        run: python3 scripts/patch_final_visual_consistency.py fluentx_admin_secure 2>&1 | tee diagnostics/ci/visual_consistency.log
 
       - name: Apply Google Play billing compliance
-        run: python3 scripts/patch_billing_compliance.py fluentx_admin_secure
+        run: python3 scripts/patch_billing_compliance.py fluentx_admin_secure 2>&1 | tee diagnostics/ci/billing.log
 
       - name: Apply course certificates
-        run: python3 scripts/patch_certificates.py fluentx_admin_secure
+        run: python3 scripts/patch_certificates.py fluentx_admin_secure 2>&1 | tee diagnostics/ci/certificates.log
 
       - name: Apply membership tier identities
-        run: python3 scripts/patch_membership_tiers.py fluentx_admin_secure
+        run: python3 scripts/patch_membership_tiers.py fluentx_admin_secure 2>&1 | tee diagnostics/ci/membership.log
 
       - name: Apply subscription feature gating
-        run: python3 scripts/patch_subscription_feature_gating.py fluentx_admin_secure
+        run: python3 scripts/patch_subscription_feature_gating.py fluentx_admin_secure 2>&1 | tee diagnostics/ci/gating.log
 
       - name: Apply launch runtime completion
-        run: python3 scripts/patch_launch_runtime_completion.py fluentx_admin_secure
+        run: python3 scripts/patch_launch_runtime_completion.py fluentx_admin_secure 2>&1 | tee diagnostics/ci/runtime_completion.log
 
       - name: Apply Maya AI conversation
-        run: python3 scripts/patch_maya_ai_conversation.py fluentx_admin_secure
+        run: python3 scripts/patch_maya_ai_conversation.py fluentx_admin_secure 2>&1 | tee diagnostics/ci/maya.log
 
       - name: Apply Maya compile safety fixes
-        run: python3 scripts/fix_maya_compile.py fluentx_admin_secure
+        run: python3 scripts/fix_maya_compile.py fluentx_admin_secure 2>&1 | tee diagnostics/ci/maya_compile.log
 
       - name: Source preflight
         working-directory: fluentx_admin_secure
-        run: python3 scripts/preflight_check.py
+        run: |
+          set -o pipefail
+          python3 scripts/preflight_check.py 2>&1 | tee ../diagnostics/ci/preflight.log
 
       - name: Bootstrap Android
         working-directory: fluentx_admin_secure
-        timeout-minutes: 10
-        run: bash scripts/bootstrap_android.sh
+        timeout-minutes: 25
+        run: |
+          set -o pipefail
+          bash -x scripts/bootstrap_android.sh 2>&1 | tee ../diagnostics/ci/bootstrap_android.log
 
       - name: Enable Android core library desugaring
-        run: python3 scripts/patch_android_desugaring.py fluentx_admin_secure
+        run: |
+          set -o pipefail
+          python3 scripts/patch_android_desugaring.py fluentx_admin_secure 2>&1 | tee diagnostics/ci/desugaring.log
 
       - name: Remove generated template test
         run: rm -f fluentx_admin_secure/test/widget_test.dart
 
       - name: Install dependencies
         working-directory: fluentx_admin_secure
-        timeout-minutes: 10
-        run: flutter pub get
+        timeout-minutes: 20
+        run: |
+          set -o pipefail
+          flutter pub get -v 2>&1 | tee ../diagnostics/ci/flutter_pub_get.log
 
       - name: Generate code
         working-directory: fluentx_admin_secure
-        timeout-minutes: 12
+        timeout-minutes: 15
         run: |
           set -o pipefail
-          mkdir -p ../diagnostics/ci
           dart run build_runner build --delete-conflicting-outputs 2>&1 | tee ../diagnostics/ci/build_runner.log
 
       - name: Analyze full source
         working-directory: fluentx_admin_secure
-        timeout-minutes: 12
+        timeout-minutes: 15
         run: |
           set -o pipefail
           flutter analyze --no-fatal-infos --no-fatal-warnings 2>&1 | tee ../diagnostics/ci/flutter_analyze.log
@@ -154,7 +165,7 @@ jobs:
 
       - name: Build debug APK
         working-directory: fluentx_admin_secure
-        timeout-minutes: 35
+        timeout-minutes: 40
         env:
           REVENUECAT_ANDROID_API_KEY: ${{ secrets.REVENUECAT_ANDROID_API_KEY }}
         run: |
@@ -164,16 +175,18 @@ jobs:
             --dart-define=REVENUECAT_ANDROID_API_KEY=$REVENUECAT_ANDROID_API_KEY \
             2>&1 | tee ../diagnostics/ci/flutter_build_apk.log
 
-      - name: Save exact failure diagnostics
+      - name: Save exact failure diagnostics to repository
         if: failure()
         run: |
-          set -e
+          set +e
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add diagnostics/ci || true
+          git add -f diagnostics/ci
           if ! git diff --cached --quiet; then
-            git commit -m "Save APK failure logs [skip ci]"
-            git push
+            git commit -m "Save exact APK failure diagnostics [skip ci]"
+            git fetch origin main
+            git rebase origin/main || true
+            git push origin HEAD:main || true
           fi
 
       - name: Upload APK
@@ -189,8 +202,5 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: FluentX-failure-diagnostics
-          path: |
-            diagnostics/ci
-            fluentx_admin_secure/pubspec.yaml
-            fluentx_admin_secure/pubspec.lock
-          if-no-files-found: ignore
+          path: diagnostics/ci
+          if-no-files-found: error
