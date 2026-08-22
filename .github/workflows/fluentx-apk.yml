@@ -28,13 +28,10 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - name: Mark Java ready
-        run: echo "java=ok" >> diagnostics/ci/progress.log
-
       - name: Set up Flutter primary
         id: flutter_primary
         continue-on-error: true
-        timeout-minutes: 6
+        timeout-minutes: 8
         uses: subosito/flutter-action@v2
         with:
           channel: stable
@@ -42,7 +39,8 @@ jobs:
 
       - name: Fallback Flutter install
         if: steps.flutter_primary.outcome != 'success'
-        timeout-minutes: 12
+        continue-on-error: true
+        timeout-minutes: 15
         run: |
           set -o pipefail
           echo "flutter_primary=failed; using fallback" | tee -a diagnostics/ci/progress.log
@@ -52,133 +50,95 @@ jobs:
           export PATH="$HOME/flutter/bin:$PATH"
           flutter --version 2>&1 | tee diagnostics/ci/flutter_fallback_version.log
 
-      - name: Verify Flutter setup
-        timeout-minutes: 4
-        run: |
-          set -o pipefail
-          command -v flutter | tee diagnostics/ci/flutter_path.log
-          flutter --version 2>&1 | tee diagnostics/ci/flutter_version.log
-          echo "flutter=ok" >> diagnostics/ci/progress.log
-
-      - name: Extract source
-        run: |
-          set -o pipefail
-          rm -rf fluentx_admin_secure
-          unzip -q fluentx_mobile_test_ready.zip 2>&1 | tee diagnostics/ci/extract.log
-          echo "extract=ok" >> diagnostics/ci/progress.log
-
-      - name: Apply app patch stack
-        run: |
-          set -o pipefail
-          python3 scripts/ci_patch.py fluentx_admin_secure
-          python3 scripts/patch_splash_redirect.py fluentx_admin_secure
-          python3 scripts/patch_personalized_onboarding.py fluentx_admin_secure
-          python3 scripts/fix_personalized_onboarding_compile.py fluentx_admin_secure
-          python3 scripts/patch_full_placement_test_ui.py fluentx_admin_secure
-          python3 scripts/patch_learning_path_minimal.py fluentx_admin_secure
-          python3 scripts/patch_market_ready_completion.py fluentx_admin_secure
-          python3 scripts/patch_learning_path_detail.py fluentx_admin_secure
-          python3 scripts/patch_fluentx_visual_system.py fluentx_admin_secure
-          python3 scripts/patch_reference_uiux.py fluentx_admin_secure
-          python3 scripts/patch_interview_ai_coach.py fluentx_admin_secure
-          python3 scripts/patch_settings_security.py fluentx_admin_secure
-          python3 scripts/patch_revenuecat_production.py fluentx_admin_secure
-          python3 scripts/patch_release_readiness.py fluentx_admin_secure
-          python3 scripts/patch_final_ui_cleanup.py fluentx_admin_secure
-          python3 scripts/patch_final_visual_consistency.py fluentx_admin_secure
-          python3 scripts/patch_billing_compliance.py fluentx_admin_secure
-          python3 scripts/patch_certificates.py fluentx_admin_secure
-          python3 scripts/patch_membership_tiers.py fluentx_admin_secure
-          python3 scripts/patch_subscription_feature_gating.py fluentx_admin_secure
-          python3 scripts/patch_launch_runtime_completion.py fluentx_admin_secure
-          python3 scripts/patch_maya_ai_conversation.py fluentx_admin_secure
-          python3 scripts/fix_maya_compile.py fluentx_admin_secure
-          echo "patches=ok" >> diagnostics/ci/progress.log
-
-      - name: Source preflight
-        working-directory: fluentx_admin_secure
-        run: |
-          set -o pipefail
-          python3 scripts/preflight_check.py 2>&1 | tee ../diagnostics/ci/preflight.log
-          echo "preflight=ok" >> ../diagnostics/ci/progress.log
-
-      - name: Bootstrap Android
-        working-directory: fluentx_admin_secure
-        timeout-minutes: 20
-        run: |
-          set -o pipefail
-          bash -x scripts/bootstrap_android.sh 2>&1 | tee ../diagnostics/ci/bootstrap_android.log
-          echo "android_bootstrap=ok" >> ../diagnostics/ci/progress.log
-
-      - name: Enable Android core library desugaring
-        run: |
-          set -o pipefail
-          python3 scripts/patch_android_desugaring.py fluentx_admin_secure 2>&1 | tee diagnostics/ci/desugaring.log
-          echo "desugaring=ok" >> diagnostics/ci/progress.log
-
-      - name: Remove generated template test
-        run: rm -f fluentx_admin_secure/test/widget_test.dart
-
-      - name: Install dependencies
-        working-directory: fluentx_admin_secure
-        timeout-minutes: 15
-        run: |
-          set -o pipefail
-          flutter pub get 2>&1 | tee ../diagnostics/ci/flutter_pub_get.log
-          echo "pub_get=ok" >> ../diagnostics/ci/progress.log
-
-      - name: Generate code
-        working-directory: fluentx_admin_secure
-        timeout-minutes: 12
-        run: |
-          set -o pipefail
-          dart run build_runner build --delete-conflicting-outputs 2>&1 | tee ../diagnostics/ci/build_runner.log
-          echo "build_runner=ok" >> ../diagnostics/ci/progress.log
-
-      - name: Analyze source
+      - name: Build FluentX APK with exact diagnostics
+        id: build
         continue-on-error: true
-        working-directory: fluentx_admin_secure
-        timeout-minutes: 10
-        run: |
-          set -o pipefail
-          flutter analyze --no-fatal-infos --no-fatal-warnings 2>&1 | tee ../diagnostics/ci/flutter_analyze.log
-          echo "analyze=done" >> ../diagnostics/ci/progress.log
-
-      - name: Build debug APK
-        working-directory: fluentx_admin_secure
-        timeout-minutes: 35
-        env:
-          REVENUECAT_ANDROID_API_KEY: ${{ secrets.REVENUECAT_ANDROID_API_KEY }}
-        run: |
-          set -o pipefail
-          echo "apk_build=starting" >> ../diagnostics/ci/progress.log
-          flutter build apk --debug \
-            --dart-define=FLAVOR=dev \
-            --dart-define=REVENUECAT_ANDROID_API_KEY=$REVENUECAT_ANDROID_API_KEY \
-            2>&1 | tee ../diagnostics/ci/flutter_build_apk.log
-          echo "apk_build=ok" >> ../diagnostics/ci/progress.log
-
-      - name: Save exact failure diagnostics to repository
-        if: failure()
+        timeout-minutes: 60
+        shell: bash
         run: |
           set +e
-          date -u +"failed_at=%Y-%m-%dT%H:%M:%SZ" >> diagnostics/ci/progress.log
+          mkdir -p diagnostics/ci
+
+          stage() {
+            name="$1"
+            shift
+            echo "START:$name" | tee -a diagnostics/ci/progress.log
+            "$@" >"diagnostics/ci/${name}.log" 2>&1
+            rc=$?
+            if [ $rc -ne 0 ]; then
+              echo "FAILED:$name:$rc" | tee -a diagnostics/ci/progress.log
+              echo "$name" > diagnostics/ci/failed_stage.txt
+              tail -n 120 "diagnostics/ci/${name}.log" > diagnostics/ci/failure_tail.txt || true
+              exit $rc
+            fi
+            echo "OK:$name" | tee -a diagnostics/ci/progress.log
+          }
+
+          if ! command -v flutter >/dev/null 2>&1; then
+            echo "FAILED:flutter_setup:127" | tee -a diagnostics/ci/progress.log
+            echo "flutter_setup" > diagnostics/ci/failed_stage.txt
+            echo "flutter command not found after primary and fallback setup" > diagnostics/ci/failure_tail.txt
+            exit 127
+          fi
+
+          stage flutter_version flutter --version
+          stage extract bash -lc 'rm -rf fluentx_admin_secure && unzip -q fluentx_mobile_test_ready.zip'
+
+          stage patch_stack bash -lc '
+            python3 scripts/ci_patch.py fluentx_admin_secure &&
+            python3 scripts/patch_splash_redirect.py fluentx_admin_secure &&
+            python3 scripts/patch_personalized_onboarding.py fluentx_admin_secure &&
+            python3 scripts/fix_personalized_onboarding_compile.py fluentx_admin_secure &&
+            python3 scripts/patch_full_placement_test_ui.py fluentx_admin_secure &&
+            python3 scripts/patch_learning_path_minimal.py fluentx_admin_secure &&
+            python3 scripts/patch_market_ready_completion.py fluentx_admin_secure &&
+            python3 scripts/patch_learning_path_detail.py fluentx_admin_secure &&
+            python3 scripts/patch_fluentx_visual_system.py fluentx_admin_secure &&
+            python3 scripts/patch_reference_uiux.py fluentx_admin_secure &&
+            python3 scripts/patch_interview_ai_coach.py fluentx_admin_secure &&
+            python3 scripts/patch_settings_security.py fluentx_admin_secure &&
+            python3 scripts/patch_revenuecat_production.py fluentx_admin_secure &&
+            python3 scripts/patch_release_readiness.py fluentx_admin_secure &&
+            python3 scripts/patch_final_ui_cleanup.py fluentx_admin_secure &&
+            python3 scripts/patch_final_visual_consistency.py fluentx_admin_secure &&
+            python3 scripts/patch_billing_compliance.py fluentx_admin_secure &&
+            python3 scripts/patch_certificates.py fluentx_admin_secure &&
+            python3 scripts/patch_membership_tiers.py fluentx_admin_secure &&
+            python3 scripts/patch_subscription_feature_gating.py fluentx_admin_secure &&
+            python3 scripts/patch_launch_runtime_completion.py fluentx_admin_secure &&
+            python3 scripts/patch_maya_ai_conversation.py fluentx_admin_secure &&
+            python3 scripts/fix_maya_compile.py fluentx_admin_secure
+          '
+
+          stage preflight bash -lc 'cd fluentx_admin_secure && python3 scripts/preflight_check.py'
+          stage bootstrap_android bash -lc 'cd fluentx_admin_secure && bash -x scripts/bootstrap_android.sh'
+          stage desugaring python3 scripts/patch_android_desugaring.py fluentx_admin_secure
+          rm -f fluentx_admin_secure/test/widget_test.dart
+          stage pub_get bash -lc 'cd fluentx_admin_secure && flutter pub get'
+          stage build_runner bash -lc 'cd fluentx_admin_secure && dart run build_runner build --delete-conflicting-outputs'
+
+          # Analyze is diagnostic-only; warnings/errors here should not hide the real APK compiler output.
+          flutter analyze --no-fatal-infos --no-fatal-warnings > diagnostics/ci/flutter_analyze.log 2>&1 || true
+
+          stage apk_build bash -lc 'cd fluentx_admin_secure && flutter build apk --debug --dart-define=FLAVOR=dev --dart-define=REVENUECAT_ANDROID_API_KEY="${REVENUECAT_ANDROID_API_KEY:-}"'
+          echo "BUILD_SUCCESS" | tee -a diagnostics/ci/progress.log
+        env:
+          REVENUECAT_ANDROID_API_KEY: ${{ secrets.REVENUECAT_ANDROID_API_KEY }}
+
+      - name: Persist diagnostics before final status
+        if: always()
+        continue-on-error: true
+        run: |
+          set +e
+          date -u +"completed_at=%Y-%m-%dT%H:%M:%SZ" >> diagnostics/ci/progress.log
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -f diagnostics/ci
           if ! git diff --cached --quiet; then
-            git commit -m "Save exact APK failure diagnostics [skip ci]"
+            git commit -m "Save exact APK diagnostics [skip ci]"
             git pull --rebase origin main || true
             git push origin HEAD:main || true
           fi
-
-      - name: Upload APK
-        if: success()
-        uses: actions/upload-artifact@v7
-        with:
-          name: FluentX-debug-apk
-          path: fluentx_admin_secure/build/app/outputs/flutter-apk/app-debug.apk
-          if-no-files-found: error
 
       - name: Upload diagnostics
         if: always()
@@ -187,3 +147,19 @@ jobs:
           name: FluentX-ci-diagnostics
           path: diagnostics/ci
           if-no-files-found: error
+
+      - name: Upload APK
+        if: steps.build.outcome == 'success'
+        uses: actions/upload-artifact@v7
+        with:
+          name: FluentX-debug-apk
+          path: fluentx_admin_secure/build/app/outputs/flutter-apk/app-debug.apk
+          if-no-files-found: error
+
+      - name: Fail job after diagnostics are saved
+        if: steps.build.outcome != 'success'
+        run: |
+          echo "FluentX APK build failed. Exact stage and logs were saved to diagnostics/ci."
+          cat diagnostics/ci/failed_stage.txt || true
+          cat diagnostics/ci/failure_tail.txt || true
+          exit 1
