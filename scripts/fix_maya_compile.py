@@ -33,8 +33,6 @@ for forbidden in [
 
 path.write_text(text, encoding='utf-8')
 
-# Capture lightweight CI diagnostics during the fast completion-audit workflow.
-# These files are informational and do not make the patch fail.
 diag = Path('diagnostics')
 diag.mkdir(parents=True, exist_ok=True)
 preflight = root / 'scripts' / 'preflight_check.py'
@@ -45,7 +43,7 @@ if preflight.exists():
         (diag / 'preflight_snapshot_error.txt').write_text(str(exc), encoding='utf-8')
     try:
         result = subprocess.run(
-            [sys.executable, str(preflight)],
+            [sys.executable, 'scripts/preflight_check.py'],
             cwd=str(root),
             text=True,
             stdout=subprocess.PIPE,
