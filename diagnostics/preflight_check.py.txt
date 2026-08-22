@@ -1,0 +1,69 @@
+from pathlib import Path
+import json
+import re
+import sys
+
+ROOT = Path(__file__).resolve().parents[1]
+errors: list[str] = []
+
+required_files = [
+    'pubspec.yaml',
+    'lib/main.dart',
+    'assets/icons/google_logo.png',
+    'assets/icons/apple_logo.png',
+    'supabase/functions/ai-practice-chat/index.ts',
+    'supabase/functions/score-writing/index.ts',
+    'supabase/functions/delete-account/index.ts',
+    'supabase/migrations/0010_achievements.sql',
+    'scripts/bootstrap_android.sh',
+    'config/firebase/google-services.json',
+]
+for rel in required_files:
+    if not (ROOT / rel).exists():
+        errors.append(f'Missing required file: {rel}')
+
+# Firebase Android config must match the production application id.
+try:
+    firebase_config = json.loads((ROOT / 'config/firebase/google-services.json').read_text())
+    firebase_packages = [
+        client.get('client_info', {}).get('android_client_info', {}).get('package_name')
+        for client in firebase_config.get('client', [])
+    ]
+    if 'io.fluentx.app' not in firebase_packages:
+        errors.append('Firebase config package does not match io.fluentx.app')
+except Exception as exc:
+    errors.append(f'Invalid Firebase config: {exc}')
+
+# Every relative Dart import must resolve to a real file.
+for dart in (ROOT / 'lib').rglob('*.dart'):
+    text = dart.read_text()
+    for match in re.finditer(r"import\s+['\"]([^'\"]+)['\"];", text):
+        target = match.group(1)
+        if target.startswith('.') and not (dart.parent / target).resolve().exists():
+            errors.append(f'Broken import in {dart.relative_to(ROOT)}: {target}')
+
+# Reference-image Learn screen requires all six visible modules.
+learn = (ROOT / 'lib/features/learn/presentation/screens/learn_hub_screen.dart').read_text()
+for label in ['Vocabulary', 'Grammar', 'Listening', 'Writing', 'Idioms & Phrases', 'Business English']:
+    if f"title: '{label}'" not in learn:
+        errors.append(f'Learn module missing: {label}')
+
+# No feature screen should still use the old placeholder scaffold.
+for dart in (ROOT / 'lib/features').rglob('*.dart'):
+    text = dart.read_text()
+    if 'BootstrapScreen(' in text or 'coming soon' in text.lower():
+        errors.append(f'Placeholder remains in {dart.relative_to(ROOT)}')
+
+if errors:
+    print('FluentX preflight FAILED:')
+    for error in errors:
+        print(f' - {error}')
+    sys.exit(1)
+
+print('FluentX preflight PASSED')
+print(' - required assets present')
+print(' - relative imports resolve')
+print(' - six Learn modules present')
+print(' - no feature-screen placeholders remain')
+print(' - AI + account Edge Functions present')
+print(' - Firebase Android config present and package-matched')

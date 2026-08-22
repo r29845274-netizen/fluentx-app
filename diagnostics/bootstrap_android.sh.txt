@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if ! command -v flutter >/dev/null 2>&1; then
+  echo "Flutter SDK is required to bootstrap Android." >&2
+  exit 1
+fi
+
+if [ ! -d android ]; then
+  flutter create --no-pub --platforms=android --org io.fluentx --project-name fluentx .
+fi
+
+python3 scripts/patch_android.py
+
+echo "Android platform is ready (applicationId: io.fluentx.app)."
