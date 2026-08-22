@@ -44,6 +44,8 @@ jobs:
           python3 scripts/patch_billing_compliance.py fluentx_admin_secure
           python3 scripts/patch_certificates.py fluentx_admin_secure
           python3 scripts/patch_membership_tiers.py fluentx_admin_secure
+          python3 scripts/patch_subscription_feature_gating.py fluentx_admin_secure
+          python3 scripts/patch_launch_runtime_completion.py fluentx_admin_secure
 
       - name: Build completion audit
         run: |
@@ -74,6 +76,14 @@ jobs:
           cp fluentx_admin_secure/lib/features/learn/presentation/screens/learn_hub_screen.dart diagnostics/source_snapshots/learn_hub_screen.dart.txt
           cp fluentx_admin_secure/lib/features/learn/presentation/screens/learning_path_screen.dart diagnostics/source_snapshots/learning_path_screen.dart.txt
           cp fluentx_admin_secure/lib/features/ai_practice/presentation/screens/ai_practice_hub_screen.dart diagnostics/source_snapshots/ai_practice_hub_screen.dart.txt
+          cp fluentx_admin_secure/lib/features/ai_practice/application/providers/ai_practice_providers.dart diagnostics/source_snapshots/ai_practice_providers.dart.txt 2>/dev/null || true
+          cp fluentx_admin_secure/lib/features/ai_practice/data/datasources/ai_practice_remote_datasource.dart diagnostics/source_snapshots/ai_practice_remote_datasource.dart.txt 2>/dev/null || true
+          cp fluentx_admin_secure/lib/features/ai_practice/data/repositories/ai_practice_repository_impl.dart diagnostics/source_snapshots/ai_practice_repository_impl.dart.txt 2>/dev/null || true
+          cp fluentx_admin_secure/lib/features/ai_practice/domain/entities/practice_message.dart diagnostics/source_snapshots/practice_message.dart.txt 2>/dev/null || true
+          cp fluentx_admin_secure/lib/features/ai_practice/domain/entities/practice_scenario.dart diagnostics/source_snapshots/practice_scenario.dart.txt 2>/dev/null || true
+          cp fluentx_admin_secure/lib/features/ai_practice/presentation/widgets/chat_bubble.dart diagnostics/source_snapshots/chat_bubble.dart.txt 2>/dev/null || true
+          cp fluentx_admin_secure/lib/features/ai_practice/presentation/widgets/practice_mic_button.dart diagnostics/source_snapshots/practice_mic_button.dart.txt 2>/dev/null || true
+          cp fluentx_admin_secure/lib/features/ai_practice/presentation/widgets/practice_summary_view.dart diagnostics/source_snapshots/practice_summary_view.dart.txt 2>/dev/null || true
           cp fluentx_admin_secure/lib/features/vocabulary/presentation/screens/vocabulary_screen.dart diagnostics/source_snapshots/vocabulary_screen.dart.txt
           cp fluentx_admin_secure/lib/features/grammar/presentation/screens/grammar_screen.dart diagnostics/source_snapshots/grammar_screen.dart.txt
           cp fluentx_admin_secure/lib/features/listening/presentation/screens/listening_screen.dart diagnostics/source_snapshots/listening_screen.dart.txt
