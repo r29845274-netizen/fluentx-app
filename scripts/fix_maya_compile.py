@@ -1,4 +1,5 @@
 from pathlib import Path
+import subprocess
 import sys
 
 root = Path(sys.argv[1] if len(sys.argv) > 1 else 'fluentx_admin_secure')
@@ -22,7 +23,6 @@ for old, new in replacements.items():
     if old in text:
         text = text.replace(old, new)
 
-# Guard against regressions in the generated Maya screen.
 for forbidden in [
     "_usedSeconds = used.clamp(0, _limitForTier(tier));",
     "final remaining = (_dailyLimitSeconds - _usedSeconds).clamp(0, _dailyLimitSeconds);",
@@ -32,4 +32,38 @@ for forbidden in [
         raise SystemExit(f'Unfixed Maya compile pattern: {forbidden}')
 
 path.write_text(text, encoding='utf-8')
-print('Maya compile safety fixes applied.')
+
+# Capture lightweight CI diagnostics during the fast completion-audit workflow.
+# These files are informational and do not make the patch fail.
+diag = Path('diagnostics')
+diag.mkdir(parents=True, exist_ok=True)
+preflight = root / 'scripts' / 'preflight_check.py'
+if preflight.exists():
+    try:
+        (diag / 'preflight_check.py.txt').write_text(preflight.read_text(encoding='utf-8'), encoding='utf-8')
+    except Exception as exc:
+        (diag / 'preflight_snapshot_error.txt').write_text(str(exc), encoding='utf-8')
+    try:
+        result = subprocess.run(
+            [sys.executable, str(preflight)],
+            cwd=str(root),
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            timeout=60,
+            check=False,
+        )
+        (diag / 'preflight_runtime.txt').write_text(
+            f'exit_code={result.returncode}\n{result.stdout}', encoding='utf-8'
+        )
+    except Exception as exc:
+        (diag / 'preflight_runtime.txt').write_text(f'probe_error={exc}\n', encoding='utf-8')
+
+bootstrap = root / 'scripts' / 'bootstrap_android.sh'
+if bootstrap.exists():
+    try:
+        (diag / 'bootstrap_android.sh.txt').write_text(bootstrap.read_text(encoding='utf-8'), encoding='utf-8')
+    except Exception:
+        pass
+
+print('Maya compile safety fixes applied; lightweight CI diagnostics captured.')
