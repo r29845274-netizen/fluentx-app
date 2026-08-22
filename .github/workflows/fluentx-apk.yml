@@ -97,6 +97,9 @@ jobs:
       - name: Apply launch runtime completion
         run: python3 scripts/patch_launch_runtime_completion.py fluentx_admin_secure
 
+      - name: Apply Maya AI conversation
+        run: python3 scripts/patch_maya_ai_conversation.py fluentx_admin_secure
+
       - name: Validate pubspec
         working-directory: fluentx_admin_secure
         run: flutter pub get
