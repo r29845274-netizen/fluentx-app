@@ -117,16 +117,16 @@ jobs:
           stage pub_get bash -lc 'cd fluentx_admin_secure && flutter pub get'
           stage build_runner bash -lc 'cd fluentx_admin_secure && dart run build_runner build --delete-conflicting-outputs'
 
-          # Analyze is diagnostic-only; warnings/errors here should not hide the real APK compiler output.
           flutter analyze --no-fatal-infos --no-fatal-warnings > diagnostics/ci/flutter_analyze.log 2>&1 || true
 
           stage apk_build bash -lc 'cd fluentx_admin_secure && flutter build apk --debug --dart-define=FLAVOR=dev --dart-define=REVENUECAT_ANDROID_API_KEY="${REVENUECAT_ANDROID_API_KEY:-}"'
+          test -s fluentx_admin_secure/build/app/outputs/flutter-apk/app-debug.apk || exit 86
           echo "BUILD_SUCCESS" | tee -a diagnostics/ci/progress.log
         env:
           REVENUECAT_ANDROID_API_KEY: ${{ secrets.REVENUECAT_ANDROID_API_KEY }}
 
-      - name: Persist diagnostics before final status
-        if: always()
+      - name: Persist failure diagnostics
+        if: steps.build.outcome != 'success'
         continue-on-error: true
         run: |
           set +e
@@ -140,26 +140,36 @@ jobs:
             git push origin HEAD:main || true
           fi
 
-      - name: Upload diagnostics
-        if: always()
+      - name: Upload failure diagnostics
+        if: steps.build.outcome != 'success'
+        continue-on-error: true
         uses: actions/upload-artifact@v7
         with:
           name: FluentX-ci-diagnostics
           path: diagnostics/ci
-          if-no-files-found: error
+          retention-days: 1
+          if-no-files-found: warn
 
       - name: Upload APK
         if: steps.build.outcome == 'success'
+        continue-on-error: true
         uses: actions/upload-artifact@v7
         with:
-          name: FluentX-debug-apk
           path: fluentx_admin_secure/build/app/outputs/flutter-apk/app-debug.apk
-          if-no-files-found: error
+          archive: false
+          retention-days: 1
+          if-no-files-found: warn
 
-      - name: Fail job after diagnostics are saved
+      - name: Confirm successful APK build
+        if: steps.build.outcome == 'success'
+        run: |
+          test -s fluentx_admin_secure/build/app/outputs/flutter-apk/app-debug.apk
+          echo "APK compiled successfully. Artifact upload is non-blocking."
+
+      - name: Fail only when APK compilation fails
         if: steps.build.outcome != 'success'
         run: |
-          echo "FluentX APK build failed. Exact stage and logs were saved to diagnostics/ci."
+          echo "FluentX APK compilation failed."
           cat diagnostics/ci/failed_stage.txt || true
           cat diagnostics/ci/failure_tail.txt || true
           exit 1
