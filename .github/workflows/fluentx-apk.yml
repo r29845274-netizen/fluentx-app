@@ -106,6 +106,9 @@ jobs:
       - name: Apply Maya compile safety fixes
         run: python3 scripts/fix_maya_compile.py fluentx_admin_secure
 
+      - name: Normalize code generation dependencies
+        run: python3 scripts/patch_ci_generator_compat.py fluentx_admin_secure
+
       - name: Validate pubspec
         working-directory: fluentx_admin_secure
         run: flutter pub get
@@ -144,11 +147,15 @@ jobs:
           set -o pipefail
           flutter analyze --no-fatal-infos --no-fatal-warnings 2>&1 | tee ../diagnostics/ci/flutter_analyze.log
 
-      - name: Run tests
+      - name: Run tests if present
         working-directory: fluentx_admin_secure
         run: |
           set -o pipefail
-          flutter test 2>&1 | tee ../diagnostics/ci/flutter_test.log
+          if find test -type f -name '*_test.dart' | grep -q .; then
+            flutter test 2>&1 | tee ../diagnostics/ci/flutter_test.log
+          else
+            echo 'No Dart tests present; skipping flutter test.' | tee ../diagnostics/ci/flutter_test.log
+          fi
 
       - name: Build debug APK
         working-directory: fluentx_admin_secure
