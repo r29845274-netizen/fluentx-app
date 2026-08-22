@@ -82,6 +82,9 @@ jobs:
         working-directory: fluentx_admin_secure
         run: bash scripts/bootstrap_android.sh
 
+      - name: Normalize Flutter Android toolchain
+        run: python3 scripts/patch_android_flutter_compat.py fluentx_admin_secure
+
       - name: Apply Android release config
         run: |
           python3 scripts/patch_android_desugaring.py fluentx_admin_secure
