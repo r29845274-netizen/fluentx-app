@@ -11,7 +11,7 @@ permissions:
 jobs:
   build-apk:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 90
 
     steps:
       - name: Checkout
@@ -106,23 +106,14 @@ jobs:
       - name: Apply Maya compile safety fixes
         run: python3 scripts/fix_maya_compile.py fluentx_admin_secure
 
-      - name: Normalize code generation dependencies
-        run: python3 scripts/patch_ci_generator_compat.py fluentx_admin_secure
-
-      - name: Validate pubspec
-        working-directory: fluentx_admin_secure
-        run: flutter pub get
-
       - name: Source preflight
         working-directory: fluentx_admin_secure
         run: python3 scripts/preflight_check.py
 
       - name: Bootstrap Android
         working-directory: fluentx_admin_secure
+        timeout-minutes: 10
         run: bash scripts/bootstrap_android.sh
-
-      - name: Normalize Flutter Android toolchain
-        run: python3 scripts/patch_android_flutter_compat.py fluentx_admin_secure
 
       - name: Enable Android core library desugaring
         run: python3 scripts/patch_android_desugaring.py fluentx_admin_secure
@@ -132,10 +123,12 @@ jobs:
 
       - name: Install dependencies
         working-directory: fluentx_admin_secure
+        timeout-minutes: 10
         run: flutter pub get
 
       - name: Generate code
         working-directory: fluentx_admin_secure
+        timeout-minutes: 12
         run: |
           set -o pipefail
           mkdir -p ../diagnostics/ci
@@ -143,12 +136,14 @@ jobs:
 
       - name: Analyze full source
         working-directory: fluentx_admin_secure
+        timeout-minutes: 12
         run: |
           set -o pipefail
           flutter analyze --no-fatal-infos --no-fatal-warnings 2>&1 | tee ../diagnostics/ci/flutter_analyze.log
 
       - name: Run tests if present
         working-directory: fluentx_admin_secure
+        timeout-minutes: 10
         run: |
           set -o pipefail
           if find test -type f -name '*_test.dart' | grep -q .; then
@@ -159,6 +154,7 @@ jobs:
 
       - name: Build debug APK
         working-directory: fluentx_admin_secure
+        timeout-minutes: 35
         env:
           REVENUECAT_ANDROID_API_KEY: ${{ secrets.REVENUECAT_ANDROID_API_KEY }}
         run: |
@@ -177,7 +173,6 @@ jobs:
           git add diagnostics/ci || true
           if ! git diff --cached --quiet; then
             git commit -m "Save APK failure logs [skip ci]"
-            git pull --rebase origin main
             git push
           fi
 
