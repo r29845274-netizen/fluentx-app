@@ -1,0 +1,56 @@
++ set -euo pipefail
++ command -v flutter
++ '[' '!' -d android ']'
++ flutter create --no-pub --platforms=android --org io.fluentx --project-name fluentx .
+Recreating project ....
+  android/app/src/main/kotlin/io/fluentx/fluentx/MainActivity.kt (created)
+  android/app/build.gradle.kts (created)
+  android/fluentx_android.iml (created)
+  android/build.gradle.kts (created)
+  .gitignore (created)
+  fluentx.iml (created)
+  README.md (created)
+  .idea/runConfigurations/main_dart.xml (created)
+  .idea/workspace.xml (created)
+  .idea/modules.xml (created)
+  .idea/libraries/Dart_SDK.xml (created)
+  .idea/libraries/KotlinJavaRuntime.xml (created)
+  android/app/src/profile/AndroidManifest.xml (created)
+  android/app/src/main/res/mipmap-xhdpi/ic_launcher.png (created)
+  android/app/src/main/res/mipmap-hdpi/ic_launcher.png (created)
+  android/app/src/main/res/drawable-v21/launch_background.xml (created)
+  android/app/src/main/res/mipmap-mdpi/ic_launcher.png (created)
+  android/app/src/main/res/mipmap-xxhdpi/ic_launcher.png (created)
+  android/app/src/main/res/values-night/styles.xml (created)
+  android/app/src/main/res/drawable/launch_background.xml (created)
+  android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png (created)
+  android/app/src/main/res/values/styles.xml (created)
+  android/app/src/main/AndroidManifest.xml (created)
+  android/app/src/debug/AndroidManifest.xml (created)
+  android/settings.gradle.kts (created)
+  android/.gitignore (created)
+  android/gradle.properties (created)
+  android/gradle/wrapper/gradle-wrapper.properties (created)
+  test/widget_test.dart (created)
+Wrote 32 files.
+
+All done!
+You can find general documentation for Flutter at: https://docs.flutter.dev/
+Detailed API documentation is available at: https://api.flutter.dev/
+If you prefer video documentation, consider: https://www.youtube.com/c/flutterdev
+
+In order to run your application, type:
+
+  $ flutter run
+
+Your application code is in ./lib/main.dart.
+
++ python3 scripts/patch_android.py
+Android Firebase patch complete:
+ - package: io.fluentx.app
+ - google-services.json -> android/app/google-services.json
+ - Google Services plugin: 4.5.0
+ - Crashlytics plugin: 3.0.7
+ - compileSdk/targetSdk: 36
++ echo 'Android platform is ready (applicationId: io.fluentx.app).'
+Android platform is ready (applicationId: io.fluentx.app).

@@ -1,0 +1,59 @@
+Lucide icon names migrated: award, barChart2, bell, bookOpen, briefcase, building2, check, checkCircle2, chevronRight, clock, construction, crown, eye, eyeOff, fileText, flame, footprints, graduationCap, headphones, helpCircle, home, inbox, info, languages, lifeBuoy, lightbulb, lock, logOut, mailCheck, messageCircle, messageSquare, mic, moon, partyPopper, pause, penLine, play, playCircle, refreshCw, rotateCcw, search, settings, shield, smartphone, sparkles, spellCheck, square, star, sun, target, trash2, trophy, user, userCog, users, wifiOff, x
+CI compatibility patch applied successfully.
+Patched branded splash timing and routing in: fluentx_admin_secure/lib/routes/app_router.dart
+Minimum FluentX splash duration: 1200 ms
+FluentX splash timing + redirect fix applied successfully.
+Personalized onboarding UI patch applied.
+Personalized onboarding compile fix applied.
+Full FluentX placement test UI applied.
+Conservative personalized learning path patch applied successfully.
+Applied supabase/migrations/0012_personalized_learning_path.sql
+Applied supabase/functions/score-writing/index.ts
+Applied supabase/functions/ai-practice-chat/index.ts
+Applied supabase/functions/score-placement-speaking/index.ts
+Applied supabase/migrations/0013_market_ready_content.sql
+Updated Learn module claims.
+Added Writing AI disclosure.
+Added AI Practice disclosure.
+FluentX market-ready completion patch applied.
+Detailed learning path screen + route applied successfully.
+FluentX premium visual design system applied.
+Polished: lib/core/theme/app_theme.dart
+Polished: lib/core/constants/app_radius.dart
+Polished: lib/shared/widgets/cards/app_card.dart
+Polished: lib/shared/widgets/buttons/primary_button.dart
+Polished: home hero
+Polished: lib/features/authentication/presentation/screens/login_screen.dart
+Polished: lib/features/ai_practice/presentation/screens/ai_practice_hub_screen.dart
+Reference-inspired SAFE UI/UX polish applied without replacing feature screens.
+Updated fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart
+Updated fluentx_admin_secure/lib/features/settings/presentation/screens/settings_screen.dart
+RevenueCat production bootstrap patched
+Release-readiness patch applied
+Applied FluentX final UI cleanup
+bottom-nav visual order: updated fluentx_admin_secure/lib/shared/widgets/navigation/app_shell.dart
+router tab order: updated fluentx_admin_secure/lib/routes/app_router.dart
+home notification action: updated fluentx_admin_secure/lib/features/home/presentation/screens/home_screen.dart
+learn path error state: updated fluentx_admin_secure/lib/features/learn/presentation/screens/learn_hub_screen.dart
+FluentX final visual consistency polish applied.
+Applied FluentX Google Play billing compliance patch
+certificate screen: wrote fluentx_admin_secure/lib/features/certificates/presentation/screens/certificates_screen.dart
+certificate route path: updated fluentx_admin_secure/lib/routes/route_paths.dart
+certificate router: updated fluentx_admin_secure/lib/routes/app_router.dart
+certificate profile entry: updated fluentx_admin_secure/lib/features/profile/presentation/screens/profile_screen.dart
+certificate progress entry: updated fluentx_admin_secure/lib/features/progress/presentation/screens/progress_screen.dart
+FluentX certificate experience applied.
+membership provider: wrote fluentx_admin_secure/lib/features/premium/application/providers/membership_identity_provider.dart
+membership identity card: wrote fluentx_admin_secure/lib/features/premium/presentation/widgets/membership_identity_card.dart
+membership profile: updated fluentx_admin_secure/lib/features/profile/presentation/screens/profile_screen.dart
+membership paywall: updated fluentx_admin_secure/lib/features/premium/presentation/screens/premium_screen.dart
+membership certificates: updated fluentx_admin_secure/lib/features/certificates/presentation/screens/certificates_screen.dart
+FluentX membership tier experience applied.
+AI Practice paid gating: updated fluentx_admin_secure/lib/features/ai_practice/presentation/screens/ai_practice_hub_screen.dart
+Interview annual gating: updated fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart
+Communication DNA annual gating: updated fluentx_admin_secure/lib/features/communication_dna/presentation/screens/communication_dna_screen.dart
+FluentX subscription feature gating applied.
+RevenueCat/Supabase identity linking applied.
+60-week progression UI + secure mastery test flow applied.
+Approved Maya design applied: premium Free Talk home, text + voice conversation, live microphone, spoken Maya replies, Hindi/Hinglish→English coaching, corrections, adaptive expression, emotional TTS, daily AI usage, safe conversation and summary.
+Maya compile safety fixes applied; lightweight CI diagnostics captured.
