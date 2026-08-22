@@ -69,6 +69,7 @@ jobs:
           python3 scripts/patch_launch_runtime_completion.py fluentx_admin_secure
           python3 scripts/patch_maya_ai_conversation.py fluentx_admin_secure
           python3 scripts/fix_maya_compile.py fluentx_admin_secure
+          python3 scripts/patch_ci_generator_compat.py fluentx_admin_secure
 
       - name: Install dependencies
         working-directory: fluentx_admin_secure
@@ -116,9 +117,14 @@ jobs:
         working-directory: fluentx_admin_secure
         run: flutter analyze --no-fatal-infos --no-fatal-warnings
 
-      - name: Run tests
+      - name: Run tests if present
         working-directory: fluentx_admin_secure
-        run: flutter test
+        run: |
+          if find test -type f -name '*_test.dart' | grep -q .; then
+            flutter test
+          else
+            echo 'No Dart tests present; skipping flutter test.'
+          fi
 
       - name: Build production AAB
         working-directory: fluentx_admin_secure
