@@ -108,7 +108,8 @@ jobs:
             python3 scripts/patch_launch_runtime_completion.py fluentx_admin_secure &&
             python3 scripts/patch_maya_ai_conversation.py fluentx_admin_secure &&
             python3 scripts/fix_maya_compile.py fluentx_admin_secure &&
-            python3 scripts/patch_growth_coaching.py fluentx_admin_secure
+            python3 scripts/patch_growth_coaching.py fluentx_admin_secure &&
+            python3 scripts/patch_maya_natural_voice.py fluentx_admin_secure
           '
 
           stage preflight bash -lc 'cd fluentx_admin_secure && python3 scripts/preflight_check.py'
