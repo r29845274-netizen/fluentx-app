@@ -111,7 +111,8 @@ jobs:
             python3 scripts/patch_growth_coaching.py fluentx_admin_secure &&
             python3 scripts/patch_maya_natural_voice.py fluentx_admin_secure &&
             python3 scripts/patch_referral_growth.py fluentx_admin_secure &&
-            python3 scripts/patch_growth_analytics_share_cards.py fluentx_admin_secure
+            python3 scripts/patch_growth_analytics_share_cards.py fluentx_admin_secure &&
+            python3 scripts/patch_full_legal_compliance.py fluentx_admin_secure
           '
 
           stage preflight bash -lc 'cd fluentx_admin_secure && python3 scripts/preflight_check.py'
