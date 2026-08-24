@@ -16,6 +16,5 @@ OK:pub_get
 START:build_runner
 OK:build_runner
 START:apk_build
-OK:apk_build
-BUILD_SUCCESS
-completed_at=2026-08-22T12:37:46Z
+FAILED:apk_build:1
+completed_at=2026-08-24T08:03:43Z
