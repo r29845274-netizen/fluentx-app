@@ -8,18 +8,24 @@ if not path.exists():
 
 text = path.read_text(encoding='utf-8')
 
-# Stop Maya speech immediately when the learner wants to speak (simple barge-in).
+# Stop Maya speech immediately when the learner wants to speak (barge-in).
 needle = "    final ok = await _speech.initialize();"
 if needle in text and "    await _tts.stop();\n    final ok = await _speech.initialize();" not in text:
     text = text.replace(needle, "    await _tts.stop();\n    final ok = await _speech.initialize();", 1)
 
-# Voice mode should behave like a real conversation: after Maya finishes speaking,
-# automatically reopen the microphone unless the learner paused/left voice mode.
+# Faster end-of-utterance detection for a more conversational feel.
+text = text.replace(
+    "      pauseFor: const Duration(seconds: 3),",
+    "      pauseFor: const Duration(seconds: 2),",
+    1,
+)
+
+# Voice mode: reopen microphone shortly after Maya finishes speaking.
 needle = "        await _speak(reply, (data['tts_locale'] ?? 'en-IN').toString(), _expression);\n      }"
 replacement = """        await _speak(reply, (data['tts_locale'] ?? 'en-IN').toString(), _expression);
         if (_voiceMode && !_voicePaused && mounted) {
-          await Future<void>.delayed(const Duration(milliseconds: 350));
-          if (_voiceMode && !_voicePaused && !_sending && mounted) {
+          await Future<void>.delayed(const Duration(milliseconds: 220));
+          if (_voiceMode && !_voicePaused && !_sending && !_listening && mounted) {
             await _toggleMic();
           }
         }
@@ -27,11 +33,11 @@ replacement = """        await _speak(reply, (data['tts_locale'] ?? 'en-IN').toS
 if needle in text and replacement not in text:
     text = text.replace(needle, replacement, 1)
 
-# Entering voice mode starts listening automatically.
+# Entering voice mode should start listening quickly.
 needle = "    _startVoiceTimer();\n  }\n\n  void _leaveVoiceMode()"
 replacement = """    _startVoiceTimer();
-    Future<void>.delayed(const Duration(milliseconds: 450), () async {
-      if (mounted && _voiceMode && !_voicePaused && !_sending) {
+    Future<void>.delayed(const Duration(milliseconds: 300), () async {
+      if (mounted && _voiceMode && !_voicePaused && !_sending && !_listening) {
         await _toggleMic();
       }
     });
@@ -41,12 +47,12 @@ replacement = """    _startVoiceTimer();
 if needle in text and replacement not in text:
     text = text.replace(needle, replacement, 1)
 
-# Starting directly from the home Voice Conversation button also starts listening.
+# Starting directly from the Voice Conversation CTA also starts listening.
 needle = "      if (voice) _startVoiceTimer();"
 replacement = """      if (voice) {
         _startVoiceTimer();
-        Future<void>.delayed(const Duration(milliseconds: 450), () async {
-          if (mounted && _voiceMode && !_voicePaused && !_sending) {
+        Future<void>.delayed(const Duration(milliseconds: 300), () async {
+          if (mounted && _voiceMode && !_voicePaused && !_sending && !_listening) {
             await _toggleMic();
           }
         });
@@ -55,4 +61,4 @@ if needle in text and replacement not in text:
     text = text.replace(needle, replacement, 1)
 
 path.write_text(text, encoding='utf-8')
-print('Maya natural voice loop applied: auto-listen, turn-taking and learner barge-in.')
+print('Maya voice polish applied: faster turn-taking, barge-in, shorter silence and duplicate-listen guards.')
