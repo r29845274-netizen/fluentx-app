@@ -1,0 +1,116 @@
+name: FluentX Downloadable APK
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/fluentx-apk-downloadable.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: false
+
+      - name: Extract source
+        run: |
+          rm -rf fluentx_admin_secure
+          unzip -q fluentx_mobile_test_ready.zip
+
+      - name: Apply latest FluentX patch stack
+        run: |
+          python3 scripts/ci_patch.py fluentx_admin_secure
+          python3 scripts/patch_splash_redirect.py fluentx_admin_secure
+          python3 scripts/patch_personalized_onboarding.py fluentx_admin_secure
+          python3 scripts/fix_personalized_onboarding_compile.py fluentx_admin_secure
+          python3 scripts/patch_full_placement_test_ui.py fluentx_admin_secure
+          python3 scripts/patch_learning_path_minimal.py fluentx_admin_secure
+          python3 scripts/patch_market_ready_completion.py fluentx_admin_secure
+          python3 scripts/patch_learning_path_detail.py fluentx_admin_secure
+          python3 scripts/patch_fluentx_visual_system.py fluentx_admin_secure
+          python3 scripts/patch_reference_uiux.py fluentx_admin_secure
+          python3 scripts/patch_interview_ai_coach.py fluentx_admin_secure
+          python3 scripts/patch_settings_security.py fluentx_admin_secure
+          python3 scripts/patch_revenuecat_production.py fluentx_admin_secure
+          python3 scripts/patch_release_readiness.py fluentx_admin_secure
+          python3 scripts/patch_final_ui_cleanup.py fluentx_admin_secure
+          python3 scripts/patch_final_visual_consistency.py fluentx_admin_secure
+          python3 scripts/patch_billing_compliance.py fluentx_admin_secure
+          python3 scripts/patch_certificates.py fluentx_admin_secure
+          python3 scripts/patch_membership_tiers.py fluentx_admin_secure
+          python3 scripts/patch_subscription_feature_gating.py fluentx_admin_secure
+          python3 scripts/patch_launch_runtime_completion.py fluentx_admin_secure
+          python3 scripts/patch_maya_ai_conversation.py fluentx_admin_secure
+          python3 scripts/fix_maya_compile.py fluentx_admin_secure
+          python3 scripts/patch_growth_coaching.py fluentx_admin_secure
+          python3 scripts/patch_maya_natural_voice.py fluentx_admin_secure
+          python3 scripts/patch_referral_growth.py fluentx_admin_secure
+          python3 scripts/patch_growth_analytics_share_cards.py fluentx_admin_secure
+          python3 scripts/patch_full_legal_compliance.py fluentx_admin_secure
+          python3 scripts/patch_adaptive_coaching_intelligence.py fluentx_admin_secure
+
+      - name: Preflight
+        working-directory: fluentx_admin_secure
+        run: python3 scripts/preflight_check.py
+
+      - name: Bootstrap Android
+        working-directory: fluentx_admin_secure
+        run: bash scripts/bootstrap_android.sh
+
+      - name: Apply Android desugaring
+        run: python3 scripts/patch_android_desugaring.py fluentx_admin_secure
+
+      - name: Install dependencies
+        working-directory: fluentx_admin_secure
+        run: flutter pub get
+
+      - name: Generate code
+        working-directory: fluentx_admin_secure
+        run: dart run build_runner build --delete-conflicting-outputs
+
+      - name: Build latest debug APK
+        working-directory: fluentx_admin_secure
+        env:
+          REVENUECAT_ANDROID_API_KEY: ${{ secrets.REVENUECAT_ANDROID_API_KEY }}
+        run: >-
+          flutter build apk --debug
+          --dart-define=FLAVOR=dev
+          --dart-define=REVENUECAT_ANDROID_API_KEY=${REVENUECAT_ANDROID_API_KEY:-}
+
+      - name: Prepare release APK
+        run: |
+          test -s fluentx_admin_secure/build/app/outputs/flutter-apk/app-debug.apk
+          cp fluentx_admin_secure/build/app/outputs/flutter-apk/app-debug.apk FluentX-latest-debug.apk
+          sha256sum FluentX-latest-debug.apk > FluentX-latest-debug.sha256
+
+      - name: Publish latest APK to GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git tag -f fluentx-latest-debug "$GITHUB_SHA"
+          git push origin refs/tags/fluentx-latest-debug --force
+          if gh release view fluentx-latest-debug >/dev/null 2>&1; then
+            gh release upload fluentx-latest-debug FluentX-latest-debug.apk FluentX-latest-debug.sha256 --clobber
+            gh release edit fluentx-latest-debug --title "FluentX Latest Debug APK" --notes "Latest test APK built from the current FluentX main branch. For Android device QA only."
+          else
+            gh release create fluentx-latest-debug FluentX-latest-debug.apk FluentX-latest-debug.sha256 --title "FluentX Latest Debug APK" --notes "Latest test APK built from the current FluentX main branch. For Android device QA only."
+          fi
