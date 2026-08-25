@@ -67,6 +67,7 @@ jobs:
           python3 scripts/patch_growth_analytics_share_cards.py fluentx_admin_secure
           python3 scripts/patch_full_legal_compliance.py fluentx_admin_secure
           python3 scripts/patch_adaptive_coaching_intelligence.py fluentx_admin_secure
+          python3 scripts/patch_onboarding_runtime_null.py fluentx_admin_secure
 
       - name: Preflight
         working-directory: fluentx_admin_secure
