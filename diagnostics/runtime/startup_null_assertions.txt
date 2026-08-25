@@ -1,0 +1,1129 @@
+FILE: lib/features/authentication/presentation/screens/forgot_password_screen.dart
+     27: 
+     28:   Future<void> _submit() async {
+>>   29:     if (!_formKey.currentState!.validate()) return;
+     30:     final success = await ref
+     31:         .read(authControllerProvider.notifier)
+
+     90:             textInputAction: TextInputAction.done,
+     91:             validator: Validators.email,
+>>   92:             enabled: !isLoading,
+     93:             onSubmitted: (_) => _submit(),
+     94:           ),
+
+
+FILE: lib/features/authentication/presentation/screens/login_screen.dart
+     32: 
+     33:   Future<void> _submit() async {
+>>   34:     if (!_formKey.currentState!.validate()) return;
+     35:     final email = _emailController.text.trim();
+     36: 
+
+     37:     if (_useOtp) {
+     38:       final ok = await ref.read(authControllerProvider.notifier).sendLoginOtp(email);
+>>   39:       if (!mounted || !ok) return;
+     40:       await context.push(
+     41:         '${RoutePaths.verifyEmailOtp}?email=${Uri.encodeComponent(email)}&mode=login',
+
+     73:               children: [
+     74:                 const SizedBox(height: AppSpacing.xl),
+>>   75:                 Text('Welcome Back!', style: Theme.of(context).textTheme.displayLarge),
+     76:                 const SizedBox(height: AppSpacing.sm),
+     77:                 Text(
+
+     92:                   validator: Validators.email,
+     93:                   onSubmitted: _useOtp ? (_) => _submit() : null,
+>>   94:                   enabled: !isLoading,
+     95:                 ),
+     96:                 if (!_useOtp) ...[
+
+     94:                   enabled: !isLoading,
+     95:                 ),
+>>   96:                 if (!_useOtp) ...[
+     97:                   const SizedBox(height: AppSpacing.base),
+     98:                   AppTextField(
+
+    103:                     validator: (v) => Validators.required(v, fieldName: 'Password'),
+    104:                     onSubmitted: (_) => _submit(),
+>>  105:                     enabled: !isLoading,
+    106:                   ),
+    107:                   Align(
+
+    123:                 Center(
+    124:                   child: TextButton(
+>>  125:                     onPressed: isLoading ? null : () => setState(() => _useOtp = !_useOtp),
+    126:                     child: Text(_useOtp ? 'Use password instead' : 'Use email OTP instead'),
+    127:                   ),
+
+
+FILE: lib/features/authentication/presentation/screens/otp_verification_screen.dart
+     46:     setState(() => _secondsRemaining = 60);
+     47:     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+>>   48:       if (!mounted) return;
+     49:       if (_secondsRemaining <= 1) {
+     50:         timer.cancel();
+
+     78:           isSignup: widget.isSignup,
+     79:         );
+>>   80:     if (!mounted) return;
+     81:     if (ok) {
+     82:       _otpController.clear();
+
+    123:               TextField(
+    124:                 controller: _otpController,
+>>  125:                 enabled: !isLoading,
+    126:                 autofocus: true,
+    127:                 keyboardType: TextInputType.number,
+
+
+FILE: lib/features/authentication/presentation/screens/signup_screen.dart
+     36: 
+     37:   Future<void> _submit() async {
+>>   38:     if (!_formKey.currentState!.validate()) return;
+     39:     if (!_agreedToTerms) {
+     40:       ScaffoldMessenger.of(context)
+
+     37:   Future<void> _submit() async {
+     38:     if (!_formKey.currentState!.validate()) return;
+>>   39:     if (!_agreedToTerms) {
+     40:       ScaffoldMessenger.of(context)
+     41:         ..hideCurrentSnackBar()
+
+     52:           fullName: _nameController.text.trim(),
+     53:         );
+>>   54:     if (!mounted || !ok) return;
+     55: 
+     56:     await context.push(
+
+    104:                   textInputAction: TextInputAction.next,
+    105:                   validator: (v) => Validators.required(v, fieldName: 'Full name'),
+>>  106:                   enabled: !isLoading,
+    107:                 ),
+    108:                 const SizedBox(height: AppSpacing.base),
+
+    114:                   textInputAction: TextInputAction.next,
+    115:                   validator: Validators.email,
+>>  116:                   enabled: !isLoading,
+    117:                 ),
+    118:                 const SizedBox(height: AppSpacing.base),
+
+    124:                   validator: Validators.password,
+    125:                   helperText: 'At least 8 characters, 1 uppercase, 1 number',
+>>  126:                   enabled: !isLoading,
+    127:                 ),
+    128:                 const SizedBox(height: AppSpacing.base),
+
+    134:                   validator: Validators.matches(() => _passwordController.text),
+    135:                   onSubmitted: (_) => _submit(),
+>>  136:                   enabled: !isLoading,
+    137:                 ),
+    138:                 const SizedBox(height: AppSpacing.base),
+
+
+FILE: lib/features/onboarding/presentation/screens/onboarding_screen.dart
+    162:         'p_native_language': 'hi',
+    163:       });
+>>  164:       if (!mounted) return;
+    165:       _goToPage(3);
+    166:     } catch (_) {
+
+    165:       _goToPage(3);
+    166:     } catch (_) {
+>>  167:       if (!mounted) return;
+    168:       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Could not save your learning profile. Please try again.')));
+    169:     } finally {
+
+    214:                   ),
+    215:                   _PlacementTestPage(
+>>  216:                     audienceKey: _selectedAudience!,
+    217:                     goalKey: _selectedGoal!,
+    218:                     onComplete: _finishOnboarding,
+
+    215:                   _PlacementTestPage(
+    216:                     audienceKey: _selectedAudience!,
+>>  217:                     goalKey: _selectedGoal!,
+    218:                     onComplete: _finishOnboarding,
+    219:                   ),
+
+    441:       final questions = (rows as List).map((e) => _PlacementQuestion.fromMap(Map<String, dynamic>.from(e as Map))).toList();
+    442:       final attempt = await _client.from('placement_attempts').insert({'user_id': user.id}).select('id').single();
+>>  443:       if (!mounted) return;
+    444:       setState(() {
+    445:         _questions = questions;
+
+    448:       });
+    449:     } catch (_) {
+>>  450:       if (!mounted) return;
+    451:       setState(() {
+    452:         _loading = false;
+
+    460:     setState(() => _submitting = true);
+    461:     try {
+>>  462:       final user = _client.auth.currentUser!;
+    463:       final q = _questions[_index];
+    464:       await _client.from('placement_answers').upsert({
+
+    483:     }
+    484:     final available = await _speech.initialize();
+>>  485:     if (!available) {
+    486:       _showError('Speech recognition is unavailable on this device.');
+    487:       return;
+
+    496:       listenMode: stt.ListenMode.dictation,
+    497:       onResult: (result) {
+>>  498:         if (!mounted) return;
+    499:         setState(() => _spokenText = result.recognizedWords.trim());
+    500:       },
+
+    528:       return;
+    529:     }
+>>  530:     if (!mounted) return;
+    531:     setState(() {
+    532:       _index++;
+
+    546:       throw Exception('Invalid placement result');
+    547:     }
+>>  548:     if (!mounted) return;
+    549:     setState(() => _result = result);
+    550:   }
+
+    551: 
+    552:   void _showError(String message) {
+>>  553:     if (!mounted) return;
+    554:     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+    555:   }
+
+    573:           const Icon(Icons.cloud_off_outlined, size: 56),
+    574:           const SizedBox(height: AppSpacing.base),
+>>  575:           Text(_error!, textAlign: TextAlign.center),
+    576:           const SizedBox(height: AppSpacing.lg),
+    577:           PrimaryButton(label: 'Try Again', onPressed: () {
+
+    674:   Widget _buildResult(BuildContext context) {
+    675:     final colors = Theme.of(context).colorScheme;
+>>  676:     final level = (_result!['assigned_level'] ?? 'A1').toString();
+    677:     final score = double.tryParse((_result!['final_score'] ?? 0).toString()) ?? 0;
+    678:     final week = int.tryParse((_result!['start_week'] ?? 1).toString()) ?? 1;
+
+    675:     final colors = Theme.of(context).colorScheme;
+    676:     final level = (_result!['assigned_level'] ?? 'A1').toString();
+>>  677:     final score = double.tryParse((_result!['final_score'] ?? 0).toString()) ?? 0;
+    678:     final week = int.tryParse((_result!['start_week'] ?? 1).toString()) ?? 1;
+    679:     final subtitle = switch (level) {
+
+    676:     final level = (_result!['assigned_level'] ?? 'A1').toString();
+    677:     final score = double.tryParse((_result!['final_score'] ?? 0).toString()) ?? 0;
+>>  678:     final week = int.tryParse((_result!['start_week'] ?? 1).toString()) ?? 1;
+    679:     final subtitle = switch (level) {
+    680:       'A1' => 'Foundation',
+
+
+FILE: lib/features/profile/presentation/screens/daily_goals_screen.dart
+     27:       await ref.read(supabaseClientProvider).from('user_home_stats').upsert({
+     28:         'user_id': user.id,
+>>   29:         'daily_goal_target_minutes': _minutes!.round(),
+     30:       }, onConflict: 'user_id');
+     31:       ref.invalidate(homeSummaryProvider);
+
+     57:           data: (summary) {
+     58:             _minutes ??= summary.dailyGoalTargetMinutes.toDouble();
+>>   59:             final minutes = _minutes!;
+     60:             return ListView(
+     61:               padding: const EdgeInsets.all(AppSpacing.base),
+
+
+FILE: lib/features/profile/presentation/screens/referral_screen.dart
+     36:     try {
+     37:       final data = await _client.rpc('get_my_referral_dashboard');
+>>   38:       if (!mounted) return;
+     39:       setState(() {
+     40:         _dashboard = data is Map ? Map<String, dynamic>.from(data) : <String, dynamic>{};
+
+     42:       });
+     43:     } catch (e) {
+>>   44:       if (!mounted) return;
+     45:       setState(() { _loading = false; _error = 'Referral program could not load right now.'; });
+     46:     }
+
+     68:     await Clipboard.setData(ClipboardData(text: _code));
+     69:     await _track('referral_code_copied', 'referral_screen');
+>>   70:     if (!mounted) return;
+     71:     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Invite code copied.')));
+     72:   }
+
+     76:     await Clipboard.setData(ClipboardData(text: _inviteText));
+     77:     await _track('referral_message_copied', 'referral_screen');
+>>   78:     if (!mounted) return;
+     79:     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Invite message copied.')));
+     80:   }
+
+     85:     final uri = Uri.parse('https://wa.me/?text=${Uri.encodeComponent(_inviteText)}');
+     86:     final launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
+>>   87:     if (!launched && mounted) {
+     88:       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('WhatsApp could not be opened. Copy the invite message instead.')));
+     89:     }
+
+     97:       final data = await _client.rpc('redeem_referral_code', params: {'p_code': code});
+     98:       final map = data is Map ? Map<String, dynamic>.from(data) : <String, dynamic>{};
+>>   99:       if (!mounted) return;
+    100:       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text((map['message'] ?? 'Referral applied.').toString())));
+    101:       _codeController.clear();
+
+    102:       await _load();
+    103:     } on PostgrestException catch (e) {
+>>  104:       if (!mounted) return;
+    105:       setState(() => _error = e.message.contains('not found') ? 'That invite code was not found.' : e.message);
+    106:     } catch (_) {
+
+    105:       setState(() => _error = e.message.contains('not found') ? 'That invite code was not found.' : e.message);
+    106:     } catch (_) {
+>>  107:       if (!mounted) return;
+    108:       setState(() => _error = 'Could not apply this invite code.');
+    109:     } finally {
+
+    190:             if (_error != null) ...[
+    191:               const SizedBox(height: 10),
+>>  192:               Text(_error!, style: TextStyle(color: colors.error), textAlign: TextAlign.center),
+    193:             ],
+    194:             const SizedBox(height: 24),
+
+
+FILE: lib/features/profile/presentation/widgets/profile_header.dart
+     40:               radius: 44,
+     41:               backgroundColor: colorScheme.primary.withValues(alpha: 0.12),
+>>   42:               backgroundImage: avatarUrl != null ? NetworkImage(avatarUrl!) : null,
+     43:               child: avatarUrl == null
+     44:                   ? Text(
+
+
+FILE: lib/features/settings/presentation/screens/edit_profile_screen.dart
+     34: 
+     35:   Future<void> _save() async {
+>>   36:     if (!_formKey.currentState!.validate()) return;
+     37:     setState(() => _saving = true);
+     38:     try {
+
+
+FILE: lib/routes/app_router.dart
+    100: 
+    101:       // From here on, authStatus == authenticated.
+>>  102:       if (!onboardingComplete) {
+    103:         return currentPath == RoutePaths.onboarding ? null : RoutePaths.onboarding;
+    104:       }
+
+
+FILE: lib/core/services/notification_service.dart
+     43:         settings.authorizationStatus == AuthorizationStatus.provisional;
+     44: 
+>>   45:     if (!granted) {
+     46:       await _settingsBox.put(_kNotificationsEnabledKey, false);
+     47:       return false;
+
+     70:     await _localNotifications.zonedSchedule(
+     71:       _kDailyReminderNotificationId,
+>>   72:       'Time to practice! 🎯',
+     73:       "You haven't hit your daily goal yet — even 5 minutes counts.",
+     74:       _nextInstanceOf(hour, minute),
+
+
+FILE: lib/core/theme/app_colors.dart
+     98:   @override
+     99:   AppSemanticColors lerp(ThemeExtension<AppSemanticColors>? other, double t) {
+>>  100:     if (other is! AppSemanticColors) return this;
+    101:     return AppSemanticColors(
+    102:       success: Color.lerp(success, other.success, t)!,
+
+    100:     if (other is! AppSemanticColors) return this;
+    101:     return AppSemanticColors(
+>>  102:       success: Color.lerp(success, other.success, t)!,
+    103:       warning: Color.lerp(warning, other.warning, t)!,
+    104:       surfaceAlt: Color.lerp(surfaceAlt, other.surfaceAlt, t)!,
+
+    101:     return AppSemanticColors(
+    102:       success: Color.lerp(success, other.success, t)!,
+>>  103:       warning: Color.lerp(warning, other.warning, t)!,
+    104:       surfaceAlt: Color.lerp(surfaceAlt, other.surfaceAlt, t)!,
+    105:       pressed: Color.lerp(pressed, other.pressed, t)!,
+
+    102:       success: Color.lerp(success, other.success, t)!,
+    103:       warning: Color.lerp(warning, other.warning, t)!,
+>>  104:       surfaceAlt: Color.lerp(surfaceAlt, other.surfaceAlt, t)!,
+    105:       pressed: Color.lerp(pressed, other.pressed, t)!,
+    106:     );
+
+    103:       warning: Color.lerp(warning, other.warning, t)!,
+    104:       surfaceAlt: Color.lerp(surfaceAlt, other.surfaceAlt, t)!,
+>>  105:       pressed: Color.lerp(pressed, other.pressed, t)!,
+    106:     );
+    107:   }
+
+
+FILE: lib/core/utils/validators.dart
+      9:     final trimmed = value?.trim() ?? '';
+     10:     if (trimmed.isEmpty) return 'Email is required';
+>>   11:     if (!_emailPattern.hasMatch(trimmed)) return 'Enter a valid email address';
+     12:     return null;
+     13:   }
+
+     17:     if (v.isEmpty) return 'Password is required';
+     18:     if (v.length < 8) return 'Password must be at least 8 characters';
+>>   19:     if (!RegExp(r'[A-Z]').hasMatch(v)) return 'Include at least one uppercase letter';
+     20:     if (!RegExp(r'[0-9]').hasMatch(v)) return 'Include at least one number';
+     21:     return null;
+
+     18:     if (v.length < 8) return 'Password must be at least 8 characters';
+     19:     if (!RegExp(r'[A-Z]').hasMatch(v)) return 'Include at least one uppercase letter';
+>>   20:     if (!RegExp(r'[0-9]').hasMatch(v)) return 'Include at least one number';
+     21:     return null;
+     22:   }
+
+
+FILE: lib/features/achievements/presentation/screens/achievements_screen.dart
+     56:       (
+     57:         title: '7 Day Streak',
+>>   58:         subtitle: 'Keep it up!',
+     59:         icon: Icons.local_fire_department_outlined,
+     60:         gradient: const [Color(0xFFEA580C), Color(0xFFFB923C)],
+
+     63:       (
+     64:         title: '30 Day Streak',
+>>   65:         subtitle: 'Amazing!',
+     66:         icon: Icons.emoji_events_outlined,
+     67:         gradient: const [Color(0xFF16A34A), Color(0xFF4ADE80)],
+
+
+FILE: lib/features/admin/presentation/screens/admin_console_screen.dart
+    134:       String factorId;
+    135:       if (_enrollmentFactorId != null) {
+>>  136:         factorId = _enrollmentFactorId!;
+    137:       } else {
+    138:         final factors = await _client.auth.mfa.listFactors();
+
+    160:     try {
+    161:       final detail = await _invoke({'action': 'user_detail', 'user_id': user['id']});
+>>  162:       if (!mounted) return;
+    163:       await showModalBottomSheet<void>(
+    164:         context: context,
+
+    211:     try {
+    212:       final data = await _invoke({'action': 'user_private_content', 'user_id': userId, 'reason': reason});
+>>  213:       if (!mounted) return;
+    214:       await showDialog<void>(
+    215:         context: context,
+
+    261: 
+    262:   Widget _buildBody() {
+>>  263:     if (!_isAdmin) {
+    264:       return Center(
+    265:         child: Padding(
+
+    279:     }
+    280: 
+>>  281:     if (!_mfaVerified) return _buildMfaGate();
+    282:     return _buildDashboard();
+    283:   }
+
+    296:               const Text('Admin data is locked until a second factor from an authenticator app is verified.'),
+    297:               const SizedBox(height: 16),
+>>  298:               if (!hasEnrollment)
+    299:                 FilledButton.icon(onPressed: _startEnrollment, icon: const Icon(Icons.phonelink_lock), label: const Text('Set up / verify authenticator')),
+    300:               if (hasEnrollment) ...[
+
+    299:                 FilledButton.icon(onPressed: _startEnrollment, icon: const Icon(Icons.phonelink_lock), label: const Text('Set up / verify authenticator')),
+    300:               if (hasEnrollment) ...[
+>>  301:                 Center(child: SvgPicture.string(_enrollmentQrCode!, width: 190, height: 190)),
+    302:                 const SizedBox(height: 12),
+    303:                 const Text('Scan in Google Authenticator/Authy/1Password, or copy this secret:'),
+
+    305:                 Row(
+    306:                   children: [
+>>  307:                     Expanded(child: SelectableText(_enrollmentSecret!, style: const TextStyle(fontWeight: FontWeight.w700))),
+    308:                     IconButton(
+    309:                       icon: const Icon(Icons.copy),
+
+    308:                     IconButton(
+    309:                       icon: const Icon(Icons.copy),
+>>  310:                       onPressed: () => Clipboard.setData(ClipboardData(text: _enrollmentSecret!)),
+    311:                     ),
+    312:                   ],
+
+    325:               if (_error != null) ...[
+    326:                 const SizedBox(height: 12),
+>>  327:                 Text(_error!, style: TextStyle(color: Theme.of(context).colorScheme.error)),
+    328:               ],
+    329:             ],
+
+    371:           ),
+    372:           const SizedBox(height: 16),
+>>  373:           if (_error != null) Text(_error!, style: TextStyle(color: Theme.of(context).colorScheme.error)),
+    374:           ..._users.map((user) {
+    375:             final stats = user['stats'] is Map ? Map<String, dynamic>.from(user['stats'] as Map) : const <String, dynamic>{};
+
+
+FILE: lib/features/ai_practice/application/providers/ai_practice_providers.dart
+    119:     final result = await ref
+    120:         .read(sendPracticeMessageUseCaseProvider)
+>>  121:         .call(sessionId: state.sessionId!, userMessage: text.trim());
+    122: 
+    123:     result.match(
+
+    140:     state = state.copyWith(isSending: true);
+    141: 
+>>  142:     final result = await ref.read(endPracticeSessionUseCaseProvider).call(state.sessionId!);
+    143: 
+    144:     state = result.match(
+
+
+FILE: lib/features/ai_practice/presentation/screens/ai_practice_hub_screen.dart
+    111:         return af.compareTo(bf);
+    112:       });
+>>  113:       if (!mounted) return;
+    114:       setState(() {
+    115:         _scenarios = scenarios;
+
+    120:       });
+    121:     } catch (e) {
+>>  122:       if (!mounted) return;
+    123:       setState(() {
+    124:         _error = 'Maya could not load right now.';
+
+    195:         'transcript': <Map<String, dynamic>>[],
+    196:       }).select('id').single();
+>>  197:       if (!mounted) return;
+    198:       setState(() {
+    199:         _sessionId = row['id'].toString();
+
+    204:         _startVoiceTimer();
+    205:         Future<void>.delayed(const Duration(milliseconds: 300), () async {
+>>  206:           if (mounted && _voiceMode && !_voicePaused && !_sending && !_listening) {
+    207:             await _toggleMic();
+    208:           }
+
+    210:       }
+    211:     } catch (_) {
+>>  212:       if (!mounted) return;
+    213:       setState(() {
+    214:         _error = 'Could not start Maya conversation.';
+
+    231:     _voiceTimer?.cancel();
+    232:     _voiceTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+>>  233:       if (!mounted || !_voiceMode || _voicePaused) return;
+    234:       setState(() => _voiceElapsed++);
+    235:     });
+
+    247:     _startVoiceTimer();
+    248:     Future<void>.delayed(const Duration(milliseconds: 300), () async {
+>>  249:       if (mounted && _voiceMode && !_voicePaused && !_sending && !_listening) {
+    250:         await _toggleMic();
+    251:       }
+
+    265: 
+    266:   Future<void> _togglePause() async {
+>>  267:     if (!_voiceMode) return;
+    268:     if (!_voicePaused) {
+    269:       await _speech.stop();
+
+    266:   Future<void> _togglePause() async {
+    267:     if (!_voiceMode) return;
+>>  268:     if (!_voicePaused) {
+    269:       await _speech.stop();
+    270:       await _tts.stop();
+
+    271:     }
+    272:     setState(() {
+>>  273:       _voicePaused = !_voicePaused;
+    274:       _listening = false;
+    275:     });
+
+    287:     await _tts.stop();
+    288:     final ok = await _speech.initialize();
+>>  289:     if (!ok) {
+    290:       if (mounted) setState(() => _error = 'Microphone speech recognition is unavailable.');
+    291:       return;
+
+    306: 
+    307:   void _onSpeech(SpeechRecognitionResult result) {
+>>  308:     if (!mounted) return;
+    309:     setState(() => _liveWords = result.recognizedWords);
+    310:     if (result.finalResult) {
+
+    345:       if (data['error'] != null) throw Exception(data['error']);
+    346:       final reply = (data['reply'] ?? '').toString().trim();
+>>  347:       if (!mounted) return;
+    348:       setState(() {
+    349:         if (reply.isNotEmpty) _turns.add(_Turn('assistant', reply));
+
+    361:       if (reply.isNotEmpty && _speakerOn) {
+    362:         await _speak(reply, (data['tts_locale'] ?? 'en-IN').toString(), _expression);
+>>  363:         if (_voiceMode && !_voicePaused && mounted) {
+    364:           await Future<void>.delayed(const Duration(milliseconds: 220));
+    365:           if (_voiceMode && !_voicePaused && !_sending && !_listening && mounted) {
+
+    363:         if (_voiceMode && !_voicePaused && mounted) {
+    364:           await Future<void>.delayed(const Duration(milliseconds: 220));
+>>  365:           if (_voiceMode && !_voicePaused && !_sending && !_listening && mounted) {
+    366:             await _toggleMic();
+    367:           }
+
+    369:       }
+    370:     } catch (e) {
+>>  371:       if (!mounted) return;
+    372:       final raw = e.toString().toLowerCase();
+    373:       setState(() {
+
+    465:           ? Map<String, dynamic>.from(response.data as Map)
+    466:           : <String, dynamic>{};
+>>  467:       if (!mounted) return;
+    468:       setState(() => _sending = false);
+    469:       await showModalBottomSheet<void>(
+
+    483:     _speech.stop();
+    484:     _tts.stop();
+>>  485:     if (!mounted) return;
+    486:     setState(() {
+    487:       _active = null;
+
+    547:             _freeTalkCard(),
+    548:             const SizedBox(height: 10),
+>>  549:             ..._scenarios.where((s) => !_isFreeTalk(s)).take(8).map(_scenarioCard),
+    550:             const SizedBox(height: 8),
+    551:             _dailyTimeCard(),
+
+    734: 
+    735:   Widget _conversationView() {
+>>  736:     final free = _active != null && _isFreeTalk(_active!);
+    737:     return Scaffold(
+    738:       appBar: AppBar(
+
+    762:           _coachBanner(),
+    763:           Expanded(child: _turns.isEmpty ? _starter(free) : _chatList()),
+>>  764:           if (_suggestedEnglish != null) _learningCard('You can say', _suggestedEnglish!, Icons.translate_rounded),
+    765:           if (_correction != null) _learningCard('Quick improvement', _correction!, Icons.auto_fix_high_rounded),
+    766:           if (_error != null) Padding(padding: const EdgeInsets.symmetric(horizontal: 14), child: _errorBox()),
+
+    763:           Expanded(child: _turns.isEmpty ? _starter(free) : _chatList()),
+    764:           if (_suggestedEnglish != null) _learningCard('You can say', _suggestedEnglish!, Icons.translate_rounded),
+>>  765:           if (_correction != null) _learningCard('Quick improvement', _correction!, Icons.auto_fix_high_rounded),
+    766:           if (_error != null) Padding(padding: const EdgeInsets.symmetric(horizontal: 14), child: _errorBox()),
+    767:           _composer(),
+
+    794:         _MayaAvatar(size: 112, expression: 'happy'),
+    795:         const SizedBox(height: 14),
+>>  796:         Text('Hey! 😊', style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w900)),
+    797:         const SizedBox(height: 6),
+    798:         Text(
+
+    822:             crossAxisAlignment: CrossAxisAlignment.start,
+    823:             children: [
+>>  824:               if (!mine) ...[_MayaAvatar(size: 30, expression: _expression), const SizedBox(width: 6)],
+    825:               Flexible(child: Container(
+    826:                 constraints: const BoxConstraints(maxWidth: 320),
+
+    961:                 onPressed: () async {
+    962:                   await _tts.stop();
+>>  963:                   setState(() => _speakerOn = !_speakerOn);
+    964:                 },
+    965:                 icon: Icon(_speakerOn ? Icons.volume_up_rounded : Icons.volume_off_rounded),
+
+
+FILE: lib/features/ai_practice/presentation/widgets/practice_mic_button.dart
+     45: 
+     46:   Future<void> _toggleListening() async {
+>>   47:     if (!_isAvailable || !widget.enabled) return;
+     48: 
+     49:     if (_isListening) {
+
+    112:         const SizedBox(height: AppSpacing.xs),
+    113:         Text(
+>>  114:           !_isAvailable
+    115:               ? 'Microphone unavailable'
+    116:               : _isListening
+
+
+FILE: lib/features/certificates/presentation/screens/certificates_screen.dart
+     21:   Future<List<Map<String, dynamic>>> _load() async {
+     22:     final result = await supabase.Supabase.instance.client.rpc('get_my_certificate_status');
+>>   23:     if (result is! List) return <Map<String, dynamic>>[];
+     24: 
+     25:     var paidTier = 'free';
+
+     49:     final issued = row['issued'] == true;
+     50:     final code = (row['certificate_code'] ?? '').toString();
+>>   51:     if (!issued || code.isEmpty) return;
+     52: 
+     53:     final recipient = (row['recipient_name'] ?? 'FluentX Learner').toString();
+
+
+FILE: lib/features/grammar/presentation/widgets/grammar_quiz_sheet.dart
+    163:       mainAxisSize: MainAxisSize.min,
+    164:       children: [
+>>  165:         Text('Quiz complete!', style: Theme.of(context).textTheme.headlineSmall),
+    166:         const SizedBox(height: AppSpacing.sm),
+    167:         Text(
+
+
+FILE: lib/features/home/presentation/screens/home_screen.dart
+     99:             const SizedBox(height: AppSpacing.sm),
+    100:             ContinueLearningCard(
+>>  101:               item: summary.continueLearning!,
+    102:               onTap: () {
+    103:                 // Deep-links to the specific module once Learn (Sprint
+
+
+FILE: lib/features/interview_prep/presentation/screens/interview_prep_screen.dart
+     65:           .eq('is_active', true)
+     66:           .order('sort_order');
+>>   67:       if (!mounted) return;
+     68:       setState(() {
+     69:         _questions = List<Map<String, dynamic>>.from(rows);
+
+     71:       });
+     72:     } catch (_) {
+>>   73:       if (!mounted) return;
+     74:       setState(() => _loading = false);
+     75:     }
+
+    103:     final available = await _speech.initialize(
+    104:       onStatus: (status) {
+>>  105:         if (!mounted) return;
+    106:         if (status == 'done' || status == 'notListening') {
+    107:           setState(() => _listening = false);
+
+    112:       },
+    113:     );
+>>  114:     if (!available) {
+    115:       if (mounted) {
+    116:         ScaffoldMessenger.of(context).showSnackBar(
+
+    141:       return;
+    142:     }
+>>  143:     if (!await _ensureAttempt()) {
+    144:       if (mounted) {
+    145:         ScaffoldMessenger.of(context).showSnackBar(
+
+    192:             'overall_score': overall,
+    193:             'completed_at': DateTime.now().toIso8601String(),
+>>  194:           }).eq('id', _attemptId!);
+    195:         } catch (_) {}
+    196:       }
+
+    307:               const SizedBox(height: AppSpacing.sm),
+    308:               TextButton.icon(
+>>  309:                 onPressed: () => setState(() => _showTip = !_showTip),
+    310:                 icon: const Icon(Icons.lightbulb_outline, size: 18),
+    311:                 label: Text(_showTip ? 'Hide coaching tip' : 'Show coaching tip'),
+
+    339:         if (_result != null) ...[
+    340:           const SizedBox(height: AppSpacing.lg),
+>>  341:           _buildResult(context, _result!),
+    342:           const SizedBox(height: AppSpacing.md),
+    343:           ElevatedButton.icon(
+
+
+FILE: lib/features/learn/presentation/screens/learn_hub_screen.dart
+    118:                   );
+    119:                 }
+>>  120:                 if (!snapshot.hasData) {
+    121:                   return const AppCard(
+    122:                     child: Padding(
+
+    126:                   );
+    127:                 }
+>>  128:                 final stateRaw = snapshot.data![0];
+    129:                 final pathRaw = snapshot.data![1];
+    130:                 final state = stateRaw is Map
+
+    127:                 }
+    128:                 final stateRaw = snapshot.data![0];
+>>  129:                 final pathRaw = snapshot.data![1];
+    130:                 final state = stateRaw is Map
+    131:                     ? Map<String, dynamic>.from(stateRaw)
+
+
+FILE: lib/features/learn/presentation/screens/learning_path_screen.dart
+     42:         _client.rpc('get_my_learning_recommendation'),
+     43:       ]);
+>>   44:       if (!mounted) return;
+     45:       setState(() {
+     46:         _state = _map(values[0]);
+
+     51:       });
+     52:     } catch (e) {
+>>   53:       if (!mounted) return;
+     54:       setState(() { _loading = false; _error = e.toString(); });
+     55:     }
+
+     63:       await _load();
+     64:     } catch (e) {
+>>   65:       if (!mounted) return;
+     66:       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Could not save activity: $e')));
+     67:     }
+
+    154:                   if (isCheckpoint)
+    155:                     FilledButton.icon(
+>>  156:                       onPressed: checkpointReady && !done ? _openMasteryTest : null,
+    157:                       icon: const Icon(Icons.fact_check_outlined),
+    158:                       label: Text(done ? 'Mastered' : checkpointReady ? 'Start Mastery Test' : 'Complete Activities First'),
+
+    230:           ? (data['questions'] as List).whereType<Map>().map((q) => Map<String,dynamic>.from(q)).toList()
+    231:           : <Map<String,dynamic>>[];
+>>  232:       if (!mounted) return;
+    233:       setState(() {
+    234:         _sessionId = data['session_id']?.toString();
+
+    238:       });
+    239:     } catch (e) {
+>>  240:       if (!mounted) return;
+    241:       setState(() { _loading = false; _error = e.toString(); });
+    242:     }
+
+    258:       });
+    259:       final data = response.data is Map ? Map<String,dynamic>.from(response.data as Map) : <String,dynamic>{};
+>>  260:       if (!mounted) return;
+    261:       final passed = data['passed'] == true;
+    262:       final score = data['overall_score'] ?? 0;
+
+    270:       if (mounted) Navigator.pop(context, true);
+    271:     } catch (e) {
+>>  272:       if (!mounted) return;
+    273:       setState(() => _submitting = false);
+    274:       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Could not submit mastery test: $e')));
+
+    283:           ? const Center(child: Padding(padding: EdgeInsets.all(AppSpacing.xl), child: CircularProgressIndicator()))
+    284:           : _error != null
+>>  285:               ? Center(child: Column(mainAxisSize: MainAxisSize.min, children: [Text(_error!), const SizedBox(height: AppSpacing.md), FilledButton(onPressed: _start, child: const Text('Try Again'))]))
+    286:               : ListView(children: [
+    287:                   Text('Weekly Mastery Test', style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800)),
+
+    299:                         value: optionIndex,
+    300:                         groupValue: _answers[index],
+>>  301:                         onChanged: (value) => setState(() => _answers[index] = value!),
+    302:                         title: Text(options[optionIndex].toString()),
+    303:                       )),
+
+
+FILE: lib/features/learn/presentation/screens/personalized_daily_practice_screen.dart
+     23:     try {
+     24:       final raw = await Supabase.instance.client.rpc('get_my_daily_personalized_practice');
+>>   25:       if (!mounted) return;
+     26:       setState(() {
+     27:         _practice = raw is Map ? Map<String, dynamic>.from(raw) : <String, dynamic>{};
+
+     39:         'p_item_id': (item['id'] ?? 'item_$index').toString(),
+     40:       });
+>>   41:       if (!mounted) return;
+     42:       final result = raw is Map ? Map<String, dynamic>.from(raw) : <String, dynamic>{};
+     43:       setState(() {
+
+     72:     }
+     73: 
+>>   74:     final itemsRaw = _practice!['items'];
+     75:     final items = itemsRaw is List ? itemsRaw.whereType<Map>().map((e) => Map<String, dynamic>.from(e)).toList() : <Map<String, dynamic>>[];
+     76:     final completed = int.tryParse((_practice!['completed_items'] ?? 0).toString()) ?? 0;
+
+     74:     final itemsRaw = _practice!['items'];
+     75:     final items = itemsRaw is List ? itemsRaw.whereType<Map>().map((e) => Map<String, dynamic>.from(e)).toList() : <Map<String, dynamic>>[];
+>>   76:     final completed = int.tryParse((_practice!['completed_items'] ?? 0).toString()) ?? 0;
+     77:     final total = items.length;
+     78:     final progress = total == 0 ? 0.0 : (completed / total).clamp(0.0, 1.0);
+
+     92:               const Row(children: [Icon(Icons.auto_awesome_rounded), SizedBox(width: 8), Text('Today’s personalized practice', style: TextStyle(fontWeight: FontWeight.w900))]),
+     93:               const SizedBox(height: 10),
+>>   94:               Text((_practice!['focus_title'] ?? 'Daily Confidence Boost').toString(), style: const TextStyle(fontSize: 23, fontWeight: FontWeight.w900)),
+     95:               const SizedBox(height: 6),
+     96:               Text((_practice!['focus_summary'] ?? '').toString()),
+
+     94:               Text((_practice!['focus_title'] ?? 'Daily Confidence Boost').toString(), style: const TextStyle(fontSize: 23, fontWeight: FontWeight.w900)),
+     95:               const SizedBox(height: 6),
+>>   96:               Text((_practice!['focus_summary'] ?? '').toString()),
+     97:               const SizedBox(height: 14),
+     98:               LinearProgressIndicator(value: progress, minHeight: 9, borderRadius: BorderRadius.circular(99)),
+
+
+FILE: lib/features/learn/presentation/screens/pronunciation_practice_screen.dart
+     50:           .order('created_at', ascending: false)
+     51:           .limit(5);
+>>   52:       if (!mounted) return;
+     53:       setState(() => _recentAttempts = (rows as List).whereType<Map>().map((e) => Map<String, dynamic>.from(e)).toList());
+     54:     } catch (_) {}
+
+    105:       if (found >= 0) {
+    106:         searchFrom = found + 1;
+>>  107:       } else if (word.length >= 3 && !weak.contains(word)) {
+    108:         weak.add(word);
+    109:       }
+
+    138:     }
+    139:     final available = await _speech.initialize();
+>>  140:     if (!available) {
+    141:       if (mounted) {
+    142:         setState(() => _feedback = 'Speech recognition is unavailable on this device.');
+
+    161: 
+    162:   void _onResult(SpeechRecognitionResult result) {
+>>  163:     if (!mounted) return;
+    164:     setState(() {
+    165:       _heard = result.recognizedWords;
+
+    296:                   Text('Speech Clarity Score', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w900)),
+    297:                   const SizedBox(height: 8),
+>>  298:                   Text('${_score!}%', style: TextStyle(fontSize: 42, fontWeight: FontWeight.w900, color: colors.primary)),
+    299:                   const SizedBox(height: 4),
+    300:                   Text(_feedback, textAlign: TextAlign.center),
+
+    300:                   Text(_feedback, textAlign: TextAlign.center),
+    301:                   const SizedBox(height: 12),
+>>  302:                   LinearProgressIndicator(value: _score! / 100, minHeight: 9, borderRadius: BorderRadius.circular(99)),
+    303:                 ]),
+    304:               ),
+
+
+FILE: lib/features/listening/presentation/widgets/listening_clip_sheet.dart
+     45:   @override
+     46:   Widget build(BuildContext context) {
+>>   47:     if (!_showQuiz) {
+     48:       return Column(
+     49:         mainAxisSize: MainAxisSize.min,
+
+     53:           const SizedBox(height: AppSpacing.base),
+     54:           TextButton.icon(
+>>   55:             onPressed: () => setState(() => _showTranscript = !_showTranscript),
+     56:             icon: Icon(_showTranscript ? Icons.visibility_off : Icons.visibility),
+     57:             label: Text(_showTranscript ? 'Hide transcript' : 'Show transcript'),
+
+     87:             mainAxisSize: MainAxisSize.min,
+     88:             children: [
+>>   89:               Text('Nice work! 🎧', style: Theme.of(context).textTheme.headlineSmall),
+     90:               const SizedBox(height: AppSpacing.sm),
+     91:               Text(
+
+
+FILE: lib/features/premium/data/datasources/purchase_remote_datasource.dart
+     28:       productIdentifier: entitlement.productIdentifier,
+     29:       expirationDate: entitlement.expirationDate != null
+>>   30:           ? DateTime.tryParse(entitlement.expirationDate!)
+     31:           : null,
+     32:       willRenew: entitlement.willRenew,
+
+
+FILE: lib/features/premium/presentation/screens/premium_screen.dart
+     18:   try {
+     19:     final opened = await launchUrl(uri, mode: LaunchMode.externalApplication);
+>>   20:     if (!opened && context.mounted) {
+     21:       ScaffoldMessenger.of(context).showSnackBar(
+     22:         const SnackBar(content: Text('Could not open Google Play subscriptions.')),
+
+    137:                       : () => ref
+    138:                           .read(purchaseControllerProvider.notifier)
+>>  139:                           .buy(_selectedPackageId!),
+    140:                 ),
+    141:                 const SizedBox(height: AppSpacing.sm),
+
+
+FILE: lib/features/premium/presentation/widgets/membership_identity_card.dart
+     48:                       )
+     49:                     : null,
+>>   50:             color: (!isElite && !isPro) ? colors.surfaceContainerLow : null,
+     51:             border: Border.all(color: accent.withValues(alpha: .35)),
+     52:           ),
+
+
+FILE: lib/features/progress/presentation/screens/share_progress_card_screen.dart
+     35:     try {
+     36:       final data = await _client.rpc('get_my_share_stats');
+>>   37:       if (!mounted) return;
+     38:       setState(() {
+     39:         _stats = data is Map ? Map<String, dynamic>.from(data) : <String, dynamic>{};
+
+     42:       await _track('share_card_viewed');
+     43:     } catch (_) {
+>>   44:       if (!mounted) return;
+     45:       setState(() {
+     46:         _loading = false;
+
+     87:       final streak = _int('streak_days');
+     88:       final text = widget.mode == 'achievement'
+>>   89:           ? 'I am building my English speaking habit with FluentX — $streak day streak!'
+     90:           : 'My FluentX English progress: $level • Week $week • $streak day streak. Practicing with Maya AI.';
+     91:       await Share.shareXFiles([XFile(file.path)], text: text, subject: 'My FluentX English Progress');
+
+     92:       await _track('share_card_shared');
+     93:     } catch (e) {
+>>   94:       if (!mounted) return;
+     95:       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Could not open the share sheet. Please try again.')));
+     96:     } finally {
+
+    110:           children: [
+    111:             if (_error != null) ...[
+>>  112:               Text(_error!, textAlign: TextAlign.center),
+    113:               const SizedBox(height: 16),
+    114:             ],
+
+
+FILE: lib/features/settings/presentation/screens/legal_compliance_center_screen.dart
+     25:     try {
+     26:       final data = await Supabase.instance.client.rpc('get_my_legal_status');
+>>   27:       if (!mounted) return;
+     28:       setState(() {
+     29:         _status = data is Map ? Map<String, dynamic>.from(data) : <String, dynamic>{};
+
+     54:               const SizedBox(height: 8),
+     55:               const Text('Review the rules that govern FluentX, understand how data is handled, and submit privacy or intellectual-property requests.'),
+>>   56:               if (!_loading) ...[
+     57:                 const SizedBox(height: 12),
+     58:                 Wrap(spacing: 8, runSpacing: 8, children: [
+
+
+FILE: lib/features/settings/presentation/screens/legal_request_screen.dart
+     44: 
+     45:   Future<void> _submit() async {
+>>   46:     if (!_formKey.currentState!.validate() || !_accuracy || (_isIp && !_authority) || _sending) {
+     47:       if (!_accuracy || (_isIp && !_authority)) {
+     48:         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please complete the required confirmations.')));
+
+     45:   Future<void> _submit() async {
+     46:     if (!_formKey.currentState!.validate() || !_accuracy || (_isIp && !_authority) || _sending) {
+>>   47:       if (!_accuracy || (_isIp && !_authority)) {
+     48:         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please complete the required confirmations.')));
+     49:       }
+
+     63:         'p_accuracy_confirmed': _accuracy,
+     64:       });
+>>   65:       if (!mounted) return;
+     66:       final map = data is Map ? Map<String, dynamic>.from(data) : <String, dynamic>{};
+     67:       await showDialog<void>(
+
+
+FILE: lib/features/settings/presentation/screens/settings_screen.dart
+     30: 
+     31:   void _message(String text) {
+>>   32:     if (!mounted) return;
+     33:     ScaffoldMessenger.of(context)
+     34:       ..hideCurrentSnackBar()
+
+     41:       final granted = await service.enable(reminderHour: 19, reminderMinute: 0);
+     42:       if (mounted) setState(() => _notificationsEnabled = granted);
+>>   43:       if (!granted) _message('Notification permission was denied. Enable it in system settings.');
+     44:     } else {
+     45:       await service.disable();
+
+     72:       isDestructive: true,
+     73:     );
+>>   74:     if (!confirmed || !mounted) return;
+     75: 
+     76:     setState(() => _deleting = true);
+
+    126:                     label: 'Notifications',
+    127:                     trailing: Switch(value: _notificationsEnabled, onChanged: _toggleNotifications),
+>>  128:                     onTap: () => _toggleNotifications(!_notificationsEnabled),
+    129:                   ),
+    130:                   const Divider(height: 1),
+
+
+FILE: lib/features/vocabulary/presentation/screens/vocabulary_screen.dart
+     25:               return const EmptyStateWidget(
+     26:                 title: 'No words due right now',
+>>   27:                 message: 'Great job — you\'re all caught up! Check back later.',
+     28:                 icon: Icons.check_circle_outline,
+     29:               );
+
+     89:   Widget build(BuildContext context) {
+     90:     return EmptyStateWidget(
+>>   91:       title: 'Session complete! 🎉',
+     92:       message: 'You reviewed $reviewedCount word${reviewedCount == 1 ? '' : 's'} today.',
+     93:       icon: Icons.celebration,
+
+
+FILE: lib/features/vocabulary/presentation/widgets/vocabulary_flashcard.dart
+     34: 
+     35:     return GestureDetector(
+>>   36:       onTap: () => setState(() => _revealed = !_revealed),
+     37:       child: AnimatedSwitcher(
+     38:         duration: AppDurations.medium,
+
+     65:               ),
+     66:               const SizedBox(height: AppSpacing.lg),
+>>   67:               if (!_revealed) ...[
+     68:                 Text(
+     69:                   widget.word.word,
+
+
+FILE: lib/features/writing/presentation/widgets/writing_editor_sheet.dart
+     45: 
+     46:     if (controllerState.hasValue && controllerState.value != null) {
+>>   47:       return _ScoreResult(submission: controllerState.value!);
+     48:     }
+     49: 
+
+     58:           maxLines: 8,
+     59:           minLines: 6,
+>>   60:           enabled: !controllerState.isLoading,
+     61:           decoration: InputDecoration(
+     62:             hintText: 'Start writing here…',
+
+     73:           Text(
+     74:             controllerState.error is Failure
+>>   75:                 ? (controllerState.error! as Failure).uiMessage
+     76:                 : 'Something went wrong while scoring your writing.',
+     77:             style: Theme.of(context).textTheme.bodySmall?.copyWith(color: colorScheme.error),
+
+    134:               borderRadius: AppRadius.mdAll,
+    135:             ),
+>>  136:             child: Text(submission.aiFeedback!, style: Theme.of(context).textTheme.bodyMedium),
+    137:           ),
+    138:         ],
+
+
+FILE: lib/shared/widgets/buttons/primary_button.dart
+     32:   @override
+     33:   Widget build(BuildContext context) {
+>>   34:     final canPress = isEnabled && !isLoading && onPressed != null;
+     35: 
+     36:     final child = isLoading
+
+
+FILE: lib/shared/widgets/buttons/secondary_button.dart
+     26:   @override
+     27:   Widget build(BuildContext context) {
+>>   28:     final canPress = isEnabled && !isLoading && onPressed != null;
+     29:     final colorScheme = Theme.of(context).colorScheme;
+     30: 
+
+
+FILE: lib/shared/widgets/inputs/app_text_field.dart
+    102:           size: 20,
+    103:         ),
+>>  104:         onPressed: () => setState(() => _obscured = !_obscured),
+    105:       );
+    106:     }
+
+
+FILE: lib/shared/widgets/states/empty_state_widget.dart
+     45:               const SizedBox(height: AppSpacing.sm),
+     46:               Text(
+>>   47:                 message!,
+     48:                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+     49:                       color: colorScheme.onSurfaceVariant,
+
+     55:               const SizedBox(height: AppSpacing.lg),
+     56:               PrimaryButton(
+>>   57:                 label: actionLabel!,
+     58:                 fullWidth: false,
+     59:                 onPressed: onAction,
+
+
+FILE: lib/shared/widgets/states/error_state_widget.dart
+      7: /// (network error, AI service unavailable, etc.).
+      8: ///
+>>    9: /// Deliberately avoids generic "Oops! Something went wrong" copy —
+     10: /// callers should pass a specific, human [message]. [onRetry] is
+     11: /// optional; omit it for errors that aren't retryable (e.g. a 403).
+
+
+FILE: lib/shared/widgets/states/loading_widget.dart
+    118:           if (message != null) ...[
+    119:             const SizedBox(height: 16),
+>>  120:             Text(message!, style: Theme.of(context).textTheme.bodyMedium),
+    121:           ],
+    122:         ],
+
