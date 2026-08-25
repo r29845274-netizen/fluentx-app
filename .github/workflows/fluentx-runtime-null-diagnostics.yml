@@ -1,0 +1,115 @@
+name: FluentX Startup Null Diagnostics
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/fluentx-runtime-null-diagnostics.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Extract source
+        run: |
+          rm -rf fluentx_admin_secure
+          unzip -q fluentx_mobile_test_ready.zip
+
+      - name: Apply exact APK patch stack
+        run: |
+          python3 scripts/ci_patch.py fluentx_admin_secure
+          python3 scripts/patch_splash_redirect.py fluentx_admin_secure
+          python3 scripts/patch_personalized_onboarding.py fluentx_admin_secure
+          python3 scripts/fix_personalized_onboarding_compile.py fluentx_admin_secure
+          python3 scripts/patch_full_placement_test_ui.py fluentx_admin_secure
+          python3 scripts/patch_learning_path_minimal.py fluentx_admin_secure
+          python3 scripts/patch_market_ready_completion.py fluentx_admin_secure
+          python3 scripts/patch_learning_path_detail.py fluentx_admin_secure
+          python3 scripts/patch_fluentx_visual_system.py fluentx_admin_secure
+          python3 scripts/patch_reference_uiux.py fluentx_admin_secure
+          python3 scripts/patch_interview_ai_coach.py fluentx_admin_secure
+          python3 scripts/patch_settings_security.py fluentx_admin_secure
+          python3 scripts/patch_revenuecat_production.py fluentx_admin_secure
+          python3 scripts/patch_release_readiness.py fluentx_admin_secure
+          python3 scripts/patch_final_ui_cleanup.py fluentx_admin_secure
+          python3 scripts/patch_final_visual_consistency.py fluentx_admin_secure
+          python3 scripts/patch_billing_compliance.py fluentx_admin_secure
+          python3 scripts/patch_certificates.py fluentx_admin_secure
+          python3 scripts/patch_membership_tiers.py fluentx_admin_secure
+          python3 scripts/patch_subscription_feature_gating.py fluentx_admin_secure
+          python3 scripts/patch_launch_runtime_completion.py fluentx_admin_secure
+          python3 scripts/patch_maya_ai_conversation.py fluentx_admin_secure
+          python3 scripts/fix_maya_compile.py fluentx_admin_secure
+          python3 scripts/patch_growth_coaching.py fluentx_admin_secure
+          python3 scripts/patch_maya_natural_voice.py fluentx_admin_secure
+          python3 scripts/patch_referral_growth.py fluentx_admin_secure
+          python3 scripts/patch_growth_analytics_share_cards.py fluentx_admin_secure
+          python3 scripts/patch_full_legal_compliance.py fluentx_admin_secure
+          python3 scripts/patch_adaptive_coaching_intelligence.py fluentx_admin_secure
+
+      - name: Generate startup null assertion report
+        run: |
+          mkdir -p diagnostics/runtime
+          python3 - <<'PY'
+          from pathlib import Path
+          import re, shutil
+          root = Path('fluentx_admin_secure/lib')
+          report=[]
+          focus_words=('main.dart','app.dart','router','auth','splash','onboarding','profile','session','startup')
+          pat=re.compile(r'(?<![=!])!(?![=])')
+          for p in sorted(root.rglob('*.dart')):
+              rel=str(p.relative_to(root))
+              lines=p.read_text(errors='replace').splitlines()
+              hits=[]
+              for i,line in enumerate(lines,1):
+                  if pat.search(line):
+                      hits.append((i,line))
+              if hits:
+                  score=0 if any(w in rel.lower() for w in focus_words) else 1
+                  report.append((score,rel,hits))
+          report.sort()
+          out=[]
+          for score,rel,hits in report:
+              out.append(f'FILE: lib/{rel}')
+              for i,line in hits:
+                  start=max(1,i-2); end=min(len((root/rel).read_text(errors="replace").splitlines()),i+2)
+                  src=(root/rel).read_text(errors='replace').splitlines()
+                  for n in range(start,end+1):
+                      mark='>>' if n==i else '  '
+                      out.append(f'{mark} {n:4}: {src[n-1]}')
+                  out.append('')
+              out.append('')
+          Path('diagnostics/runtime/startup_null_assertions.txt').write_text('\n'.join(out))
+
+          # Copy key startup/auth files exactly as APK build sees them.
+          targets=[]
+          for p in root.rglob('*.dart'):
+              rel=str(p.relative_to(root)).lower()
+              if any(k in rel for k in ('main.dart','app.dart','app_router.dart','auth_providers.dart','auth_repository','splash','onboarding')):
+                  targets.append(p)
+          snap=Path('diagnostics/runtime/startup_sources')
+          for p in targets:
+              dest=snap/p.relative_to(root)
+              dest.parent.mkdir(parents=True,exist_ok=True)
+              shutil.copy2(p,dest)
+          print('report files', len(report), 'snapshots', len(targets))
+          PY
+
+      - name: Commit diagnostics
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f diagnostics/runtime
+          if ! git diff --cached --quiet; then
+            git commit -m "Capture startup null diagnostics [skip ci]"
+            git pull --rebase origin main || true
+            git push origin HEAD:main
+          fi
