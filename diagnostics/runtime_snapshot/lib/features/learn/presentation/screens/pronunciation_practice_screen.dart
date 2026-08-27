@@ -242,6 +242,7 @@ class _PronunciationPracticeScreenState extends State<PronunciationPracticeScree
             Text('Practice sentence', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w900)),
             const SizedBox(height: 8),
             DropdownButtonFormField<String>(
+              isExpanded: true,
               value: _phrases.contains(_target) ? _target : null,
               items: _phrases.map((p) => DropdownMenuItem(value: p, child: Text(p, maxLines: 2, overflow: TextOverflow.ellipsis))).toList(),
               onChanged: (value) {
@@ -255,15 +256,34 @@ class _PronunciationPracticeScreenState extends State<PronunciationPracticeScree
               decoration: const InputDecoration(border: OutlineInputBorder(), labelText: 'Choose a sentence'),
             ),
             const SizedBox(height: 10),
-            Row(children: [
-              Expanded(child: TextField(
-                controller: _custom,
-                maxLength: 180,
-                decoration: const InputDecoration(border: OutlineInputBorder(), labelText: 'Or type your own sentence', counterText: ''),
-              )),
-              const SizedBox(width: 8),
-              FilledButton.tonal(onPressed: _useCustom, child: const Text('Use')),
-            ]),
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final field = TextField(
+                  controller: _custom,
+                  maxLength: 180,
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                    labelText: 'Or type your own sentence',
+                    counterText: '',
+                  ),
+                );
+                if (constraints.maxWidth < 430) {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      field,
+                      const SizedBox(height: 8),
+                      FilledButton.tonal(onPressed: _useCustom, child: const Text('Use sentence')),
+                    ],
+                  );
+                }
+                return Row(children: [
+                  Expanded(child: field),
+                  const SizedBox(width: 8),
+                  FilledButton.tonal(onPressed: _useCustom, child: const Text('Use')),
+                ]);
+              },
+            ),
             const SizedBox(height: 16),
             Container(
               padding: const EdgeInsets.all(16),

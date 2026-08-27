@@ -40,6 +40,26 @@ class PremiumScreen extends ConsumerStatefulWidget {
 
 class _PremiumScreenState extends ConsumerState<PremiumScreen> {
   String? _selectedPackageId;
+  bool _billingTimedOut = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _armBillingTimeout();
+  }
+
+  void _armBillingTimeout() {
+    Future<void>.delayed(const Duration(seconds: 8), () {
+      if (mounted) setState(() => _billingTimedOut = true);
+    });
+  }
+
+  void _retryBilling() {
+    setState(() => _billingTimedOut = false);
+    ref.invalidate(subscriptionStatusProvider);
+    ref.invalidate(premiumPackagesProvider);
+    _armBillingTimeout();
+  }
 
   static const _features = [
     'Unlimited AI Practice sessions',
@@ -56,6 +76,33 @@ class _PremiumScreenState extends ConsumerState<PremiumScreen> {
     final packagesAsync = ref.watch(premiumPackagesProvider);
     final purchaseState = ref.watch(purchaseControllerProvider);
     final colorScheme = Theme.of(context).colorScheme;
+
+    if (subscriptionAsync.isLoading && _billingTimedOut) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('Fluent X Premium')),
+        body: SafeArea(
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(AppSpacing.xl),
+              child: AppCard(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.storefront_outlined, size: 48, color: colorScheme.primary),
+                    const SizedBox(height: AppSpacing.md),
+                    Text('Google Play plans are taking too long to load', textAlign: TextAlign.center, style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
+                    const SizedBox(height: AppSpacing.sm),
+                    const Text('Check your connection and try again. The app will no longer stay on an endless loading spinner.', textAlign: TextAlign.center),
+                    const SizedBox(height: AppSpacing.lg),
+                    FilledButton.icon(onPressed: _retryBilling, icon: const Icon(Icons.refresh_rounded), label: const Text('Retry plans')),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
 
     ref.listen(purchaseControllerProvider, (previous, next) {
       final error = next.error;

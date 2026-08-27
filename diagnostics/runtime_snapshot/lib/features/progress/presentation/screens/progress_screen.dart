@@ -92,8 +92,22 @@ class ProgressScreen extends ConsumerWidget {
                 ),
               ),
               loading: () => const LoadingCardSkeleton(lines: 5),
-              error: (_, __) => ErrorStateWidget(
-                onRetry: () => ref.invalidate(communicationDnaProvider),
+              error: (_, __) => AppCard(
+                child: Column(
+                  children: [
+                    Icon(Icons.insights_outlined, size: 42, color: colorScheme.primary),
+                    const SizedBox(height: AppSpacing.sm),
+                    Text('Your Communication DNA is building', style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
+                    const SizedBox(height: AppSpacing.xs),
+                    const Text('Complete speaking, grammar and writing practice to generate your skill profile.', textAlign: TextAlign.center),
+                    const SizedBox(height: AppSpacing.md),
+                    OutlinedButton.icon(
+                      onPressed: () => ref.invalidate(communicationDnaProvider),
+                      icon: const Icon(Icons.refresh_rounded),
+                      label: const Text('Refresh'),
+                    ),
+                  ],
+                ),
               ),
             ),
             const SizedBox(height: AppSpacing.xl),

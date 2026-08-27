@@ -105,6 +105,9 @@ class _AiPracticeHubScreenState extends State<AiPracticeHubScreen> {
       }
 
       final scenarios = List<Map<String, dynamic>>.from(rows);
+      if (scenarios.isEmpty) {
+        scenarios.add(_localFreeTalkScenario());
+      }
       scenarios.sort((a, b) {
         final af = _isFreeTalk(a) ? 0 : 1;
         final bf = _isFreeTalk(b) ? 0 : 1;
@@ -118,13 +121,35 @@ class _AiPracticeHubScreenState extends State<AiPracticeHubScreen> {
         _usedSeconds = used.clamp(0, _limitForTier(tier)).toInt();
         _loading = false;
       });
-    } catch (e) {
+    } catch (_) {
       if (!mounted) return;
       setState(() {
-        _error = 'Maya could not load right now.';
+        _scenarios = [_localFreeTalkScenario()];
+        _error = null;
         _loading = false;
       });
     }
+  }
+
+  Map<String, dynamic> _localFreeTalkScenario() => <String, dynamic>{
+        'id': 'local-free-talk',
+        'title': 'Free Talk with Maya',
+        'description': 'Guided English practice that stays available when the AI service is reconnecting.',
+        'category': 'conversation',
+        'track': 'free_talk',
+      };
+
+  bool _isLocalScenario(Map<String, dynamic> scenario) => scenario['id'] == 'local-free-talk';
+
+  String _localPracticeReply(String message) {
+    final words = message.trim().split(RegExp(r'\s+')).where((w) => w.isNotEmpty).length;
+    if (words < 5) {
+      return 'Guided practice (offline): Good start. Say the same idea again with one reason or example.';
+    }
+    if (message.trim().endsWith('?')) {
+      return 'Guided practice (offline): Nice question. Now answer it yourself in two complete English sentences.';
+    }
+    return 'Guided practice (offline): Well done. Add one more detail, then try saying the full answer naturally.';
   }
 
   int _limitForTier(String tier) => switch (tier) {
@@ -189,6 +214,23 @@ class _AiPracticeHubScreenState extends State<AiPracticeHubScreen> {
       _voiceElapsed = 0;
     });
     try {
+      if (_isLocalScenario(scenario)) {
+        if (!mounted) return;
+        setState(() {
+          _sessionId = 'local-${DateTime.now().millisecondsSinceEpoch}';
+          _active = scenario;
+          _sending = false;
+        });
+        if (voice) {
+          _startVoiceTimer();
+          Future<void>.delayed(const Duration(milliseconds: 300), () async {
+            if (mounted && _voiceMode && !_voicePaused && !_sending && !_listening) {
+              await _toggleMic();
+            }
+          });
+        }
+        return;
+      }
       final row = await _client.from('ai_practice_sessions').insert({
         'user_id': user.id,
         'scenario_id': scenario['id'],
@@ -333,6 +375,17 @@ class _AiPracticeHubScreenState extends State<AiPracticeHubScreen> {
       _error = null;
     });
     _scrollDown();
+    if (_sessionId!.startsWith('local-')) {
+      final reply = _localPracticeReply(clean);
+      if (!mounted) return;
+      setState(() {
+        _turns.add(_Turn('assistant', reply));
+        _sending = false;
+      });
+      _scrollDown();
+      if (_speakerOn) await _speak(reply, 'en-IN', 'encouraging');
+      return;
+    }
     try {
       final response = await _client.functions.invoke('ai-practice-chat', body: {
         'action': 'reply',
@@ -451,7 +504,7 @@ class _AiPracticeHubScreenState extends State<AiPracticeHubScreen> {
     _voiceTimer?.cancel();
     await _speech.stop();
     await _tts.stop();
-    if (_sessionId == null) {
+    if (_sessionId == null || _sessionId!.startsWith('local-')) {
       _closeConversation();
       return;
     }
@@ -542,7 +595,7 @@ class _AiPracticeHubScreenState extends State<AiPracticeHubScreen> {
             _hero(),
             const SizedBox(height: 18),
             if (_error != null) ...[_errorBox(), const SizedBox(height: 12)],
-            Text('Start a Conversation', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900)),
+            Text('Start a Conversation', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900, color: Theme.of(context).colorScheme.onSurface)),
             const SizedBox(height: 10),
             _freeTalkCard(),
             const SizedBox(height: 10),
@@ -603,8 +656,8 @@ class _AiPracticeHubScreenState extends State<AiPracticeHubScreen> {
             Icon(icon, color: Theme.of(context).colorScheme.primary),
             const SizedBox(width: 8),
             Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(title, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 12)),
-              Text(subtitle, style: const TextStyle(fontSize: 11)),
+              Text(title, style: const TextStyle(color: Color(0xFF17131F), fontWeight: FontWeight.w900, fontSize: 12)),
+              Text(subtitle, style: const TextStyle(color: Color(0xFF5D566B), fontSize: 11, fontWeight: FontWeight.w600)),
             ])),
           ]),
         ),

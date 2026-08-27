@@ -72,7 +72,7 @@ class _CertificatesScreenState extends State<CertificatesScreen> {
             mainAxisAlignment: pw.MainAxisAlignment.center,
             crossAxisAlignment: pw.CrossAxisAlignment.center,
             children: [
-              pw.Text('FLUENTX', style: pw.TextStyle(fontSize: 23, fontWeight: pw.FontWeight.bold, color: PdfColor.fromHex('#7557F6'))),
+              pw.Text('FLUENT X', style: pw.TextStyle(fontSize: 23, fontWeight: pw.FontWeight.bold, color: PdfColor.fromHex('#7557F6'))),
               pw.SizedBox(height: 18),
               pw.Text('CERTIFICATE OF COMPLETION', style: pw.TextStyle(fontSize: 26, fontWeight: pw.FontWeight.bold)),
               pw.SizedBox(height: 25),
@@ -166,8 +166,19 @@ class _CertificatesScreenState extends State<CertificatesScreen> {
                     final eligible = row['eligible'] == true;
                     final required = int.tryParse((row['required_weeks'] ?? 0).toString()) ?? 0;
                     final completed = int.tryParse((row['completed_weeks'] ?? 0).toString()) ?? 0;
-                    final milestone = (row['milestone'] ?? '').toString();
-                    final title = (row['display_title'] ?? milestone).toString();
+                    final milestone = (row['milestone'] ?? '').toString().trim();
+                    final rawTitle = (row['display_title'] ?? '').toString().trim();
+                    final title = rawTitle.isNotEmpty
+                        ? rawTitle
+                        : switch (milestone.toUpperCase()) {
+                            'A1' => 'A1 Foundation Certificate',
+                            'A2' => 'A2 Elementary Certificate',
+                            'B1' => 'B1 Intermediate Certificate',
+                            'B2' => 'B2 Upper-Intermediate Certificate',
+                            'C1' => 'C1 Advanced Certificate',
+                            'MASTER' => 'Communication Mastery Certificate',
+                            _ => required >= 60 ? 'Communication Mastery Certificate' : 'Level Completion Certificate',
+                          };
                     final progress = required <= 0 ? 0.0 : (completed / required).clamp(0.0, 1.0);
                     final code = (row['certificate_code'] ?? '').toString();
                     final paidTier = (row['paid_tier'] ?? 'free').toString();
@@ -198,7 +209,7 @@ class _CertificatesScreenState extends State<CertificatesScreen> {
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      Text(title, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
+                                      Text(title, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800, color: colors.onSurface)),
                                       const SizedBox(height: 3),
                                       Text(
                                         issued ? 'Certificate issued' : eligible ? 'Ready to issue' : '$completed of $required required weeks completed',

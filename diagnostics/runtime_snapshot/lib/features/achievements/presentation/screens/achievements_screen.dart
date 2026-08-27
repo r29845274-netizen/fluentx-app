@@ -28,8 +28,27 @@ class AchievementsScreen extends ConsumerWidget {
             firstStepsUnlocked: onboardingComplete,
           ),
           loading: () => const LoadingWidget(),
-          error: (_, __) => ErrorStateWidget(
-            onRetry: () => ref.invalidate(achievementStatsProvider),
+          error: (_, __) => ListView(
+            padding: const EdgeInsets.all(AppSpacing.xl),
+            children: [
+              AppCard(
+                child: Column(
+                  children: [
+                    Icon(Icons.emoji_events_outlined, size: 48, color: Theme.of(context).colorScheme.primary),
+                    const SizedBox(height: AppSpacing.md),
+                    Text('Achievements are syncing', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
+                    const SizedBox(height: AppSpacing.sm),
+                    const Text('Your completed activities are safe. Refresh to load the latest badges and milestones.', textAlign: TextAlign.center),
+                    const SizedBox(height: AppSpacing.md),
+                    FilledButton.tonalIcon(
+                      onPressed: () => ref.invalidate(achievementStatsProvider),
+                      icon: const Icon(Icons.refresh_rounded),
+                      label: const Text('Refresh achievements'),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
         ),
       ),

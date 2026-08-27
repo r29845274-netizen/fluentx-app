@@ -71,9 +71,7 @@ class _WritingEditorSheetState extends ConsumerState<WritingEditorSheet> {
         if (controllerState.hasError) ...[
           const SizedBox(height: AppSpacing.sm),
           Text(
-            controllerState.error is Failure
-                ? (controllerState.error! as Failure).uiMessage
-                : 'Something went wrong while scoring your writing.',
+            'AI feedback is temporarily unavailable. Your text is still here — please tap Submit again in a moment.',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(color: colorScheme.error),
           ),
         ],
