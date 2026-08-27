@@ -69,3 +69,10 @@ repair_patch = Path(__file__).with_name('repair_placement_helpers.py')
 if not repair_patch.exists():
     raise SystemExit(f'Placement helper repair not found: {repair_patch}')
 subprocess.check_call([sys.executable, str(repair_patch), str(root)])
+
+# Apply screenshot-detected runtime fixes after every other generated UI patch
+# so later scripts cannot overwrite them.
+runtime_patch = Path(__file__).with_name('patch_runtime_screenshot_regressions.py')
+if not runtime_patch.exists():
+    raise SystemExit(f'Runtime screenshot patch not found: {runtime_patch}')
+subprocess.check_call([sys.executable, str(runtime_patch), str(root)])
