@@ -65,6 +65,10 @@ jobs:
               cp "$f" "$out"
             fi
           }
+          copy_file lib/main.dart
+          copy_file lib/app.dart
+          copy_file lib/core/theme/app_theme.dart
+          copy_file lib/features/settings/presentation/screens/settings_screen.dart
           copy_file lib/features/grammar/presentation/widgets/grammar_quiz_sheet.dart
           copy_file lib/features/grammar/domain/entities/grammar_lesson.dart
           copy_file lib/features/grammar/application/providers/grammar_providers.dart
@@ -76,8 +80,8 @@ jobs:
           copy_file lib/features/ai_practice/presentation/screens/ai_practice_hub_screen.dart
           copy_file lib/features/learn/presentation/screens/pronunciation_practice_screen.dart
           copy_file lib/features/certificates/presentation/screens/certificates_screen.dart
-          find fluentx_admin_secure/lib/features -type f -name '*.dart' | while read f; do
-            if grep -Eq 'Communication DNA|Something interrupted this|AI scoring failed' "$f"; then
+          find fluentx_admin_secure/lib -type f -name '*.dart' | while read f; do
+            if grep -Eq 'MaterialApp|themeMode|ThemeMode|Communication DNA|Something interrupted this|AI scoring failed' "$f"; then
               rel="${f#fluentx_admin_secure/}"
               out="diagnostics/runtime_snapshot/$rel"
               mkdir -p "$(dirname "$out")"
