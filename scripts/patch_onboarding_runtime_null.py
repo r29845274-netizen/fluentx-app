@@ -1,4 +1,5 @@
 from pathlib import Path
+import subprocess
 import sys
 
 root = Path(sys.argv[1] if len(sys.argv) > 1 else 'fluentx_admin_secure')
@@ -54,3 +55,10 @@ if missing:
 
 path.write_text(code)
 print('Fixed onboarding eager PageView null crash and placement auth null assertion.')
+
+# Apply the video-regression patch last so it sees the final generated auth,
+# onboarding and theme files after the rest of the CI patch stack.
+video_patch = Path(__file__).with_name('patch_video_regression_fixes.py')
+if not video_patch.exists():
+    raise SystemExit(f'Video regression patch not found: {video_patch}')
+subprocess.check_call([sys.executable, str(video_patch), str(root)])
