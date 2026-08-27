@@ -68,6 +68,7 @@ jobs:
           python3 scripts/patch_full_legal_compliance.py fluentx_admin_secure
           python3 scripts/patch_adaptive_coaching_intelligence.py fluentx_admin_secure
           python3 scripts/patch_onboarding_runtime_null.py fluentx_admin_secure
+          python3 scripts/repair_placement_helpers.py fluentx_admin_secure
 
       - name: Preflight
         working-directory: fluentx_admin_secure
@@ -111,7 +112,7 @@ jobs:
           git push origin refs/tags/fluentx-latest-debug --force
           if gh release view fluentx-latest-debug >/dev/null 2>&1; then
             gh release upload fluentx-latest-debug FluentX-latest-debug.apk FluentX-latest-debug.sha256 --clobber
-            gh release edit fluentx-latest-debug --title "FluentX Latest Debug APK" --notes "Latest test APK built from the current FluentX main branch. For Android device QA only."
+            gh release edit fluentx-latest-debug --title "Fluent X Latest Debug APK" --notes "Latest test APK built from the current Fluent X main branch. Includes the verified onboarding, placement, branding and UI regression fixes. For Android QA only."
           else
-            gh release create fluentx-latest-debug FluentX-latest-debug.apk FluentX-latest-debug.sha256 --title "FluentX Latest Debug APK" --notes "Latest test APK built from the current FluentX main branch. For Android device QA only."
+            gh release create fluentx-latest-debug FluentX-latest-debug.apk FluentX-latest-debug.sha256 --title "Fluent X Latest Debug APK" --notes "Latest test APK built from the current Fluent X main branch. Includes the verified onboarding, placement, branding and UI regression fixes. For Android QA only."
           fi
