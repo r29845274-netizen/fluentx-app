@@ -62,3 +62,10 @@ video_patch = Path(__file__).with_name('patch_video_regression_fixes.py')
 if not video_patch.exists():
     raise SystemExit(f'Video regression patch not found: {video_patch}')
 subprocess.check_call([sys.executable, str(video_patch), str(root)])
+
+# The regression patch intentionally replaces large placement methods. Restore
+# helper methods that the generated screen still references after that replace.
+repair_patch = Path(__file__).with_name('repair_placement_helpers.py')
+if not repair_patch.exists():
+    raise SystemExit(f'Placement helper repair not found: {repair_patch}')
+subprocess.check_call([sys.executable, str(repair_patch), str(root)])
