@@ -1,6 +1,7 @@
 from pathlib import Path
 import sys
 
+# Final compile guard for video-regression placement changes.
 root = Path(sys.argv[1] if len(sys.argv) > 1 else 'fluentx_admin_secure')
 path = root / 'lib/features/onboarding/presentation/screens/onboarding_screen.dart'
 if not path.exists():
