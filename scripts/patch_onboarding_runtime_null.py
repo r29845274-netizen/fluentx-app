@@ -9,9 +9,6 @@ if not path.exists():
 
 code = path.read_text()
 
-# PageView builds its children eagerly. The placement page used forced null
-# assertions for audience/goal even before the learner selected them, causing
-# a startup red-screen for authenticated users whose onboarding is incomplete.
 unsafe_page = '''                  _PlacementTestPage(
                     audienceKey: _selectedAudience!,
                     goalKey: _selectedGoal!,
@@ -31,8 +28,6 @@ if unsafe_page in code:
 elif 'if (_selectedAudience != null && _selectedGoal != null)' not in code:
     raise SystemExit('Could not locate unsafe placement PageView child.')
 
-# Also remove a second avoidable forced-null assertion if auth expires while
-# a learner is taking the placement test.
 unsafe_user = '''      final user = _client.auth.currentUser!;
       final q = _questions[_index];'''
 safe_user = '''      final user = _client.auth.currentUser;
@@ -56,23 +51,22 @@ if missing:
 path.write_text(code)
 print('Fixed onboarding eager PageView null crash and placement auth null assertion.')
 
-# Apply the video-regression patch last so it sees the final generated auth,
-# onboarding and theme files after the rest of the CI patch stack.
 video_patch = Path(__file__).with_name('patch_video_regression_fixes.py')
 if not video_patch.exists():
     raise SystemExit(f'Video regression patch not found: {video_patch}')
 subprocess.check_call([sys.executable, str(video_patch), str(root)])
 
-# The regression patch intentionally replaces large placement methods. Restore
-# helper methods that the generated screen still references after that replace.
 repair_patch = Path(__file__).with_name('repair_placement_helpers.py')
 if not repair_patch.exists():
     raise SystemExit(f'Placement helper repair not found: {repair_patch}')
 subprocess.check_call([sys.executable, str(repair_patch), str(root)])
 
-# Apply screenshot-detected runtime fixes after every other generated UI patch
-# so later scripts cannot overwrite them.
 runtime_patch = Path(__file__).with_name('patch_runtime_screenshot_regressions.py')
 if not runtime_patch.exists():
     raise SystemExit(f'Runtime screenshot patch not found: {runtime_patch}')
 subprocess.check_call([sys.executable, str(runtime_patch), str(root)])
+
+theme_patch = Path(__file__).with_name('patch_theme_preferences.py')
+if not theme_patch.exists():
+    raise SystemExit(f'Theme preference patch not found: {theme_patch}')
+subprocess.check_call([sys.executable, str(theme_patch), str(root)])
