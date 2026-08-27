@@ -58,8 +58,29 @@ RevenueCat/Supabase identity linking applied.
 Approved Maya design applied: premium Free Talk home, text + voice conversation, live microphone, spoken Maya replies, Hindi/Hinglish→English coaching, corrections, adaptive expression, emotional TTS, daily AI usage, safe conversation and summary.
 Maya compile safety fixes applied; lightweight CI diagnostics captured.
 Growth coaching applied: pronunciation beta + Learn route + Maya retention activity.
-Maya natural voice loop applied: auto-listen, turn-taking and learner barge-in.
+Maya voice polish + correction capture applied: faster turn-taking, barge-in and adaptive mistake feed.
 Referral growth UI applied: invite dashboard, WhatsApp share, rewards, redemption and profile route.
 Growth analytics UI applied: app-open tracking, referral conversion metrics, and PNG progress/achievement sharing.
 Full legal compliance applied: terms/privacy consent + IP policy/reporting + data compliance center + privacy/legal requests.
 Adaptive coaching UI applied: Made for You + pronunciation weak-word intelligence + trend history.
+Video regression fixes applied.
+Changed files:
+ - lib/app/app.dart
+ - lib/shared/widgets/navigation/app_shell.dart
+ - lib/features/interview_prep/presentation/screens/interview_prep_screen.dart
+ - lib/features/certificates/presentation/screens/certificates_screen.dart
+ - lib/features/profile/presentation/screens/referral_screen.dart
+ - lib/features/profile/presentation/screens/help_support_screen.dart
+ - lib/features/premium/application/providers/membership_identity_provider.dart
+ - lib/features/premium/presentation/screens/premium_screen.dart
+ - lib/features/progress/presentation/screens/share_progress_card_screen.dart
+ - lib/features/progress/presentation/screens/progress_screen.dart
+ - lib/features/splash/presentation/screens/splash_screen.dart
+ - lib/features/settings/presentation/screens/legal_document_screen.dart
+ - lib/features/settings/presentation/screens/legal_compliance_center_screen.dart
+ - lib/features/admin/presentation/screens/admin_console_screen.dart
+ - lib/features/onboarding/presentation/screens/onboarding_screen.dart
+ - lib/features/onboarding/presentation/screens/onboarding_screen.dart
+ - lib/features/authentication/presentation/screens/login_screen.dart
+ - lib/features/authentication/presentation/screens/otp_verification_screen.dart
+Fixed onboarding eager PageView null crash and placement auth null assertion.
