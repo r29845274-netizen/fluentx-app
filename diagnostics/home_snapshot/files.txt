@@ -1,0 +1,8 @@
+diagnostics/home_snapshot/files.txt
+diagnostics/home_snapshot/lib/features/profile/presentation/screens/profile_screen.dart
+diagnostics/home_snapshot/lib/features/profile/presentation/screens/daily_goals_screen.dart
+diagnostics/home_snapshot/lib/features/achievements/presentation/screens/achievements_screen.dart
+diagnostics/home_snapshot/lib/features/progress/presentation/screens/share_progress_card_screen.dart
+diagnostics/home_snapshot/lib/features/home/presentation/widgets/daily_goal_card.dart
+diagnostics/home_snapshot/lib/features/home/presentation/widgets/stat_chip.dart
+diagnostics/home_snapshot/lib/features/home/presentation/screens/home_screen.dart
