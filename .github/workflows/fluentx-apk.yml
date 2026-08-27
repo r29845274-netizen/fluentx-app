@@ -1,9 +1,11 @@
 name: FluentX APK Build
 
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
+
+concurrency:
+  group: fluentx-apk-build-main
+  cancel-in-progress: true
 
 permissions:
   contents: write
