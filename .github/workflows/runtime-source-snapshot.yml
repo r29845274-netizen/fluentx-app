@@ -57,14 +57,34 @@ jobs:
         run: |
           rm -rf diagnostics/runtime_snapshot
           mkdir -p diagnostics/runtime_snapshot
+          copy_file() {
+            f="fluentx_admin_secure/$1"
+            if [ -f "$f" ]; then
+              out="diagnostics/runtime_snapshot/$1"
+              mkdir -p "$(dirname "$out")"
+              cp "$f" "$out"
+            fi
+          }
+          copy_file lib/features/grammar/presentation/widgets/grammar_quiz_sheet.dart
+          copy_file lib/features/grammar/domain/entities/grammar_lesson.dart
+          copy_file lib/features/grammar/application/providers/grammar_providers.dart
+          copy_file lib/features/writing/presentation/widgets/writing_editor_sheet.dart
+          copy_file lib/features/progress/presentation/screens/progress_screen.dart
+          copy_file lib/features/achievements/presentation/screens/achievements_screen.dart
+          copy_file lib/features/premium/presentation/screens/premium_screen.dart
+          copy_file lib/features/premium/application/providers/purchase_providers.dart
+          copy_file lib/features/ai_practice/presentation/screens/ai_practice_hub_screen.dart
+          copy_file lib/features/learn/presentation/screens/pronunciation_practice_screen.dart
+          copy_file lib/features/certificates/presentation/screens/certificates_screen.dart
           find fluentx_admin_secure/lib/features -type f -name '*.dart' | while read f; do
-            if grep -Eq 'No questions yet for this lesson|AI scoring failed|Something interrupted this|Pronunciation Practice|Maya could not load right now|Free Talk is unavailable right now|Fluent X Premium|My Certificates' "$f"; then
-              out="diagnostics/runtime_snapshot/${f#fluentx_admin_secure/}"
+            if grep -Eq 'Communication DNA|Something interrupted this|AI scoring failed' "$f"; then
+              rel="${f#fluentx_admin_secure/}"
+              out="diagnostics/runtime_snapshot/$rel"
               mkdir -p "$(dirname "$out")"
               cp "$f" "$out"
             fi
           done
-          find diagnostics/runtime_snapshot -type f -print > diagnostics/runtime_snapshot/files.txt
+          find diagnostics/runtime_snapshot -type f -print | sort > diagnostics/runtime_snapshot/files.txt
       - name: Commit snapshot
         run: |
           git config user.name 'github-actions[bot]'
