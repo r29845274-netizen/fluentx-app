@@ -1,0 +1,107 @@
+name: FluentX Latest Source Audit
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/audit-latest-source.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Extract and apply exact APK patch stack
+        run: |
+          set -euo pipefail
+          rm -rf fluentx_admin_secure
+          unzip -q fluentx_mobile_test_ready.zip
+          python3 scripts/ci_patch.py fluentx_admin_secure
+          python3 scripts/patch_splash_redirect.py fluentx_admin_secure
+          python3 scripts/patch_personalized_onboarding.py fluentx_admin_secure
+          python3 scripts/fix_personalized_onboarding_compile.py fluentx_admin_secure
+          python3 scripts/patch_full_placement_test_ui.py fluentx_admin_secure
+          python3 scripts/patch_learning_path_minimal.py fluentx_admin_secure
+          python3 scripts/patch_market_ready_completion.py fluentx_admin_secure
+          python3 scripts/patch_learning_path_detail.py fluentx_admin_secure
+          python3 scripts/patch_fluentx_visual_system.py fluentx_admin_secure
+          python3 scripts/patch_reference_uiux.py fluentx_admin_secure
+          python3 scripts/patch_interview_ai_coach.py fluentx_admin_secure
+          python3 scripts/patch_settings_security.py fluentx_admin_secure
+          python3 scripts/patch_revenuecat_production.py fluentx_admin_secure
+          python3 scripts/patch_release_readiness.py fluentx_admin_secure
+          python3 scripts/patch_final_ui_cleanup.py fluentx_admin_secure
+          python3 scripts/patch_final_visual_consistency.py fluentx_admin_secure
+          python3 scripts/patch_billing_compliance.py fluentx_admin_secure
+          python3 scripts/patch_certificates.py fluentx_admin_secure
+          python3 scripts/patch_membership_tiers.py fluentx_admin_secure
+          python3 scripts/patch_subscription_feature_gating.py fluentx_admin_secure
+          python3 scripts/patch_launch_runtime_completion.py fluentx_admin_secure
+          python3 scripts/patch_maya_ai_conversation.py fluentx_admin_secure
+          python3 scripts/fix_maya_compile.py fluentx_admin_secure
+          python3 scripts/patch_growth_coaching.py fluentx_admin_secure
+          python3 scripts/patch_maya_natural_voice.py fluentx_admin_secure
+          python3 scripts/patch_referral_growth.py fluentx_admin_secure
+          python3 scripts/patch_growth_analytics_share_cards.py fluentx_admin_secure
+          python3 scripts/patch_full_legal_compliance.py fluentx_admin_secure
+          python3 scripts/patch_adaptive_coaching_intelligence.py fluentx_admin_secure
+          python3 scripts/patch_onboarding_runtime_null.py fluentx_admin_secure
+
+      - name: Generate A-to-Z audit report
+        run: |
+          set -euo pipefail
+          rm -rf diagnostics/latest_audit
+          mkdir -p diagnostics/latest_audit/source
+          {
+            echo '=== SOURCE SUMMARY ==='
+            echo "dart_files=$(find fluentx_admin_secure/lib -type f -name '*.dart' | wc -l)"
+            echo "test_files=$(find fluentx_admin_secure/test -type f -name '*_test.dart' 2>/dev/null | wc -l)"
+            echo
+            echo '=== TODO / PLACEHOLDER / MOCK SIGNALS ==='
+            grep -RniE -C 2 'TODO|FIXME|placeholder|coming soon|not implemented|under construction|mock|dummy|stub' fluentx_admin_secure/lib || true
+            echo
+            echo '=== RUNTIME UNAVAILABLE / ERROR COPY ==='
+            grep -RniE -C 2 'not available|unavailable|could not load|failed|try again|not ready' fluentx_admin_secure/lib/features || true
+            echo
+            echo '=== DISABLED INTERACTIONS ==='
+            grep -RniE -C 2 'onPressed:[[:space:]]*null|onTap:[[:space:]]*null|enabled:[[:space:]]*false' fluentx_admin_secure/lib || true
+            echo
+            echo '=== LOCALHOST / EXAMPLE / PLACEHOLDER URL SIGNALS ==='
+            grep -RniE -C 2 'localhost|127\.0\.0\.1|example\.com|YOUR_|CHANGE_ME|replace_me' fluentx_admin_secure/lib fluentx_admin_secure/android || true
+            echo
+            echo '=== BILLING / CERTIFICATE IDENTIFIERS ==='
+            grep -RniE -C 1 'REVENUECAT|premium|certificate_lifetime|fluentx_final_certificate_lifetime|₹299|certificate_price' fluentx_admin_secure/lib/features/premium fluentx_admin_secure/lib/features/certificates fluentx_admin_secure/lib/core/config || true
+            echo
+            echo '=== BRANDING SIGNALS ==='
+            grep -RniE -C 1 'FluentX|Fluent X' fluentx_admin_secure/lib/features/home fluentx_admin_secure/lib/features/authentication fluentx_admin_secure/lib/features/settings || true
+          } > diagnostics/latest_audit/report.txt
+
+          cp fluentx_admin_secure/lib/core/config/env_config.dart diagnostics/latest_audit/source/env_config.dart.txt || true
+          cp fluentx_admin_secure/lib/features/home/presentation/screens/home_screen.dart diagnostics/latest_audit/source/home_screen.dart.txt || true
+          cp fluentx_admin_secure/lib/features/premium/presentation/screens/premium_screen.dart diagnostics/latest_audit/source/premium_screen.dart.txt || true
+          cp fluentx_admin_secure/lib/features/premium/application/providers/membership_identity_provider.dart diagnostics/latest_audit/source/membership_identity_provider.dart.txt || true
+          cp fluentx_admin_secure/lib/features/certificates/presentation/screens/certificates_screen.dart diagnostics/latest_audit/source/certificates_screen.dart.txt || true
+          cp fluentx_admin_secure/lib/features/settings/presentation/screens/settings_screen.dart diagnostics/latest_audit/source/settings_screen.dart.txt || true
+          cp fluentx_admin_secure/lib/features/writing/presentation/screens/writing_screen.dart diagnostics/latest_audit/source/writing_screen.dart.txt || true
+          cp fluentx_admin_secure/lib/features/ai_practice/presentation/screens/ai_practice_hub_screen.dart diagnostics/latest_audit/source/ai_practice_hub_screen.dart.txt || true
+          cp fluentx_admin_secure/lib/features/progress/presentation/screens/progress_screen.dart diagnostics/latest_audit/source/progress_screen.dart.txt || true
+          cp fluentx_admin_secure/lib/features/achievements/presentation/screens/achievements_screen.dart diagnostics/latest_audit/source/achievements_screen.dart.txt || true
+
+      - name: Save audit report
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f diagnostics/latest_audit
+          if ! git diff --cached --quiet; then
+            git commit -m "Save latest Fluent X A-to-Z audit [skip ci]"
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
