@@ -1,1 +1,1 @@
-trigger: 2026-08-29 public-repo-rerun
+trigger: 2026-08-29 certificate-lifetime-access
