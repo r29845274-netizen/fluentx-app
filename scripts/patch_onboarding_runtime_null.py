@@ -58,6 +58,7 @@ for script_name in [
     'patch_theme_preferences.py',
     'patch_premium_home_experience.py',
     'patch_certificate_lifetime_access.py',
+    'patch_certificate_price_299.py',
 ]:
     patch = Path(__file__).with_name(script_name)
     if not patch.exists():
