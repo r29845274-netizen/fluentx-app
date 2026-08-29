@@ -8,10 +8,13 @@ Use these exact identifiers everywhere so Google Play, RevenueCat, and the Flutt
 - Google Play subscription product ID: `fluentx_premium`
 - Monthly base plan ID: `monthly`
 - Annual base plan ID: `annual`
-- RevenueCat entitlement ID: `premium`
+- RevenueCat premium entitlement ID: `premium`
 - RevenueCat offering ID: `default`
 - RevenueCat monthly package: `$rc_monthly`
 - RevenueCat annual package: `$rc_annual`
+- Google Play one-time product ID: `fluentx_final_certificate_lifetime`
+- RevenueCat lifetime certificate entitlement ID: `certificate_lifetime`
+- Recommended India certificate price: `₹299` one-time
 
 ## Google Play Console
 
@@ -29,6 +32,15 @@ Add two base plans:
    - Auto-renewing: enabled
    - Set market pricing in Play Console
 
+Create a separate one-time in-app product:
+
+- Product ID: `fluentx_final_certificate_lifetime`
+- Product type: non-consumable / one-time product
+- India price: `₹299`
+- Purpose: lets Free members permanently unlock the earned final Communication Mastery certificate PDF/download/share access.
+
+Monthly and Annual subscribers must not be charged separately for the final certificate; active `premium` entitlement includes it.
+
 Optional introductory trials/offers should be configured in Google Play. The app intentionally does not hardcode a free-trial duration; Google Play decides eligibility and shows the actual terms.
 
 Before production billing tests, upload a signed AAB to at least an internal testing track and add licensed testers.
@@ -37,12 +49,20 @@ Before production billing tests, upload a signed AAB to at least an internal tes
 
 Create/add the Android app using package `io.fluentx.app`.
 
-Import Google Play product `fluentx_premium` and its monthly/annual base plans.
+Import Google Play subscription `fluentx_premium` and its monthly/annual base plans.
 
 Create entitlement:
 - ID: `premium`
 
 Attach both subscription options to entitlement `premium`.
+
+Import the one-time Google Play product:
+- `fluentx_final_certificate_lifetime`
+
+Create entitlement:
+- ID: `certificate_lifetime`
+
+Attach the one-time certificate product to `certificate_lifetime`.
 
 Create current offering:
 - Offering ID: `default`
@@ -50,8 +70,9 @@ Create current offering:
 Attach packages:
 - `$rc_monthly` -> `fluentx_premium:monthly`
 - `$rc_annual` -> `fluentx_premium:annual`
+- A lifetime/non-consumable package -> `fluentx_final_certificate_lifetime`
 
-The Flutter app reads RevenueCat's current offering and maps annual packages to the Yearly UI and all other recurring packages to Monthly.
+The Flutter app reads RevenueCat's current offering and maps annual packages to the Yearly UI and other recurring packages to Monthly. Certificate purchase lookup accepts a lifetime package or a package/product identifier containing both `certificate` and `lifetime`.
 
 ## GitHub repository secrets
 
@@ -68,7 +89,10 @@ Never commit the keystore or passwords to Git.
 ## In-app purchase behavior
 
 - RevenueCat initializes once at app startup when the public Android SDK key is provided.
-- Paywall prices come from Google Play through RevenueCat.
+- Paywall and certificate prices come from Google Play through RevenueCat.
+- Free users can earn the final certificate and unlock its PDF/download/share access for a one-time lifetime payment.
+- Monthly and Annual subscribers receive final certificate access at no extra charge while the premium entitlement is active.
+- A successful `certificate_lifetime` purchase remains available to that account even after premium subscription expiry.
 - Trial wording is store-driven, not hardcoded.
 - Restore Purchases is available.
 - Google Play subscription management is available from the Premium screen.
