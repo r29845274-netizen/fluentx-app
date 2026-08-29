@@ -1,1 +1,1 @@
-trigger: 2026-08-29 certificate-299-final-audit
+trigger: 2026-08-29 screenshot-regression-fixes-v2
