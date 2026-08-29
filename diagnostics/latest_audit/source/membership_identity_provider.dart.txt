@@ -1,0 +1,77 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:purchases_flutter/purchases_flutter.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
+
+enum FluentXMembershipTier { free, monthly, annual }
+
+class FluentXMemberIdentity {
+  const FluentXMemberIdentity({
+    required this.memberKey,
+    required this.joinedAt,
+    required this.tier,
+  });
+
+  final String memberKey;
+  final DateTime? joinedAt;
+  final FluentXMembershipTier tier;
+
+  bool get isPaid => tier != FluentXMembershipTier.free;
+  bool get isAnnual => tier == FluentXMembershipTier.annual;
+
+  String get memberId => switch (tier) {
+        FluentXMembershipTier.free => 'FX-$memberKey',
+        FluentXMembershipTier.monthly => 'FXM-$memberKey',
+        FluentXMembershipTier.annual => 'FXY-$memberKey',
+      };
+
+  String get tierName => switch (tier) {
+        FluentXMembershipTier.free => 'Fluent X Member',
+        FluentXMembershipTier.monthly => 'Fluent X Pro',
+        FluentXMembershipTier.annual => 'Fluent X Elite',
+      };
+
+  String get badgeLabel => switch (tier) {
+        FluentXMembershipTier.free => 'MEMBER',
+        FluentXMembershipTier.monthly => 'PRO',
+        FluentXMembershipTier.annual => 'ELITE',
+      };
+}
+
+final memberIdentityProvider = FutureProvider<FluentXMemberIdentity>((ref) async {
+  final client = supabase.Supabase.instance.client;
+  String memberKey = 'MEMBER';
+  DateTime? joinedAt;
+
+  final rawIdentity = await client.rpc('get_my_member_identity');
+  if (rawIdentity is List && rawIdentity.isNotEmpty && rawIdentity.first is Map) {
+    final row = Map<String, dynamic>.from(rawIdentity.first as Map);
+    memberKey = (row['member_key'] ?? memberKey).toString().toUpperCase();
+    joinedAt = DateTime.tryParse((row['joined_at'] ?? '').toString());
+  } else if (rawIdentity is Map) {
+    final row = Map<String, dynamic>.from(rawIdentity);
+    memberKey = (row['member_key'] ?? memberKey).toString().toUpperCase();
+    joinedAt = DateTime.tryParse((row['joined_at'] ?? '').toString());
+  }
+
+  var tier = FluentXMembershipTier.free;
+  try {
+    final info = await Purchases.getCustomerInfo();
+    final entitlement = info.entitlements.active['premium'];
+    if (entitlement != null) {
+      // Google Play base-plan IDs are locked as `monthly` and `annual`.
+      // RevenueCat exposes the Google base plan as productPlanIdentifier.
+      final plan = entitlement.productPlanIdentifier?.toLowerCase();
+      tier = plan == 'annual'
+          ? FluentXMembershipTier.annual
+          : FluentXMembershipTier.monthly;
+    }
+  } catch (_) {
+    // Billing may be intentionally unavailable in local/dev builds.
+  }
+
+  return FluentXMemberIdentity(
+    memberKey: memberKey,
+    joinedAt: joinedAt,
+    tier: tier,
+  );
+});

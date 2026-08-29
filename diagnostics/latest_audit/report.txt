@@ -1,0 +1,637 @@
+=== SOURCE SUMMARY ===
+dart_files=191
+test_files=4
+
+=== TODO / PLACEHOLDER / MOCK SIGNALS ===
+fluentx_admin_secure/lib/shared/widgets/states/loading_widget.dart-71-}
+fluentx_admin_secure/lib/shared/widgets/states/loading_widget.dart-72-
+fluentx_admin_secure/lib/shared/widgets/states/loading_widget.dart:73:/// A composed skeleton for a card-shaped loading placeholder — reused
+fluentx_admin_secure/lib/shared/widgets/states/loading_widget.dart-74-/// across Home, Vocabulary, and Progress list loading states.
+fluentx_admin_secure/lib/shared/widgets/states/loading_widget.dart-75-class LoadingCardSkeleton extends StatelessWidget {
+--
+fluentx_admin_secure/lib/features/profile/presentation/screens/daily_goals_screen.dart-56-        child: summaryAsync.when(
+fluentx_admin_secure/lib/features/profile/presentation/screens/daily_goals_screen.dart-57-          data: (summary) {
+fluentx_admin_secure/lib/features/profile/presentation/screens/daily_goals_screen.dart:58:            _minutes ??= summary.dailyGoalTargetMinutes.toDouble();
+fluentx_admin_secure/lib/features/profile/presentation/screens/daily_goals_screen.dart-59-            final minutes = _minutes!;
+fluentx_admin_secure/lib/features/profile/presentation/screens/daily_goals_screen.dart-60-            return ListView(
+--
+fluentx_admin_secure/lib/features/ai_practice/presentation/screens/ai_practice_hub_screen.dart-745-
+fluentx_admin_secure/lib/features/ai_practice/presentation/screens/ai_practice_hub_screen.dart-746-  Widget _dailyTimeCard() {
+fluentx_admin_secure/lib/features/ai_practice/presentation/screens/ai_practice_hub_screen.dart:747:    final progress = _dailyLimitSeconds <= 0 ? 0.0 : (_usedSeconds / _dailyLimitSeconds).clamp(0.0, 1.0).toDouble();
+fluentx_admin_secure/lib/features/ai_practice/presentation/screens/ai_practice_hub_screen.dart-748-    final remaining = (_dailyLimitSeconds - _usedSeconds).clamp(0, _dailyLimitSeconds).toInt();
+fluentx_admin_secure/lib/features/ai_practice/presentation/screens/ai_practice_hub_screen.dart-749-    return Container(
+--
+fluentx_admin_secure/lib/features/home/data/models/home_summary_model.dart-22-              levelLabel: this['continue_level_label'] as String? ?? '',
+fluentx_admin_secure/lib/features/home/data/models/home_summary_model.dart-23-              progressPercent:
+fluentx_admin_secure/lib/features/home/data/models/home_summary_model.dart:24:                  ((this['continue_progress_percent'] as num?)?.toDouble() ?? 0) / 100,
+fluentx_admin_secure/lib/features/home/data/models/home_summary_model.dart-25-            ),
+fluentx_admin_secure/lib/features/home/data/models/home_summary_model.dart-26-    );
+--
+fluentx_admin_secure/lib/features/home/presentation/widgets/daily_goal_card.dart-17-    final colors = Theme.of(context).colorScheme;
+fluentx_admin_secure/lib/features/home/presentation/widgets/daily_goal_card.dart-18-    final textTheme = Theme.of(context).textTheme;
+fluentx_admin_secure/lib/features/home/presentation/widgets/daily_goal_card.dart:19:    final safeProgress = progress.clamp(0.0, 1.0).toDouble();
+fluentx_admin_secure/lib/features/home/presentation/widgets/daily_goal_card.dart-20-    final percent = (safeProgress * 100).round();
+fluentx_admin_secure/lib/features/home/presentation/widgets/daily_goal_card.dart-21-
+--
+fluentx_admin_secure/lib/features/learn/presentation/screens/learn_hub_screen.dart-188-                        borderRadius: BorderRadius.circular(99),
+fluentx_admin_secure/lib/features/learn/presentation/screens/learn_hub_screen.dart-189-                        child: LinearProgressIndicator(
+fluentx_admin_secure/lib/features/learn/presentation/screens/learn_hub_screen.dart:190:                          value: (currentWeek / 60.0).clamp(0.0, 1.0).toDouble(),
+fluentx_admin_secure/lib/features/learn/presentation/screens/learn_hub_screen.dart-191-                          minHeight: 7,
+fluentx_admin_secure/lib/features/learn/presentation/screens/learn_hub_screen.dart-192-                        ),
+--
+fluentx_admin_secure/lib/features/vocabulary/domain/services/sm2_scheduler.dart-19-/// Standard SM-2 spaced-repetition algorithm (SuperMemo 2), pure and
+fluentx_admin_secure/lib/features/vocabulary/domain/services/sm2_scheduler.dart-20-/// side-effect free — deliberately isolated from Supabase/Riverpod so
+fluentx_admin_secure/lib/features/vocabulary/domain/services/sm2_scheduler.dart:21:/// it's trivially unit-testable and never needs a mock to exercise.
+fluentx_admin_secure/lib/features/vocabulary/domain/services/sm2_scheduler.dart-22-abstract final class Sm2Scheduler {
+fluentx_admin_secure/lib/features/vocabulary/domain/services/sm2_scheduler.dart-23-  const Sm2Scheduler._();
+--
+fluentx_admin_secure/lib/features/vocabulary/data/models/due_word_model.dart-10-      category: this['category'] as String,
+fluentx_admin_secure/lib/features/vocabulary/data/models/due_word_model.dart-11-      repetition: (this['repetition'] as num).toInt(),
+fluentx_admin_secure/lib/features/vocabulary/data/models/due_word_model.dart:12:      easeFactor: (this['ease_factor'] as num).toDouble(),
+fluentx_admin_secure/lib/features/vocabulary/data/models/due_word_model.dart-13-      intervalDays: (this['interval_days'] as num).toInt(),
+fluentx_admin_secure/lib/features/vocabulary/data/models/due_word_model.dart-14-      dueDate: DateTime.parse(this['due_date'] as String),
+
+=== RUNTIME UNAVAILABLE / ERROR COPY ===
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-115-      if (mounted) {
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-116-        ScaffoldMessenger.of(context).showSnackBar(
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart:117:          const SnackBar(content: Text('Microphone speech recognition is unavailable on this device.')),
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-118-        );
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-119-      }
+--
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-144-      if (mounted) {
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-145-        ScaffoldMessenger.of(context).showSnackBar(
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart:146:          const SnackBar(content: Text('Could not start interview practice. Please try again.')),
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-147-        );
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-148-      }
+--
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-163-      final data = Map<String, dynamic>.from(response.data as Map);
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-164-      if (response.status >= 400 || data['error'] != null) {
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart:165:        throw Exception(data['error'] ?? 'Scoring failed');
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-166-      }
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-167-      final score = (data['score'] as num?)?.round() ?? 0;
+--
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-175-      if (mounted) {
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-176-        ScaffoldMessenger.of(context).showSnackBar(
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart:177:          const SnackBar(content: Text('AI scoring is unavailable right now. Please try again.')),
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-178-        );
+fluentx_admin_secure/lib/features/interview_prep/presentation/screens/interview_prep_screen.dart-179-      }
+--
+fluentx_admin_secure/lib/features/certificates/presentation/screens/certificates_screen.dart-55-      if (package != null) certificatePrice = package.storeProduct.priceString;
+fluentx_admin_secure/lib/features/certificates/presentation/screens/certificates_screen.dart-56-    } catch (_) {
+fluentx_admin_secure/lib/features/certificates/presentation/screens/certificates_screen.dart:57:      // Billing can be unavailable in local/dev builds. Eligibility still loads.
+fluentx_admin_secure/lib/features/certificates/presentation/screens/certificates_screen.dart-58-    }
+fluentx_admin_secure/lib/features/certificates/presentation/screens/certificates_screen.dart-59-
+--
+fluentx_admin_secure/lib/features/certificates/presentation/screens/certificates_screen.dart-74-      final package = _certificateLifetimePackage(offerings);
+fluentx_admin_secure/lib/features/certificates/presentation/screens/certificates_screen.dart-75-      if (package == null) {
+fluentx_admin_secure/lib/features/certificates/presentation/screens/certificates_screen.dart:76:        throw Exception('Final certificate purchase is not available yet.');
+fluentx_admin_secure/lib/features/certificates/presentation/screens/certificates_screen.dart-77-      }
+fluentx_admin_secure/lib/features/certificates/presentation/screens/certificates_screen.dart-78-
+--
+fluentx_admin_secure/lib/features/certificates/presentation/screens/certificates_screen.dart-185-                padding: const EdgeInsets.all(AppSpacing.xl),
+fluentx_admin_secure/lib/features/certificates/presentation/screens/certificates_screen.dart-186-                children: const [
+fluentx_admin_secure/lib/features/certificates/presentation/screens/certificates_screen.dart:187:                  ErrorStateWidget(message: 'We could not load your certificates right now.'),
+fluentx_admin_secure/lib/features/certificates/presentation/screens/certificates_screen.dart-188-                ],
+fluentx_admin_secure/lib/features/certificates/presentation/screens/certificates_screen.dart-189-              );
+--
+fluentx_admin_secure/lib/features/profile/presentation/screens/referral_screen.dart-43-    } catch (e) {
+fluentx_admin_secure/lib/features/profile/presentation/screens/referral_screen.dart-44-      if (!mounted) return;
+fluentx_admin_secure/lib/features/profile/presentation/screens/referral_screen.dart:45:      setState(() { _loading = false; _error = 'Referral program could not load right now.'; });
+fluentx_admin_secure/lib/features/profile/presentation/screens/referral_screen.dart-46-    }
+fluentx_admin_secure/lib/features/profile/presentation/screens/referral_screen.dart-47-  }
+--
+fluentx_admin_secure/lib/features/profile/presentation/screens/daily_goals_screen.dart-38-      if (mounted) {
+fluentx_admin_secure/lib/features/profile/presentation/screens/daily_goals_screen.dart-39-        ScaffoldMessenger.of(context).showSnackBar(
+fluentx_admin_secure/lib/features/profile/presentation/screens/daily_goals_screen.dart:40:          const SnackBar(content: Text('Could not update the goal. Please try again.')),
+fluentx_admin_secure/lib/features/profile/presentation/screens/daily_goals_screen.dart-41-        );
+fluentx_admin_secure/lib/features/profile/presentation/screens/daily_goals_screen.dart-42-      }
+--
+fluentx_admin_secure/lib/features/premium/application/providers/membership_identity_provider.dart-67-    }
+fluentx_admin_secure/lib/features/premium/application/providers/membership_identity_provider.dart-68-  } catch (_) {
+fluentx_admin_secure/lib/features/premium/application/providers/membership_identity_provider.dart:69:    // Billing may be intentionally unavailable in local/dev builds.
+fluentx_admin_secure/lib/features/premium/application/providers/membership_identity_provider.dart-70-  }
+fluentx_admin_secure/lib/features/premium/application/providers/membership_identity_provider.dart-71-
+--
+fluentx_admin_secure/lib/features/premium/data/datasources/purchase_remote_datasource.dart-72-      final package = offerings.current?.availablePackages
+fluentx_admin_secure/lib/features/premium/data/datasources/purchase_remote_datasource.dart-73-          .firstWhere((p) => p.identifier == packageIdentifier);
+fluentx_admin_secure/lib/features/premium/data/datasources/purchase_remote_datasource.dart:74:      if (package == null) throw const ServerException('Plan not found. Please try again.');
+fluentx_admin_secure/lib/features/premium/data/datasources/purchase_remote_datasource.dart-75-
+fluentx_admin_secure/lib/features/premium/data/datasources/purchase_remote_datasource.dart-76-      final result = await Purchases.purchase(PurchaseParams.package(package));
+--
+fluentx_admin_secure/lib/features/premium/presentation/screens/premium_screen.dart-93-                    Text('Google Play plans are taking too long to load', textAlign: TextAlign.center, style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
+fluentx_admin_secure/lib/features/premium/presentation/screens/premium_screen.dart-94-                    const SizedBox(height: AppSpacing.sm),
+fluentx_admin_secure/lib/features/premium/presentation/screens/premium_screen.dart:95:                    const Text('Check your connection and try again. The app will no longer stay on an endless loading spinner.', textAlign: TextAlign.center),
+fluentx_admin_secure/lib/features/premium/presentation/screens/premium_screen.dart-96-                    const SizedBox(height: AppSpacing.lg),
+fluentx_admin_secure/lib/features/premium/presentation/screens/premium_screen.dart-97-                    FilledButton.icon(onPressed: _retryBilling, icon: const Icon(Icons.refresh_rounded), label: const Text('Retry plans')),
+--
+fluentx_admin_secure/lib/features/premium/presentation/screens/premium_screen.dart-152-                    if (packages.isEmpty) {
+fluentx_admin_secure/lib/features/premium/presentation/screens/premium_screen.dart-153-                      return const EmptyStateWidget(
+fluentx_admin_secure/lib/features/premium/presentation/screens/premium_screen.dart:154:                        title: 'Plans unavailable right now',
+fluentx_admin_secure/lib/features/premium/presentation/screens/premium_screen.dart-155-                        message: 'Please check back shortly.',
+fluentx_admin_secure/lib/features/premium/presentation/screens/premium_screen.dart-156-                      );
+--
+fluentx_admin_secure/lib/features/authentication/data/datasources/auth_remote_datasource.dart-77-      final user = response.user;
+fluentx_admin_secure/lib/features/authentication/data/datasources/auth_remote_datasource.dart-78-      if (user == null) {
+fluentx_admin_secure/lib/features/authentication/data/datasources/auth_remote_datasource.dart:79:        throw const AuthException('Sign in failed. Please try again.');
+fluentx_admin_secure/lib/features/authentication/data/datasources/auth_remote_datasource.dart-80-      }
+fluentx_admin_secure/lib/features/authentication/data/datasources/auth_remote_datasource.dart-81-      return user.toEntity();
+--
+fluentx_admin_secure/lib/features/authentication/data/datasources/auth_remote_datasource.dart-101-      final user = response.user;
+fluentx_admin_secure/lib/features/authentication/data/datasources/auth_remote_datasource.dart-102-      if (user == null) {
+fluentx_admin_secure/lib/features/authentication/data/datasources/auth_remote_datasource.dart:103:        throw const AuthException('Sign up failed. Please try again.');
+fluentx_admin_secure/lib/features/authentication/data/datasources/auth_remote_datasource.dart-104-      }
+fluentx_admin_secure/lib/features/authentication/data/datasources/auth_remote_datasource.dart-105-      return user.toEntity();
+--
+fluentx_admin_secure/lib/features/authentication/data/datasources/auth_remote_datasource.dart-139-      final user = response.user;
+fluentx_admin_secure/lib/features/authentication/data/datasources/auth_remote_datasource.dart-140-      if (user == null || response.session == null) {
+fluentx_admin_secure/lib/features/authentication/data/datasources/auth_remote_datasource.dart:141:        throw const AuthException('OTP verification failed. Please request a new code.');
+fluentx_admin_secure/lib/features/authentication/data/datasources/auth_remote_datasource.dart-142-      }
+fluentx_admin_secure/lib/features/authentication/data/datasources/auth_remote_datasource.dart-143-      return user.toEntity();
+--
+fluentx_admin_secure/lib/features/writing/application/providers/writing_providers.dart-38-/// Drives the editor's submit flow: save the draft, then request AI
+fluentx_admin_secure/lib/features/writing/application/providers/writing_providers.dart-39-/// scoring. Two network calls, one loading state — the editor UI only
+fluentx_admin_secure/lib/features/writing/application/providers/writing_providers.dart:40:/// needs to know "idle / working / scored / failed", not which of the
+fluentx_admin_secure/lib/features/writing/application/providers/writing_providers.dart-41-/// two calls is in flight.
+fluentx_admin_secure/lib/features/writing/application/providers/writing_providers.dart-42-class WritingController extends AutoDisposeAsyncNotifier<WritingSubmission?> {
+--
+fluentx_admin_secure/lib/features/writing/data/datasources/writing_remote_datasource.dart-70-
+fluentx_admin_secure/lib/features/writing/data/datasources/writing_remote_datasource.dart-71-      if (response.status != 200) {
+fluentx_admin_secure/lib/features/writing/data/datasources/writing_remote_datasource.dart:72:        throw ServerException('Scoring failed (status ${response.status}). Please try again.');
+fluentx_admin_secure/lib/features/writing/data/datasources/writing_remote_datasource.dart-73-      }
+fluentx_admin_secure/lib/features/writing/data/datasources/writing_remote_datasource.dart-74-
+fluentx_admin_secure/lib/features/writing/data/datasources/writing_remote_datasource.dart-75-      return (response.data as Map<String, dynamic>).toWritingSubmission();
+fluentx_admin_secure/lib/features/writing/data/datasources/writing_remote_datasource.dart-76-    } on supabase.FunctionException catch (e) {
+fluentx_admin_secure/lib/features/writing/data/datasources/writing_remote_datasource.dart:77:      throw ServerException(e.details?.toString() ?? 'Scoring is temporarily unavailable.');
+fluentx_admin_secure/lib/features/writing/data/datasources/writing_remote_datasource.dart-78-    } catch (e) {
+fluentx_admin_secure/lib/features/writing/data/datasources/writing_remote_datasource.dart-79-      throw ServerException(e.toString());
+--
+fluentx_admin_secure/lib/features/writing/presentation/widgets/writing_editor_sheet.dart-72-          const SizedBox(height: AppSpacing.sm),
+fluentx_admin_secure/lib/features/writing/presentation/widgets/writing_editor_sheet.dart-73-          Text(
+fluentx_admin_secure/lib/features/writing/presentation/widgets/writing_editor_sheet.dart:74:            'AI feedback is temporarily unavailable. Your text is still here — please tap Submit again in a moment.',
+fluentx_admin_secure/lib/features/writing/presentation/widgets/writing_editor_sheet.dart-75-            style: Theme.of(context).textTheme.bodySmall?.copyWith(color: colorScheme.error),
+fluentx_admin_secure/lib/features/writing/presentation/widgets/writing_editor_sheet.dart-76-          ),
+--
+fluentx_admin_secure/lib/features/progress/presentation/screens/share_progress_card_screen.dart-45-      setState(() {
+fluentx_admin_secure/lib/features/progress/presentation/screens/share_progress_card_screen.dart-46-        _loading = false;
+fluentx_admin_secure/lib/features/progress/presentation/screens/share_progress_card_screen.dart:47:        _error = 'Your share card could not load right now.';
+fluentx_admin_secure/lib/features/progress/presentation/screens/share_progress_card_screen.dart-48-      });
+fluentx_admin_secure/lib/features/progress/presentation/screens/share_progress_card_screen.dart-49-    }
+--
+fluentx_admin_secure/lib/features/progress/presentation/screens/share_progress_card_screen.dart-93-    } catch (e) {
+fluentx_admin_secure/lib/features/progress/presentation/screens/share_progress_card_screen.dart-94-      if (!mounted) return;
+fluentx_admin_secure/lib/features/progress/presentation/screens/share_progress_card_screen.dart:95:      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Could not open the share sheet. Please try again.')));
+fluentx_admin_secure/lib/features/progress/presentation/screens/share_progress_card_screen.dart-96-    } finally {
+fluentx_admin_secure/lib/features/progress/presentation/screens/share_progress_card_screen.dart-97-      if (mounted) setState(() => _sharing = false);
+--
+fluentx_admin_secure/lib/features/ai_practice/data/datasources/ai_practice_remote_datasource.dart-65-      );
+fluentx_admin_secure/lib/features/ai_practice/data/datasources/ai_practice_remote_datasource.dart-66-      if (response.status != 200) {
+fluentx_admin_secure/lib/features/ai_practice/data/datasources/ai_practice_remote_datasource.dart:67:        throw ServerException('The AI coach is unavailable right now (${response.status}).');
+fluentx_admin_secure/lib/features/ai_practice/data/datasources/ai_practice_remote_datasource.dart-68-      }
+fluentx_admin_secure/lib/features/ai_practice/data/datasources/ai_practice_remote_datasource.dart-69-      return (response.data as Map<String, dynamic>).toPracticeMessage();
+fluentx_admin_secure/lib/features/ai_practice/data/datasources/ai_practice_remote_datasource.dart-70-    } on supabase.FunctionException catch (e) {
+fluentx_admin_secure/lib/features/ai_practice/data/datasources/ai_practice_remote_datasource.dart:71:      throw ServerException(e.details?.toString() ?? 'The AI coach is unavailable right now.');
+fluentx_admin_secure/lib/features/ai_practice/data/datasources/ai_practice_remote_datasource.dart-72-    } catch (e) {
+fluentx_admin_secure/lib/features/ai_practice/data/datasources/ai_practice_remote_datasource.dart-73-      throw ServerException(e.toString());
+--
+fluentx_admin_secure/lib/features/ai_practice/data/datasources/ai_practice_remote_datasource.dart-83-      );
+fluentx_admin_secure/lib/features/ai_practice/data/datasources/ai_practice_remote_datasource.dart-84-      if (response.status != 200) {
+fluentx_admin_secure/lib/features/ai_practice/data/datasources/ai_practice_remote_datasource.dart:85:        throw ServerException('Could not generate your session summary. Please try again.');
+fluentx_admin_secure/lib/features/ai_practice/data/datasources/ai_practice_remote_datasource.dart-86-      }
+fluentx_admin_secure/lib/features/ai_practice/data/datasources/ai_practice_remote_datasource.dart-87-      return (response.data as Map<String, dynamic>).toPracticeSessionSummary();
+--
+fluentx_admin_secure/lib/features/ai_practice/presentation/widgets/practice_mic_button.dart-113-        Text(
+fluentx_admin_secure/lib/features/ai_practice/presentation/widgets/practice_mic_button.dart-114-          !_isAvailable
+fluentx_admin_secure/lib/features/ai_practice/presentation/widgets/practice_mic_button.dart:115:              ? 'Microphone unavailable'
+fluentx_admin_secure/lib/features/ai_practice/presentation/widgets/practice_mic_button.dart-116-              : _isListening
+fluentx_admin_secure/lib/features/ai_practice/presentation/widgets/practice_mic_button.dart-117-                  ? 'Tap to stop'
+--
+fluentx_admin_secure/lib/features/ai_practice/presentation/screens/ai_practice_hub_screen.dart-264-    final scenario = _freeTalkScenario;
+fluentx_admin_secure/lib/features/ai_practice/presentation/screens/ai_practice_hub_screen.dart-265-    if (scenario == null) {
+fluentx_admin_secure/lib/features/ai_practice/presentation/screens/ai_practice_hub_screen.dart:266:      setState(() => _error = 'Free Talk is unavailable right now.');
+fluentx_admin_secure/lib/features/ai_practice/presentation/screens/ai_practice_hub_screen.dart-267-      return;
+fluentx_admin_secure/lib/features/ai_practice/presentation/screens/ai_practice_hub_screen.dart-268-    }
+--
+fluentx_admin_secure/lib/features/ai_practice/presentation/screens/ai_practice_hub_screen.dart-330-    final ok = await _speech.initialize();
+fluentx_admin_secure/lib/features/ai_practice/presentation/screens/ai_practice_hub_screen.dart-331-    if (!ok) {
+fluentx_admin_secure/lib/features/ai_practice/presentation/screens/ai_practice_hub_screen.dart:332:      if (mounted) setState(() => _error = 'Microphone speech recognition is unavailable.');
+fluentx_admin_secure/lib/features/ai_practice/presentation/screens/ai_practice_hub_screen.dart-333-      return;
+fluentx_admin_secure/lib/features/ai_practice/presentation/screens/ai_practice_hub_screen.dart-334-    }
+--
+fluentx_admin_secure/lib/features/ai_practice/presentation/screens/ai_practice_hub_screen.dart-427-        _error = raw.contains('limit') || raw.contains('daily_ai_limit_reached')
+fluentx_admin_secure/lib/features/ai_practice/presentation/screens/ai_practice_hub_screen.dart-428-            ? 'Your AI Conversation time for today is complete. It resets daily.'
+fluentx_admin_secure/lib/features/ai_practice/presentation/screens/ai_practice_hub_screen.dart:429:            : 'Maya could not reply right now. Please try again.';
+fluentx_admin_secure/lib/features/ai_practice/presentation/screens/ai_practice_hub_screen.dart-430-        _sending = false;
+fluentx_admin_secure/lib/features/ai_practice/presentation/screens/ai_practice_hub_screen.dart-431-      });
+--
+fluentx_admin_secure/lib/features/settings/presentation/screens/edit_profile_screen.dart-46-    } catch (_) {
+fluentx_admin_secure/lib/features/settings/presentation/screens/edit_profile_screen.dart-47-      if (mounted) {
+fluentx_admin_secure/lib/features/settings/presentation/screens/edit_profile_screen.dart:48:        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Could not update profile. Please try again.')));
+fluentx_admin_secure/lib/features/settings/presentation/screens/edit_profile_screen.dart-49-      }
+fluentx_admin_secure/lib/features/settings/presentation/screens/edit_profile_screen.dart-50-    } finally {
+--
+fluentx_admin_secure/lib/features/settings/presentation/screens/legal_request_screen.dart-77-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message)));
+fluentx_admin_secure/lib/features/settings/presentation/screens/legal_request_screen.dart-78-    } catch (_) {
+fluentx_admin_secure/lib/features/settings/presentation/screens/legal_request_screen.dart:79:      if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Could not submit the request. Please try again.')));
+fluentx_admin_secure/lib/features/settings/presentation/screens/legal_request_screen.dart-80-    } finally {
+fluentx_admin_secure/lib/features/settings/presentation/screens/legal_request_screen.dart-81-      if (mounted) setState(() => _sending = false);
+--
+fluentx_admin_secure/lib/features/settings/presentation/screens/settings_screen.dart-78-      final response = await ref.read(supabaseClientProvider).functions.invoke('delete-account');
+fluentx_admin_secure/lib/features/settings/presentation/screens/settings_screen.dart-79-      if (response.status < 200 || response.status >= 300) {
+fluentx_admin_secure/lib/features/settings/presentation/screens/settings_screen.dart:80:        throw Exception('Delete failed');
+fluentx_admin_secure/lib/features/settings/presentation/screens/settings_screen.dart-81-      }
+fluentx_admin_secure/lib/features/settings/presentation/screens/settings_screen.dart-82-      await ref.read(authControllerProvider.notifier).signOut();
+fluentx_admin_secure/lib/features/settings/presentation/screens/settings_screen.dart-83-    } catch (_) {
+fluentx_admin_secure/lib/features/settings/presentation/screens/settings_screen.dart:84:      _message('Could not delete your account. Please try again.');
+fluentx_admin_secure/lib/features/settings/presentation/screens/settings_screen.dart-85-    } finally {
+fluentx_admin_secure/lib/features/settings/presentation/screens/settings_screen.dart-86-      if (mounted) setState(() => _deleting = false);
+--
+fluentx_admin_secure/lib/features/learn/presentation/screens/learning_path_screen.dart-89-            const Icon(Icons.cloud_off_outlined, size: 52),
+fluentx_admin_secure/lib/features/learn/presentation/screens/learning_path_screen.dart-90-            const SizedBox(height: AppSpacing.md),
+fluentx_admin_secure/lib/features/learn/presentation/screens/learning_path_screen.dart:91:            const Text('We could not load your learning path.', textAlign: TextAlign.center),
+fluentx_admin_secure/lib/features/learn/presentation/screens/learning_path_screen.dart-92-            const SizedBox(height: AppSpacing.md),
+fluentx_admin_secure/lib/features/learn/presentation/screens/learning_path_screen.dart:93:            FilledButton(onPressed: _load, child: const Text('Try Again')),
+fluentx_admin_secure/lib/features/learn/presentation/screens/learning_path_screen.dart-94-          ]),
+fluentx_admin_secure/lib/features/learn/presentation/screens/learning_path_screen.dart-95-        )),
+--
+fluentx_admin_secure/lib/features/learn/presentation/screens/learning_path_screen.dart-283-          ? const Center(child: Padding(padding: EdgeInsets.all(AppSpacing.xl), child: CircularProgressIndicator()))
+fluentx_admin_secure/lib/features/learn/presentation/screens/learning_path_screen.dart-284-          : _error != null
+fluentx_admin_secure/lib/features/learn/presentation/screens/learning_path_screen.dart:285:              ? Center(child: Column(mainAxisSize: MainAxisSize.min, children: [Text(_error!), const SizedBox(height: AppSpacing.md), FilledButton(onPressed: _start, child: const Text('Try Again'))]))
+fluentx_admin_secure/lib/features/learn/presentation/screens/learning_path_screen.dart-286-              : ListView(children: [
+fluentx_admin_secure/lib/features/learn/presentation/screens/learning_path_screen.dart-287-                  Text('Weekly Mastery Test', style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800)),
+--
+fluentx_admin_secure/lib/features/learn/presentation/screens/pronunciation_practice_screen.dart-140-    if (!available) {
+fluentx_admin_secure/lib/features/learn/presentation/screens/pronunciation_practice_screen.dart-141-      if (mounted) {
+fluentx_admin_secure/lib/features/learn/presentation/screens/pronunciation_practice_screen.dart:142:        setState(() => _feedback = 'Speech recognition is unavailable on this device.');
+fluentx_admin_secure/lib/features/learn/presentation/screens/pronunciation_practice_screen.dart-143-      }
+fluentx_admin_secure/lib/features/learn/presentation/screens/pronunciation_practice_screen.dart-144-      return;
+--
+fluentx_admin_secure/lib/features/learn/presentation/screens/pronunciation_practice_screen.dart-179-                : score >= 55
+fluentx_admin_secure/lib/features/learn/presentation/screens/pronunciation_practice_screen.dart-180-                    ? 'Nice attempt. Listen again and focus on the words that changed or disappeared.'
+fluentx_admin_secure/lib/features/learn/presentation/screens/pronunciation_practice_screen.dart:181:                    : 'Try again slowly. Break the sentence into two short parts first.';
+fluentx_admin_secure/lib/features/learn/presentation/screens/pronunciation_practice_screen.dart-182-      });
+fluentx_admin_secure/lib/features/learn/presentation/screens/pronunciation_practice_screen.dart-183-      _recordPronunciationAttempt(score, result.recognizedWords, result.confidence, weakWords);
+--
+fluentx_admin_secure/lib/features/learn/presentation/screens/personalized_daily_practice_screen.dart-49-      }
+fluentx_admin_secure/lib/features/learn/presentation/screens/personalized_daily_practice_screen.dart-50-    } catch (_) {
+fluentx_admin_secure/lib/features/learn/presentation/screens/personalized_daily_practice_screen.dart:51:      if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Could not save progress. Try again.')));
+fluentx_admin_secure/lib/features/learn/presentation/screens/personalized_daily_practice_screen.dart-52-    }
+fluentx_admin_secure/lib/features/learn/presentation/screens/personalized_daily_practice_screen.dart-53-  }
+--
+fluentx_admin_secure/lib/features/learn/presentation/screens/personalized_daily_practice_screen.dart-69-    if (_loading) return const Scaffold(body: Center(child: CircularProgressIndicator()));
+fluentx_admin_secure/lib/features/learn/presentation/screens/personalized_daily_practice_screen.dart-70-    if (_practice == null) {
+fluentx_admin_secure/lib/features/learn/presentation/screens/personalized_daily_practice_screen.dart:71:      return Scaffold(appBar: AppBar(title: const Text('Made for You')), body: Center(child: FilledButton(onPressed: _load, child: const Text('Try again'))));
+fluentx_admin_secure/lib/features/learn/presentation/screens/personalized_daily_practice_screen.dart-72-    }
+fluentx_admin_secure/lib/features/learn/presentation/screens/personalized_daily_practice_screen.dart-73-
+--
+fluentx_admin_secure/lib/features/admin/presentation/screens/admin_console_screen.dart-50-    if (response.status < 200 || response.status >= 300) {
+fluentx_admin_secure/lib/features/admin/presentation/screens/admin_console_screen.dart-51-      final message = data is Map ? data['error']?.toString() : null;
+fluentx_admin_secure/lib/features/admin/presentation/screens/admin_console_screen.dart:52:      throw Exception(message ?? 'Admin request failed');
+fluentx_admin_secure/lib/features/admin/presentation/screens/admin_console_screen.dart-53-    }
+fluentx_admin_secure/lib/features/admin/presentation/screens/admin_console_screen.dart-54-    return Map<String, dynamic>.from(data as Map);
+--
+fluentx_admin_secure/lib/features/admin/presentation/screens/admin_console_screen.dart-150-      _error = e.message;
+fluentx_admin_secure/lib/features/admin/presentation/screens/admin_console_screen.dart-151-    } catch (_) {
+fluentx_admin_secure/lib/features/admin/presentation/screens/admin_console_screen.dart:152:      _error = 'MFA verification failed.';
+fluentx_admin_secure/lib/features/admin/presentation/screens/admin_console_screen.dart-153-    } finally {
+fluentx_admin_secure/lib/features/admin/presentation/screens/admin_console_screen.dart-154-      if (mounted) setState(() => _loading = false);
+--
+fluentx_admin_secure/lib/features/admin/presentation/screens/admin_console_screen.dart-172-      );
+fluentx_admin_secure/lib/features/admin/presentation/screens/admin_console_screen.dart-173-    } catch (_) {
+fluentx_admin_secure/lib/features/admin/presentation/screens/admin_console_screen.dart:174:      if (mounted) setState(() => _error = 'Could not load this user.');
+fluentx_admin_secure/lib/features/admin/presentation/screens/admin_console_screen.dart-175-    } finally {
+fluentx_admin_secure/lib/features/admin/presentation/screens/admin_console_screen.dart-176-      if (mounted) setState(() => _loading = false);
+--
+fluentx_admin_secure/lib/features/admin/presentation/screens/admin_console_screen.dart-224-      );
+fluentx_admin_secure/lib/features/admin/presentation/screens/admin_console_screen.dart-225-    } catch (_) {
+fluentx_admin_secure/lib/features/admin/presentation/screens/admin_console_screen.dart:226:      if (mounted) setState(() => _error = 'Sensitive content access was denied or failed.');
+fluentx_admin_secure/lib/features/admin/presentation/screens/admin_console_screen.dart-227-    } finally {
+fluentx_admin_secure/lib/features/admin/presentation/screens/admin_console_screen.dart-228-      if (mounted) setState(() => _loading = false);
+--
+fluentx_admin_secure/lib/features/onboarding/presentation/screens/onboarding_screen.dart-166-    } catch (_) {
+fluentx_admin_secure/lib/features/onboarding/presentation/screens/onboarding_screen.dart-167-      if (!mounted) return;
+fluentx_admin_secure/lib/features/onboarding/presentation/screens/onboarding_screen.dart:168:      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Could not save your learning profile. Please try again.')));
+fluentx_admin_secure/lib/features/onboarding/presentation/screens/onboarding_screen.dart-169-    } finally {
+fluentx_admin_secure/lib/features/onboarding/presentation/screens/onboarding_screen.dart-170-      if (mounted) setState(() => _savingProfile = false);
+--
+fluentx_admin_secure/lib/features/onboarding/presentation/screens/onboarding_screen.dart-569-      if (!mounted) return;
+fluentx_admin_secure/lib/features/onboarding/presentation/screens/onboarding_screen.dart-570-      ScaffoldMessenger.of(context).showSnackBar(
+fluentx_admin_secure/lib/features/onboarding/presentation/screens/onboarding_screen.dart:571:        const SnackBar(content: Text('Could not save this answer. Please try again.')),
+fluentx_admin_secure/lib/features/onboarding/presentation/screens/onboarding_screen.dart-572-      );
+fluentx_admin_secure/lib/features/onboarding/presentation/screens/onboarding_screen.dart-573-    } finally {
+--
+fluentx_admin_secure/lib/features/onboarding/presentation/screens/onboarding_screen.dart-584-    final available = await _speech.initialize();
+fluentx_admin_secure/lib/features/onboarding/presentation/screens/onboarding_screen.dart-585-    if (!available) {
+fluentx_admin_secure/lib/features/onboarding/presentation/screens/onboarding_screen.dart:586:      _showError('Speech recognition is unavailable on this device.');
+fluentx_admin_secure/lib/features/onboarding/presentation/screens/onboarding_screen.dart-587-      return;
+fluentx_admin_secure/lib/features/onboarding/presentation/screens/onboarding_screen.dart-588-    }
+--
+fluentx_admin_secure/lib/features/onboarding/presentation/screens/onboarding_screen.dart-629-      if (!mounted) return;
+fluentx_admin_secure/lib/features/onboarding/presentation/screens/onboarding_screen.dart-630-      ScaffoldMessenger.of(context).showSnackBar(
+fluentx_admin_secure/lib/features/onboarding/presentation/screens/onboarding_screen.dart:631:        const SnackBar(content: Text('Could not save your speaking answer. Please try again.')),
+fluentx_admin_secure/lib/features/onboarding/presentation/screens/onboarding_screen.dart-632-      );
+fluentx_admin_secure/lib/features/onboarding/presentation/screens/onboarding_screen.dart-633-    } finally {
+--
+fluentx_admin_secure/lib/features/onboarding/presentation/screens/onboarding_screen.dart-701-          Text(_error!, textAlign: TextAlign.center),
+fluentx_admin_secure/lib/features/onboarding/presentation/screens/onboarding_screen.dart-702-          const SizedBox(height: AppSpacing.lg),
+fluentx_admin_secure/lib/features/onboarding/presentation/screens/onboarding_screen.dart:703:          PrimaryButton(label: 'Try Again', onPressed: () {
+fluentx_admin_secure/lib/features/onboarding/presentation/screens/onboarding_screen.dart-704-            setState(() {
+fluentx_admin_secure/lib/features/onboarding/presentation/screens/onboarding_screen.dart-705-              _error = null;
+
+=== DISABLED INTERACTIONS ===
+fluentx_admin_secure/lib/features/settings/presentation/screens/edit_profile_screen.dart-75-                TextFormField(
+fluentx_admin_secure/lib/features/settings/presentation/screens/edit_profile_screen.dart-76-                  initialValue: user?.email ?? '',
+fluentx_admin_secure/lib/features/settings/presentation/screens/edit_profile_screen.dart:77:                  enabled: false,
+fluentx_admin_secure/lib/features/settings/presentation/screens/edit_profile_screen.dart-78-                  decoration: const InputDecoration(labelText: 'Email'),
+fluentx_admin_secure/lib/features/settings/presentation/screens/edit_profile_screen.dart-79-                ),
+--
+fluentx_admin_secure/lib/features/settings/presentation/screens/settings_screen.dart-192-                    label: 'App Version',
+fluentx_admin_secure/lib/features/settings/presentation/screens/settings_screen.dart-193-                    trailing: Text('1.0.0'),
+fluentx_admin_secure/lib/features/settings/presentation/screens/settings_screen.dart:194:                    onTap: null,
+fluentx_admin_secure/lib/features/settings/presentation/screens/settings_screen.dart-195-                  ),
+fluentx_admin_secure/lib/features/settings/presentation/screens/settings_screen.dart-196-                ],
+
+=== LOCALHOST / EXAMPLE / PLACEHOLDER URL SIGNALS ===
+fluentx_admin_secure/lib/features/authentication/presentation/screens/forgot_password_screen.dart-86-            controller: _emailController,
+fluentx_admin_secure/lib/features/authentication/presentation/screens/forgot_password_screen.dart-87-            label: 'Email',
+fluentx_admin_secure/lib/features/authentication/presentation/screens/forgot_password_screen.dart:88:            hint: 'you@example.com',
+fluentx_admin_secure/lib/features/authentication/presentation/screens/forgot_password_screen.dart-89-            keyboardType: TextInputType.emailAddress,
+fluentx_admin_secure/lib/features/authentication/presentation/screens/forgot_password_screen.dart-90-            textInputAction: TextInputAction.done,
+--
+fluentx_admin_secure/lib/features/authentication/presentation/screens/signup_screen.dart-110-                  controller: _emailController,
+fluentx_admin_secure/lib/features/authentication/presentation/screens/signup_screen.dart-111-                  label: 'Email',
+fluentx_admin_secure/lib/features/authentication/presentation/screens/signup_screen.dart:112:                  hint: 'you@example.com',
+fluentx_admin_secure/lib/features/authentication/presentation/screens/signup_screen.dart-113-                  keyboardType: TextInputType.emailAddress,
+fluentx_admin_secure/lib/features/authentication/presentation/screens/signup_screen.dart-114-                  textInputAction: TextInputAction.next,
+
+=== BILLING / CERTIFICATE IDENTIFIERS ===
+fluentx_admin_secure/lib/features/premium/domain/usecases/get_premium_packages.dart-6-
+fluentx_admin_secure/lib/features/premium/domain/usecases/get_premium_packages.dart:7:class GetPremiumPackages {
+fluentx_admin_secure/lib/features/premium/domain/usecases/get_premium_packages.dart:8:  const GetPremiumPackages(this._repository);
+fluentx_admin_secure/lib/features/premium/domain/usecases/get_premium_packages.dart-9-  final PurchaseRepository _repository;
+fluentx_admin_secure/lib/features/premium/domain/usecases/get_premium_packages.dart-10-
+fluentx_admin_secure/lib/features/premium/domain/usecases/get_premium_packages.dart:11:  Future<Either<Failure, List<PremiumPackage>>> call() => _repository.getPackages();
+fluentx_admin_secure/lib/features/premium/domain/usecases/get_premium_packages.dart-12-}
+--
+fluentx_admin_secure/lib/features/premium/domain/repositories/purchase_repository.dart-8-
+fluentx_admin_secure/lib/features/premium/domain/repositories/purchase_repository.dart:9:  Future<Either<Failure, List<PremiumPackage>>> getPackages();
+fluentx_admin_secure/lib/features/premium/domain/repositories/purchase_repository.dart-10-
+--
+fluentx_admin_secure/lib/features/premium/domain/entities/subscription_status.dart-7-  const factory SubscriptionStatus({
+fluentx_admin_secure/lib/features/premium/domain/entities/subscription_status.dart:8:    required bool isPremium,
+fluentx_admin_secure/lib/features/premium/domain/entities/subscription_status.dart-9-    String? productIdentifier,
+--
+fluentx_admin_secure/lib/features/premium/domain/entities/subscription_status.dart-13-
+fluentx_admin_secure/lib/features/premium/domain/entities/subscription_status.dart:14:  static const free = SubscriptionStatus(isPremium: false, willRenew: false);
+fluentx_admin_secure/lib/features/premium/domain/entities/subscription_status.dart-15-}
+fluentx_admin_secure/lib/features/premium/domain/entities/subscription_status.dart-16-
+fluentx_admin_secure/lib/features/premium/domain/entities/subscription_status.dart:17:/// A purchasable package (monthly/yearly) surfaced from RevenueCat's
+fluentx_admin_secure/lib/features/premium/domain/entities/subscription_status.dart-18-/// current offering — never hardcode prices, always read from what
+fluentx_admin_secure/lib/features/premium/domain/entities/subscription_status.dart:19:/// RevenueCat resolves for the user's store/region.
+fluentx_admin_secure/lib/features/premium/domain/entities/subscription_status.dart-20-@freezed
+fluentx_admin_secure/lib/features/premium/domain/entities/subscription_status.dart:21:class PremiumPackage with _$PremiumPackage {
+fluentx_admin_secure/lib/features/premium/domain/entities/subscription_status.dart:22:  const factory PremiumPackage({
+fluentx_admin_secure/lib/features/premium/domain/entities/subscription_status.dart-23-    required String identifier,
+--
+fluentx_admin_secure/lib/features/premium/domain/entities/subscription_status.dart-26-    required String period, // 'monthly' | 'yearly'
+fluentx_admin_secure/lib/features/premium/domain/entities/subscription_status.dart:27:  }) = _PremiumPackage;
+fluentx_admin_secure/lib/features/premium/domain/entities/subscription_status.dart-28-}
+--
+fluentx_admin_secure/lib/features/premium/application/providers/purchase_providers.dart-6-import '../../domain/repositories/purchase_repository.dart';
+fluentx_admin_secure/lib/features/premium/application/providers/purchase_providers.dart:7:import '../../domain/usecases/get_premium_packages.dart';
+fluentx_admin_secure/lib/features/premium/application/providers/purchase_providers.dart-8-import '../../domain/usecases/purchase_package.dart';
+--
+fluentx_admin_secure/lib/features/premium/application/providers/purchase_providers.dart-18-
+fluentx_admin_secure/lib/features/premium/application/providers/purchase_providers.dart:19:final getPremiumPackagesUseCaseProvider = Provider<GetPremiumPackages>((ref) {
+fluentx_admin_secure/lib/features/premium/application/providers/purchase_providers.dart:20:  return GetPremiumPackages(ref.watch(purchaseRepositoryProvider));
+fluentx_admin_secure/lib/features/premium/application/providers/purchase_providers.dart-21-});
+--
+fluentx_admin_secure/lib/features/premium/application/providers/purchase_providers.dart-30-
+fluentx_admin_secure/lib/features/premium/application/providers/purchase_providers.dart:31:/// Live subscription status — drives premium-gated UI everywhere
+fluentx_admin_secure/lib/features/premium/application/providers/purchase_providers.dart:32:/// (Profile's crown badge, feature paywalls, etc). RevenueCat is the
+fluentx_admin_secure/lib/features/premium/application/providers/purchase_providers.dart-33-/// single source of truth; nothing is cached in Supabase for this.
+--
+fluentx_admin_secure/lib/features/premium/application/providers/purchase_providers.dart-37-
+fluentx_admin_secure/lib/features/premium/application/providers/purchase_providers.dart:38:final premiumPackagesProvider = FutureProvider.autoDispose<List<PremiumPackage>>((ref) async {
+fluentx_admin_secure/lib/features/premium/application/providers/purchase_providers.dart:39:  final result = await ref.watch(getPremiumPackagesUseCaseProvider).call();
+fluentx_admin_secure/lib/features/premium/application/providers/purchase_providers.dart-40-  return result.match((failure) => throw failure, (packages) => packages);
+--
+fluentx_admin_secure/lib/features/premium/application/providers/membership_identity_provider.dart-58-    final info = await Purchases.getCustomerInfo();
+fluentx_admin_secure/lib/features/premium/application/providers/membership_identity_provider.dart:59:    final entitlement = info.entitlements.active['premium'];
+fluentx_admin_secure/lib/features/premium/application/providers/membership_identity_provider.dart-60-    if (entitlement != null) {
+fluentx_admin_secure/lib/features/premium/application/providers/membership_identity_provider.dart-61-      // Google Play base-plan IDs are locked as `monthly` and `annual`.
+fluentx_admin_secure/lib/features/premium/application/providers/membership_identity_provider.dart:62:      // RevenueCat exposes the Google base plan as productPlanIdentifier.
+fluentx_admin_secure/lib/features/premium/application/providers/membership_identity_provider.dart-63-      final plan = entitlement.productPlanIdentifier?.toLowerCase();
+--
+fluentx_admin_secure/lib/features/premium/data/datasources/purchase_remote_datasource.dart-13-  Stream<SubscriptionStatus> get subscriptionStatusChanges;
+fluentx_admin_secure/lib/features/premium/data/datasources/purchase_remote_datasource.dart:14:  Future<List<PremiumPackage>> getPackages();
+fluentx_admin_secure/lib/features/premium/data/datasources/purchase_remote_datasource.dart-15-  Future<SubscriptionStatus> purchase(String packageIdentifier);
+--
+fluentx_admin_secure/lib/features/premium/data/datasources/purchase_remote_datasource.dart-19-class PurchaseRemoteDataSourceImpl implements PurchaseRemoteDataSource {
+fluentx_admin_secure/lib/features/premium/data/datasources/purchase_remote_datasource.dart:20:  static const _entitlementId = 'premium'; // must match the RevenueCat dashboard entitlement id
+fluentx_admin_secure/lib/features/premium/data/datasources/purchase_remote_datasource.dart-21-
+--
+fluentx_admin_secure/lib/features/premium/data/datasources/purchase_remote_datasource.dart-26-    return SubscriptionStatus(
+fluentx_admin_secure/lib/features/premium/data/datasources/purchase_remote_datasource.dart:27:      isPremium: true,
+fluentx_admin_secure/lib/features/premium/data/datasources/purchase_remote_datasource.dart-28-      productIdentifier: entitlement.productIdentifier,
+--
+fluentx_admin_secure/lib/features/premium/data/datasources/purchase_remote_datasource.dart-48-  @override
+fluentx_admin_secure/lib/features/premium/data/datasources/purchase_remote_datasource.dart:49:  Future<List<PremiumPackage>> getPackages() async {
+fluentx_admin_secure/lib/features/premium/data/datasources/purchase_remote_datasource.dart-50-    try {
+--
+fluentx_admin_secure/lib/features/premium/data/datasources/purchase_remote_datasource.dart-55-      return current.availablePackages.map((pkg) {
+fluentx_admin_secure/lib/features/premium/data/datasources/purchase_remote_datasource.dart:56:        return PremiumPackage(
+fluentx_admin_secure/lib/features/premium/data/datasources/purchase_remote_datasource.dart-57-          identifier: pkg.identifier,
+--
+fluentx_admin_secure/lib/features/premium/data/repositories/purchase_repository_impl.dart-17-  @override
+fluentx_admin_secure/lib/features/premium/data/repositories/purchase_repository_impl.dart:18:  Future<Either<Failure, List<PremiumPackage>>> getPackages() async {
+fluentx_admin_secure/lib/features/premium/data/repositories/purchase_repository_impl.dart-19-    try {
+--
+fluentx_admin_secure/lib/features/premium/presentation/widgets/membership_identity_card.dart-63-                child: Icon(
+fluentx_admin_secure/lib/features/premium/presentation/widgets/membership_identity_card.dart:64:                  isElite ? Icons.auto_awesome_rounded : isPro ? Icons.workspace_premium_rounded : Icons.person_outline_rounded,
+fluentx_admin_secure/lib/features/premium/presentation/widgets/membership_identity_card.dart-65-                  color: accent,
+--
+fluentx_admin_secure/lib/features/premium/presentation/widgets/membership_identity_card.dart-106-                          : isPro
+fluentx_admin_secure/lib/features/premium/presentation/widgets/membership_identity_card.dart:107:                              ? 'Pro identity • level certificate downloads • premium access'
+fluentx_admin_secure/lib/features/premium/presentation/widgets/membership_identity_card.dart-108-                              : 'Upgrade to Pro or Elite to transform your member identity.',
+--
+fluentx_admin_secure/lib/features/premium/presentation/screens/premium_screen.dart-14-  final uri = Uri.parse(
+fluentx_admin_secure/lib/features/premium/presentation/screens/premium_screen.dart:15:    'https://play.google.com/store/account/subscriptions?sku=fluentx_premium&package=io.fluentx.app',
+fluentx_admin_secure/lib/features/premium/presentation/screens/premium_screen.dart-16-  );
+--
+fluentx_admin_secure/lib/features/premium/presentation/screens/premium_screen.dart-33-
+fluentx_admin_secure/lib/features/premium/presentation/screens/premium_screen.dart:34:class PremiumScreen extends ConsumerStatefulWidget {
+fluentx_admin_secure/lib/features/premium/presentation/screens/premium_screen.dart:35:  const PremiumScreen({super.key});
+fluentx_admin_secure/lib/features/premium/presentation/screens/premium_screen.dart-36-
+fluentx_admin_secure/lib/features/premium/presentation/screens/premium_screen.dart-37-  @override
+fluentx_admin_secure/lib/features/premium/presentation/screens/premium_screen.dart:38:  ConsumerState<PremiumScreen> createState() => _PremiumScreenState();
+fluentx_admin_secure/lib/features/premium/presentation/screens/premium_screen.dart-39-}
+fluentx_admin_secure/lib/features/premium/presentation/screens/premium_screen.dart-40-
+fluentx_admin_secure/lib/features/premium/presentation/screens/premium_screen.dart:41:class _PremiumScreenState extends ConsumerState<PremiumScreen> {
+fluentx_admin_secure/lib/features/premium/presentation/screens/premium_screen.dart-42-  String? _selectedPackageId;
+--
+fluentx_admin_secure/lib/features/premium/presentation/screens/premium_screen.dart-59-    ref.invalidate(subscriptionStatusProvider);
+fluentx_admin_secure/lib/features/premium/presentation/screens/premium_screen.dart:60:    ref.invalidate(premiumPackagesProvider);
+fluentx_admin_secure/lib/features/premium/presentation/screens/premium_screen.dart-61-    _armBillingTimeout();
+--
+fluentx_admin_secure/lib/features/premium/presentation/screens/premium_screen.dart-75-    final subscriptionAsync = ref.watch(subscriptionStatusProvider);
+fluentx_admin_secure/lib/features/premium/presentation/screens/premium_screen.dart:76:    final packagesAsync = ref.watch(premiumPackagesProvider);
+fluentx_admin_secure/lib/features/premium/presentation/screens/premium_screen.dart-77-    final purchaseState = ref.watch(purchaseControllerProvider);
+--
+fluentx_admin_secure/lib/features/premium/presentation/screens/premium_screen.dart-81-      return Scaffold(
+fluentx_admin_secure/lib/features/premium/presentation/screens/premium_screen.dart:82:        appBar: AppBar(title: const Text('Fluent X Premium')),
+fluentx_admin_secure/lib/features/premium/presentation/screens/premium_screen.dart-83-        body: SafeArea(
+--
+fluentx_admin_secure/lib/features/premium/presentation/screens/premium_screen.dart-116-    return Scaffold(
+fluentx_admin_secure/lib/features/premium/presentation/screens/premium_screen.dart:117:      appBar: AppBar(title: const Text('Fluent X Premium')),
+fluentx_admin_secure/lib/features/premium/presentation/screens/premium_screen.dart-118-      body: SafeArea(
+--
+fluentx_admin_secure/lib/features/premium/presentation/screens/premium_screen.dart-121-          data: (subscription) {
+fluentx_admin_secure/lib/features/premium/presentation/screens/premium_screen.dart:122:            if (subscription.isPremium) return _AlreadyPremium(subscription: subscription);
+fluentx_admin_secure/lib/features/premium/presentation/screens/premium_screen.dart-123-
+--
+fluentx_admin_secure/lib/features/premium/presentation/screens/premium_screen.dart-126-              children: [
+fluentx_admin_secure/lib/features/premium/presentation/screens/premium_screen.dart:127:                Icon(Icons.workspace_premium_outlined, size: 48, color: const Color(0xFFD97706)),
+fluentx_admin_secure/lib/features/premium/presentation/screens/premium_screen.dart-128-                const SizedBox(height: AppSpacing.base),
+--
+fluentx_admin_secure/lib/features/premium/presentation/screens/premium_screen.dart-174-                  error: (_, __) => ErrorStateWidget(
+fluentx_admin_secure/lib/features/premium/presentation/screens/premium_screen.dart:175:                    onRetry: () => ref.invalidate(premiumPackagesProvider),
+fluentx_admin_secure/lib/features/premium/presentation/screens/premium_screen.dart-176-                  ),
+--
+fluentx_admin_secure/lib/features/premium/presentation/screens/premium_screen.dart-218-
+fluentx_admin_secure/lib/features/premium/presentation/screens/premium_screen.dart:219:  final PremiumPackage package;
+fluentx_admin_secure/lib/features/premium/presentation/screens/premium_screen.dart-220-  final bool isSelected;
+--
+fluentx_admin_secure/lib/features/premium/presentation/screens/premium_screen.dart-261-                        ? 'ELITE ID • Final Certificate included • Gold profile identity'
+fluentx_admin_secure/lib/features/premium/presentation/screens/premium_screen.dart:262:                        : 'PRO ID • Final Certificate included • Premium profile identity',
+fluentx_admin_secure/lib/features/premium/presentation/screens/premium_screen.dart-263-                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+--
+fluentx_admin_secure/lib/features/premium/presentation/screens/premium_screen.dart-289-
+fluentx_admin_secure/lib/features/premium/presentation/screens/premium_screen.dart:290:class _AlreadyPremium extends StatelessWidget {
+fluentx_admin_secure/lib/features/premium/presentation/screens/premium_screen.dart:291:  const _AlreadyPremium({required this.subscription});
+fluentx_admin_secure/lib/features/premium/presentation/screens/premium_screen.dart-292-
+--
+fluentx_admin_secure/lib/features/premium/presentation/screens/premium_screen.dart-303-          children: [
+fluentx_admin_secure/lib/features/premium/presentation/screens/premium_screen.dart:304:            Icon(Icons.workspace_premium_outlined, size: 56, color: const Color(0xFFD97706)),
+fluentx_admin_secure/lib/features/premium/presentation/screens/premium_screen.dart-305-            const SizedBox(height: AppSpacing.base),
+fluentx_admin_secure/lib/features/premium/presentation/screens/premium_screen.dart:306:            Text("You're on Premium 🎉", style: Theme.of(context).textTheme.headlineLarge),
+fluentx_admin_secure/lib/features/premium/presentation/screens/premium_screen.dart-307-            if (expiry != null) ...[
+--
+fluentx_admin_secure/lib/features/certificates/presentation/screens/certificates_screen.dart-40-    var hasLifetimeCertificate = false;
+fluentx_admin_secure/lib/features/certificates/presentation/screens/certificates_screen.dart:41:    var certificatePrice = '₹299';
+fluentx_admin_secure/lib/features/certificates/presentation/screens/certificates_screen.dart-42-    try {
+fluentx_admin_secure/lib/features/certificates/presentation/screens/certificates_screen.dart-43-      final info = await Purchases.getCustomerInfo();
+fluentx_admin_secure/lib/features/certificates/presentation/screens/certificates_screen.dart:44:      final entitlement = info.entitlements.active['premium'];
+fluentx_admin_secure/lib/features/certificates/presentation/screens/certificates_screen.dart-45-      if (entitlement != null) {
+--
+fluentx_admin_secure/lib/features/certificates/presentation/screens/certificates_screen.dart-50-      hasLifetimeCertificate =
+fluentx_admin_secure/lib/features/certificates/presentation/screens/certificates_screen.dart:51:          info.entitlements.active['certificate_lifetime'] != null;
+fluentx_admin_secure/lib/features/certificates/presentation/screens/certificates_screen.dart-52-
+--
+fluentx_admin_secure/lib/features/certificates/presentation/screens/certificates_screen.dart-62-      row['paid_tier'] = paidTier;
+fluentx_admin_secure/lib/features/certificates/presentation/screens/certificates_screen.dart:63:      row['certificate_lifetime'] = hasLifetimeCertificate;
+fluentx_admin_secure/lib/features/certificates/presentation/screens/certificates_screen.dart:64:      row['certificate_price'] = certificatePrice;
+fluentx_admin_secure/lib/features/certificates/presentation/screens/certificates_screen.dart-65-      return row;
+--
+fluentx_admin_secure/lib/features/certificates/presentation/screens/certificates_screen.dart-80-      final unlocked =
+fluentx_admin_secure/lib/features/certificates/presentation/screens/certificates_screen.dart:81:          result.customerInfo.entitlements.active['certificate_lifetime'] != null;
+fluentx_admin_secure/lib/features/certificates/presentation/screens/certificates_screen.dart-82-      if (!unlocked) {
+--
+fluentx_admin_secure/lib/features/certificates/presentation/screens/certificates_screen.dart-201-                        children: [
+fluentx_admin_secure/lib/features/certificates/presentation/screens/certificates_screen.dart:202:                          Icon(Icons.workspace_premium_rounded, size: 34, color: colors.primary),
+fluentx_admin_secure/lib/features/certificates/presentation/screens/certificates_screen.dart-203-                          const SizedBox(width: AppSpacing.md),
+--
+fluentx_admin_secure/lib/features/certificates/presentation/screens/certificates_screen.dart-247-                    final isSubscriber = isAnnual || isMonthly;
+fluentx_admin_secure/lib/features/certificates/presentation/screens/certificates_screen.dart:248:                    final hasLifetimeCertificate = row['certificate_lifetime'] == true;
+fluentx_admin_secure/lib/features/certificates/presentation/screens/certificates_screen.dart:249:                    final certificatePrice = (row['certificate_price'] ?? '₹299').toString();
+fluentx_admin_secure/lib/features/certificates/presentation/screens/certificates_screen.dart-250-                    final isMaster = milestone == 'MASTER';
+--
+fluentx_admin_secure/lib/features/certificates/presentation/screens/certificates_screen.dart-309-                                                : _purchaseFinalCertificate,
+fluentx_admin_secure/lib/features/certificates/presentation/screens/certificates_screen.dart:310:                                            icon: const Icon(Icons.workspace_premium_outlined),
+fluentx_admin_secure/lib/features/certificates/presentation/screens/certificates_screen.dart-311-                                            label: Text(
+--
+fluentx_admin_secure/lib/core/config/env_config.dart-15-abstract final class EnvConfig {
+fluentx_admin_secure/lib/core/config/env_config.dart:16:  /// Public RevenueCat Android SDK key. Supply at build time:
+fluentx_admin_secure/lib/core/config/env_config.dart:17:  /// --dart-define=REVENUECAT_ANDROID_API_KEY=goog_...
+fluentx_admin_secure/lib/core/config/env_config.dart:18:  static const revenueCatAndroidApiKey = String.fromEnvironment(
+fluentx_admin_secure/lib/core/config/env_config.dart:19:    'REVENUECAT_ANDROID_API_KEY',
+fluentx_admin_secure/lib/core/config/env_config.dart-20-    defaultValue: '',
+--
+fluentx_admin_secure/lib/core/config/env_config.dart-32-  );
+fluentx_admin_secure/lib/core/config/env_config.dart:33:  static const String revenueCatApiKey = String.fromEnvironment('REVENUECAT_API_KEY');
+fluentx_admin_secure/lib/core/config/env_config.dart-34-  static const String flavor = String.fromEnvironment('FLAVOR', defaultValue: 'dev');
+
+=== BRANDING SIGNALS ===
+fluentx_admin_secure/lib/features/home/presentation/screens/home_screen.dart-63-            Text(
+fluentx_admin_secure/lib/features/home/presentation/screens/home_screen.dart:64:              'Fluent X',
+fluentx_admin_secure/lib/features/home/presentation/screens/home_screen.dart-65-              style: textTheme.titleMedium?.copyWith(
+--
+fluentx_admin_secure/lib/features/authentication/domain/usecases/sign_in_with_apple.dart-9-///
+fluentx_admin_secure/lib/features/authentication/domain/usecases/sign_in_with_apple.dart:10:/// Required for App Store submission if/when FluentX ships on iOS
+fluentx_admin_secure/lib/features/authentication/domain/usecases/sign_in_with_apple.dart-11-/// (any app offering third-party social sign-in must also offer Apple
+--
+fluentx_admin_secure/lib/features/authentication/domain/entities/app_user.dart-4-
+fluentx_admin_secure/lib/features/authentication/domain/entities/app_user.dart:5:/// Pure domain entity representing an authenticated FluentX user.
+fluentx_admin_secure/lib/features/authentication/domain/entities/app_user.dart-6-///
+--
+fluentx_admin_secure/lib/features/authentication/data/datasources/auth_remote_datasource.dart-54-  /// SPRINT_1_AUTH_README.md for the exact platform config.
+fluentx_admin_secure/lib/features/authentication/data/datasources/auth_remote_datasource.dart:55:  static const _oauthRedirectUri = 'io.fluentx.app://login-callback';
+fluentx_admin_secure/lib/features/authentication/data/datasources/auth_remote_datasource.dart-56-
+--
+fluentx_admin_secure/lib/features/settings/presentation/screens/legal_document_screen.dart-11-  static const privacySections = <(String, String)>[
+fluentx_admin_secure/lib/features/settings/presentation/screens/legal_document_screen.dart:12:    ('Effective date', 'Effective 24 August 2026. This policy explains how Fluent X handles personal data when you use the Android app, AI features, learning services and related support channels.'),
+fluentx_admin_secure/lib/features/settings/presentation/screens/legal_document_screen.dart-13-    ('Information you provide', 'We may process account details, profile information, learning goals, native-language preference, placement answers, lesson progress, vocabulary and grammar activity, writing submissions, speaking or interview responses, AI practice messages, support requests and other information you intentionally submit.'),
+fluentx_admin_secure/lib/features/settings/presentation/screens/legal_document_screen.dart:14:    ('Device and service information', 'The service may process app-instance identifiers, device or operating-system information, notification tokens, diagnostics, crash information, timestamps, feature usage, security signals and similar technical data needed to operate and protect Fluent X.'),
+fluentx_admin_secure/lib/features/settings/presentation/screens/legal_document_screen.dart:15:    ('Voice, microphone and speech recognition', 'Microphone access is requested only when you use a speaking feature. Spoken input may be processed by device speech services and/or service providers to convert speech to text or enable language-practice features. Fluent X does not claim to perform biometric identification from your voice.'),
+fluentx_admin_secure/lib/features/settings/presentation/screens/legal_document_screen.dart-16-    ('AI processing', 'Text, transcribed speech, writing, interview answers and relevant conversation context may be sent to AI service providers to generate educational responses, corrections, scoring or feedback. AI outputs can be inaccurate; avoid entering confidential information that is not needed for language learning.'),
+fluentx_admin_secure/lib/features/settings/presentation/screens/legal_document_screen.dart-17-    ('Why we use data', 'We use data to authenticate users, personalize a learning path, save progress, operate Maya AI and other practice tools, generate educational feedback, maintain streaks and achievements, manage subscriptions, provide notifications you enable, respond to requests, prevent fraud or abuse, secure the service, troubleshoot failures and improve reliability.'),
+fluentx_admin_secure/lib/features/settings/presentation/screens/legal_document_screen.dart:18:    ('Payments and subscriptions', 'Google Play and RevenueCat may process purchase and subscription information. FluentX receives product, transaction and entitlement status needed to grant access. Fluent X does not receive or store your complete payment-card number.'),
+fluentx_admin_secure/lib/features/settings/presentation/screens/legal_document_screen.dart-19-    ('Analytics, diagnostics and notifications', 'Firebase and similar infrastructure may process app-instance, device, diagnostic, crash, analytics and notification-delivery information. Analytics should be configured to support product reliability and usage measurement, not to sell personal data.'),
+fluentx_admin_secure/lib/features/settings/presentation/screens/legal_document_screen.dart:20:    ('Service providers and disclosures', 'We may disclose information to hosting, authentication, database, AI, speech, analytics, notification, billing and customer-support providers that help operate Fluent X; when required by law; to protect rights, safety or the service; or in a legitimate business transfer subject to applicable safeguards. We do not sell personal data.'),
+fluentx_admin_secure/lib/features/settings/presentation/screens/legal_document_screen.dart-21-    ('Data retention', 'Data is retained only as reasonably needed for the purposes described here, account operation, security, fraud prevention, legal obligations, billing records and backups. Retention periods may differ by data category and provider. Data associated with a valid deletion request is removed or de-identified unless retention is legally required.'),
+fluentx_admin_secure/lib/features/settings/presentation/screens/legal_document_screen.dart:22:    ('Your rights and choices', 'Depending on applicable law, you may have rights to access, correct, delete or otherwise control personal data. Fluent X provides profile controls, notification controls, in-app account deletion and a Legal / Privacy Request form. We may need to verify identity before fulfilling a request.'),
+fluentx_admin_secure/lib/features/settings/presentation/screens/legal_document_screen.dart:23:    ('Account deletion', 'You can request permanent deletion from Settings. The deletion process removes user-linked application data within Fluent X systems, subject to limited retention required for security, fraud prevention, financial records, legal obligations and provider backup cycles.'),
+fluentx_admin_secure/lib/features/settings/presentation/screens/legal_document_screen.dart:24:    ('Security', 'Fluent X uses authenticated requests, row-level database security, server-side privileged functions, restricted secrets and transport encryption provided by the platform. No internet service can guarantee absolute security.'),
+fluentx_admin_secure/lib/features/settings/presentation/screens/legal_document_screen.dart:25:    ('Children', 'Fluent X is not intended to knowingly collect personal information from children below the minimum age required to consent to online services in their jurisdiction without appropriate parent or guardian authorization.'),
+fluentx_admin_secure/lib/features/settings/presentation/screens/legal_document_screen.dart-26-    ('International processing', 'Service providers may process data in countries other than your own. Where required, transfers should rely on appropriate contractual, legal or platform safeguards.'),
+--
+fluentx_admin_secure/lib/features/settings/presentation/screens/legal_document_screen.dart-30-  static const termsSections = <(String, String)>[
+fluentx_admin_secure/lib/features/settings/presentation/screens/legal_document_screen.dart:31:    ('Effective date and agreement', 'Effective 24 August 2026. By creating or using a Fluent X account after accepting these Terms, you agree to these Terms of Use and acknowledge the Privacy Policy. If you do not agree, do not use the service.'),
+fluentx_admin_secure/lib/features/settings/presentation/screens/legal_document_screen.dart:32:    ('Eligibility and account', 'Use Fluent X only if you are legally able to enter this agreement in your jurisdiction. You are responsible for accurate account information, keeping your sign-in method secure and activity performed through your account.'),
+fluentx_admin_secure/lib/features/settings/presentation/screens/legal_document_screen.dart:33:    ('License to use Fluent X', 'Fluent X grants you a limited, personal, revocable, non-exclusive and non-transferable right to use the app for lawful language-learning purposes, subject to these Terms and applicable platform rules.'),
+fluentx_admin_secure/lib/features/settings/presentation/screens/legal_document_screen.dart-34-    ('Learning and AI outputs', 'Lessons, CEFR estimates, pronunciation or clarity scores, corrections, model answers, interview coaching and AI-generated outputs are educational aids. They can be incomplete or inaccurate and do not guarantee exam results, employment, fluency, legal outcomes or professional advice.'),
+fluentx_admin_secure/lib/features/settings/presentation/screens/legal_document_screen.dart:35:    ('Acceptable use', 'Do not misuse, attack, overload, scrape, reverse engineer where prohibited, bypass security or subscription controls, obtain other users data, upload unlawful or infringing content, use Fluent X to facilitate harmful or illegal activity, or interfere with the service or its providers.'),
+fluentx_admin_secure/lib/features/settings/presentation/screens/legal_document_screen.dart:36:    ('User submissions', 'You retain rights you lawfully hold in content you submit. You grant Fluent X and its service providers a limited right to process that content only as needed to operate, secure and improve the requested service features, consistent with the Privacy Policy.'),
+fluentx_admin_secure/lib/features/settings/presentation/screens/legal_document_screen.dart:37:    ('Intellectual property', 'The Fluent X name, branding, software, interfaces, original lessons, content selection, learning structures, graphics and other proprietary materials are protected by applicable intellectual-property laws. Except for the limited app-use license, no rights are transferred to you.'),
+fluentx_admin_secure/lib/features/settings/presentation/screens/legal_document_screen.dart:38:    ('Third-party rights', 'You must have the right to submit content you provide to Fluent X. Do not upload copyrighted, trademarked, confidential or proprietary material in a way that violates another persons rights. Valid infringement reports may result in content restriction, removal or account action.'),
+fluentx_admin_secure/lib/features/settings/presentation/screens/legal_document_screen.dart-39-    ('Subscriptions, billing and cancellation', 'Paid subscriptions are processed through Google Play and supported billing infrastructure. Prices, billing periods, renewal terms and trial information are displayed before purchase. You can manage or cancel subscriptions using the applicable Google Play controls. Refunds are governed by applicable law and platform policies.'),
+fluentx_admin_secure/lib/features/settings/presentation/screens/legal_document_screen.dart-40-    ('Service changes and availability', 'We may maintain, improve, replace, limit or discontinue features and content. Temporary interruptions may occur because of maintenance, device limitations, connectivity, abuse prevention, app-store services or third-party infrastructure.'),
+fluentx_admin_secure/lib/features/settings/presentation/screens/legal_document_screen.dart:41:    ('Suspension and termination', 'We may restrict or terminate access when reasonably necessary for security, fraud prevention, unlawful activity, infringement, material abuse, non-payment or repeated violations. You may stop using Fluent X and can request account deletion through Settings.'),
+fluentx_admin_secure/lib/features/settings/presentation/screens/legal_document_screen.dart:42:    ('Disclaimer', 'To the extent permitted by law, Fluent X is provided on an as-available basis. We do not promise that every feature, AI output, speech-recognition result, score or learning result will always be accurate, uninterrupted or suitable for every purpose.'),
+fluentx_admin_secure/lib/features/settings/presentation/screens/legal_document_screen.dart:43:    ('Limitation of liability', 'To the extent permitted by applicable law, Fluent X and its operators are not liable for indirect, incidental, special, consequential or punitive losses arising from use of the service. Nothing in these Terms excludes rights or liabilities that cannot legally be excluded.'),
+fluentx_admin_secure/lib/features/settings/presentation/screens/legal_document_screen.dart:44:    ('Changes to terms', 'We may update these Terms as FluentX evolves. The effective date identifies the current version. If a material change requires renewed agreement, Fluent X may request a new acceptance before continued use.'),
+fluentx_admin_secure/lib/features/settings/presentation/screens/legal_document_screen.dart-45-  ];
+--
+fluentx_admin_secure/lib/features/settings/presentation/screens/legal_document_screen.dart-47-  static const ipSections = <(String, String)>[
+fluentx_admin_secure/lib/features/settings/presentation/screens/legal_document_screen.dart:48:    ('Respect for intellectual property', 'FluentX respects copyright, trademark and other intellectual-property rights. Users must not use Fluent X to submit or distribute content that they do not have the legal right to use.'),
+fluentx_admin_secure/lib/features/settings/presentation/screens/legal_document_screen.dart:49:    ('What can be reported', 'A rights holder or authorized representative can report material in Fluent X that is believed to infringe copyright, trademark or another intellectual-property right. A report should identify both the protected work or right and the allegedly infringing material.'),
+fluentx_admin_secure/lib/features/settings/presentation/screens/legal_document_screen.dart:50:    ('Required report information', 'Provide your full name and contact email; identify or describe the original protected work; identify the allegedly infringing material and where it appears in Fluent X; explain the claimed infringement; confirm that you are the rights holder or authorized representative; and confirm that the information supplied is accurate to the best of your knowledge.'),
+fluentx_admin_secure/lib/features/settings/presentation/screens/legal_document_screen.dart-51-    ('How to submit', 'Signed-in users can open Legal & Data Compliance → Submit a Legal / Privacy Request → Copyright / IP infringement report. The request is stored with a reference ID for review.'),
+fluentx_admin_secure/lib/features/settings/presentation/screens/legal_document_screen.dart:52:    ('Review and action', 'Fluent X may request additional information, investigate the report, restrict or remove material, preserve evidence where appropriate, notify affected users where lawful, or reject reports that are incomplete, abusive or unsupported.'),
+fluentx_admin_secure/lib/features/settings/presentation/screens/legal_document_screen.dart-53-    ('Counter-information and mistakes', 'If material is restricted because of an infringement report and a user believes the action was mistaken, the user may submit an Other Legal Request with the reference information and an explanation. Applicable legal procedures and platform requirements may affect how a dispute is handled.'),
+fluentx_admin_secure/lib/features/settings/presentation/screens/legal_document_screen.dart-54-    ('Repeat infringement or abuse', 'Accounts repeatedly involved in substantiated infringement, or users who abuse the reporting process, may be restricted or terminated where appropriate and permitted by law.'),
+fluentx_admin_secure/lib/features/settings/presentation/screens/legal_document_screen.dart:55:    ('No ownership transfer', 'Submitting content to FluentX does not transfer ownership to Fluent X. Processing rights are limited to operating the requested service as described in the Terms and Privacy Policy.'),
+fluentx_admin_secure/lib/features/settings/presentation/screens/legal_document_screen.dart-56-  ];
+--
+fluentx_admin_secure/lib/features/settings/presentation/screens/legal_document_screen.dart-58-  static const dataComplianceSections = <(String, String)>[
+fluentx_admin_secure/lib/features/settings/presentation/screens/legal_document_screen.dart:59:    ('Data map', 'Fluent X handles account/profile data, learning progress, AI and writing inputs, transcribed speech, subscription entitlement data, device/notification identifiers, analytics and diagnostics, referral or growth events, and support/legal requests. The Privacy Policy explains why each category is processed.'),
+fluentx_admin_secure/lib/features/settings/presentation/screens/legal_document_screen.dart-60-    ('Permissions', 'Microphone permission is used for speaking features and notification permission is used for reminders or updates that you enable. The app should request permissions in context and continue to provide non-dependent functions when a permission is denied.'),
+--
+fluentx_admin_secure/lib/features/settings/presentation/screens/legal_document_screen.dart-69-    ('Security response', 'Potential security incidents should be investigated promptly, privileged credentials rotated when necessary, affected systems contained, logs preserved appropriately and user/regulatory notification performed where required by applicable law.'),
+fluentx_admin_secure/lib/features/settings/presentation/screens/legal_document_screen.dart:70:    ('Compliance is ongoing', 'Legal and platform requirements change. Fluent X should re-check its final production build, providers, data practices and public policies before each material release rather than treating compliance as a one-time task.'),
+fluentx_admin_secure/lib/features/settings/presentation/screens/legal_document_screen.dart-71-  ];
+--
+fluentx_admin_secure/lib/features/settings/presentation/screens/legal_compliance_center_screen.dart-52-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+fluentx_admin_secure/lib/features/settings/presentation/screens/legal_compliance_center_screen.dart:53:              const Row(children: [Icon(Icons.verified_user_outlined), SizedBox(width: 8), Text('Fluent X Legal Center', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900))]),
+fluentx_admin_secure/lib/features/settings/presentation/screens/legal_compliance_center_screen.dart-54-              const SizedBox(height: 8),
+fluentx_admin_secure/lib/features/settings/presentation/screens/legal_compliance_center_screen.dart:55:              const Text('Review the rules that govern Fluent X, understand how data is handled, and submit privacy or intellectual-property requests.'),
+fluentx_admin_secure/lib/features/settings/presentation/screens/legal_compliance_center_screen.dart-56-              if (!_loading) ...[

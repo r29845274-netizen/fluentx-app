@@ -1,0 +1,205 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/network/supabase_provider.dart';
+import '../../../../core/services/notification_service_provider.dart';
+import '../../../../core/theme/theme_mode_provider.dart';
+import '../../../../routes/route_paths.dart';
+import '../../../../shared/widgets/widgets.dart';
+import '../../../authentication/application/providers/auth_controller.dart';
+import '../../../profile/presentation/widgets/profile_menu_tile.dart';
+
+class SettingsScreen extends ConsumerStatefulWidget {
+  const SettingsScreen({super.key});
+
+  @override
+  ConsumerState<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends ConsumerState<SettingsScreen> {
+  bool _notificationsEnabled = false;
+  bool _deleting = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _notificationsEnabled = ref.read(notificationServiceProvider).isEnabled;
+  }
+
+  void _message(String text) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(text)));
+  }
+
+  Future<void> _toggleNotifications(bool value) async {
+    final service = ref.read(notificationServiceProvider);
+    if (value) {
+      final granted = await service.enable(reminderHour: 19, reminderMinute: 0);
+      if (mounted) setState(() => _notificationsEnabled = granted);
+      if (!granted) _message('Notification permission was denied. Enable it in system settings.');
+    } else {
+      await service.disable();
+      if (mounted) setState(() => _notificationsEnabled = false);
+    }
+  }
+
+  Future<void> _showLanguagePicker() async {
+    await showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      builder: (context) => SafeArea(
+        child: ListTile(
+          leading: const Icon(Icons.translate),
+          title: const Text('English'),
+          subtitle: const Text('App language'),
+          trailing: const Icon(Icons.check),
+          onTap: () => Navigator.of(context).pop(),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _confirmDeleteAccount() async {
+    final confirmed = await AppDialog.confirm(
+      context,
+      title: 'Delete account?',
+      message: 'This permanently deletes your account and all progress. This cannot be undone.',
+      confirmLabel: 'Delete',
+      isDestructive: true,
+    );
+    if (!confirmed || !mounted) return;
+
+    setState(() => _deleting = true);
+    try {
+      final response = await ref.read(supabaseClientProvider).functions.invoke('delete-account');
+      if (response.status < 200 || response.status >= 300) {
+        throw Exception('Delete failed');
+      }
+      await ref.read(authControllerProvider.notifier).signOut();
+    } catch (_) {
+      _message('Could not delete your account. Please try again.');
+    } finally {
+      if (mounted) setState(() => _deleting = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final themeMode = ref.watch(themeModeProvider);
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
+    return Scaffold(
+      appBar: AppBar(title: const Text('Settings')),
+      body: SafeArea(
+        top: false,
+        child: ListView(
+          padding: const EdgeInsets.all(AppSpacing.base),
+          children: [
+            Text('Appearance', style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
+            const SizedBox(height: 4),
+            Text('Light is used by default. Change it anytime.', style: textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant)),
+            const SizedBox(height: AppSpacing.sm),
+            AppCard(
+              padding: const EdgeInsets.all(AppSpacing.sm),
+              child: SegmentedButton<ThemeMode>(
+                segments: const [
+                  ButtonSegment(value: ThemeMode.light, icon: Icon(Icons.light_mode_outlined, size: 16), label: Text('Light')),
+                  ButtonSegment(value: ThemeMode.dark, icon: Icon(Icons.dark_mode_outlined, size: 16), label: Text('Dark')),
+                  ButtonSegment(value: ThemeMode.system, icon: Icon(Icons.smartphone, size: 16), label: Text('System')),
+                ],
+                selected: {themeMode},
+                onSelectionChanged: (selection) => ref.read(themeModeProvider.notifier).setThemeMode(selection.first),
+              ),
+            ),
+            const SizedBox(height: AppSpacing.xl),
+            Text('Preferences', style: textTheme.labelLarge?.copyWith(color: colorScheme.primary)),
+            const SizedBox(height: AppSpacing.sm),
+            AppCard(
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.base),
+              child: Column(
+                children: [
+                  ProfileMenuTile(
+                    icon: Icons.notifications_none,
+                    label: 'Notifications',
+                    trailing: Switch(value: _notificationsEnabled, onChanged: _toggleNotifications),
+                    onTap: () => _toggleNotifications(!_notificationsEnabled),
+                  ),
+                  const Divider(height: 1),
+                  ProfileMenuTile(
+                    icon: Icons.translate,
+                    label: 'Language',
+                    trailing: Text('English', style: textTheme.bodySmall),
+                    onTap: _showLanguagePicker,
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: AppSpacing.xl),
+            Text('Account', style: textTheme.labelLarge?.copyWith(color: colorScheme.primary)),
+            const SizedBox(height: AppSpacing.sm),
+            AppCard(
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.base),
+              child: Column(
+                children: [
+                  ProfileMenuTile(
+                    icon: Icons.manage_accounts_outlined,
+                    label: 'Edit Profile',
+                    onTap: () => context.push(RoutePaths.editProfile),
+                  ),
+                  const Divider(height: 1),
+                  ProfileMenuTile(
+                    icon: Icons.delete_outline,
+                    label: _deleting ? 'Deleting Account…' : 'Delete Account',
+                    iconColor: colorScheme.error,
+                    labelColor: colorScheme.error,
+                    onTap: _deleting ? null : _confirmDeleteAccount,
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: AppSpacing.xl),
+            Text('About', style: textTheme.labelLarge?.copyWith(color: colorScheme.primary)),
+            const SizedBox(height: AppSpacing.sm),
+            AppCard(
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.base),
+              child: Column(
+                children: [
+                  ProfileMenuTile(
+                    icon: Icons.gavel_outlined,
+                    label: 'Legal & Data Compliance',
+                    onTap: () => context.push(RoutePaths.legalCompliance),
+                  ),
+                  const Divider(height: 1),
+                  ProfileMenuTile(
+                    icon: Icons.shield_outlined,
+                    label: 'Privacy Policy',
+                    onTap: () => context.push(RoutePaths.privacyPolicy),
+                  ),
+                  const Divider(height: 1),
+                  ProfileMenuTile(
+                    icon: Icons.description_outlined,
+                    label: 'Terms of Service',
+                    onTap: () => context.push(RoutePaths.termsOfService),
+                  ),
+                  const Divider(height: 1),
+                  const ProfileMenuTile(
+                    icon: Icons.info_outline,
+                    label: 'App Version',
+                    trailing: Text('1.0.0'),
+                    onTap: null,
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: AppSpacing.xl),
+          ],
+        ),
+      ),
+    );
+  }
+}
