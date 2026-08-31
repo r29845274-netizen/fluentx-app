@@ -1,1 +1,1 @@
-trigger: 2026-08-29 home-scroll-fix-latest
+trigger: 2026-08-31 home-maya-reliability-v3
