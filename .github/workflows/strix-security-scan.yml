@@ -1,0 +1,141 @@
+name: FluentX Strix Security Scan
+
+on:
+  workflow_dispatch:
+    inputs:
+      scan_mode:
+        description: Strix scan mode
+        required: true
+        default: standard
+        type: choice
+        options:
+          - quick
+          - standard
+      max_budget:
+        description: Maximum Strix LLM budget
+        required: true
+        default: '10'
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: fluentx-strix-security-scan
+  cancel-in-progress: true
+
+jobs:
+  strix-scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Prepare latest Fluent X source
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf fluentx_admin_secure
+          unzip -q fluentx_mobile_test_ready.zip
+
+          python3 scripts/ci_patch.py fluentx_admin_secure
+          python3 scripts/patch_splash_redirect.py fluentx_admin_secure
+          python3 scripts/patch_personalized_onboarding.py fluentx_admin_secure
+          python3 scripts/fix_personalized_onboarding_compile.py fluentx_admin_secure
+          python3 scripts/patch_full_placement_test_ui.py fluentx_admin_secure
+          python3 scripts/patch_learning_path_minimal.py fluentx_admin_secure
+          python3 scripts/patch_market_ready_completion.py fluentx_admin_secure
+          python3 scripts/patch_learning_path_detail.py fluentx_admin_secure
+          python3 scripts/patch_fluentx_visual_system.py fluentx_admin_secure
+          python3 scripts/patch_reference_uiux.py fluentx_admin_secure
+          python3 scripts/patch_interview_ai_coach.py fluentx_admin_secure
+          python3 scripts/patch_settings_security.py fluentx_admin_secure
+          python3 scripts/patch_revenuecat_production.py fluentx_admin_secure
+          python3 scripts/patch_release_readiness.py fluentx_admin_secure
+          python3 scripts/patch_final_ui_cleanup.py fluentx_admin_secure
+          python3 scripts/patch_final_visual_consistency.py fluentx_admin_secure
+          python3 scripts/patch_billing_compliance.py fluentx_admin_secure
+          python3 scripts/patch_certificates.py fluentx_admin_secure
+          python3 scripts/patch_membership_tiers.py fluentx_admin_secure
+          python3 scripts/patch_subscription_feature_gating.py fluentx_admin_secure
+          python3 scripts/patch_launch_runtime_completion.py fluentx_admin_secure
+          python3 scripts/patch_maya_ai_conversation.py fluentx_admin_secure
+          python3 scripts/fix_maya_compile.py fluentx_admin_secure
+          python3 scripts/patch_growth_coaching.py fluentx_admin_secure
+          python3 scripts/patch_maya_natural_voice.py fluentx_admin_secure
+          python3 scripts/patch_referral_growth.py fluentx_admin_secure
+          python3 scripts/patch_growth_analytics_share_cards.py fluentx_admin_secure
+          python3 scripts/patch_full_legal_compliance.py fluentx_admin_secure
+          python3 scripts/patch_adaptive_coaching_intelligence.py fluentx_admin_secure
+          python3 scripts/patch_onboarding_runtime_null.py fluentx_admin_secure
+
+          test -d fluentx_admin_secure/lib
+          echo "Prepared $(find fluentx_admin_secure/lib -name '*.dart' | wc -l) Dart source files"
+
+      - name: Validate Strix credentials
+        env:
+          LLM_API_KEY: ${{ secrets.STRIX_LLM_API_KEY }}
+        run: |
+          test -n "$LLM_API_KEY" || {
+            echo "Missing GitHub Actions secret: STRIX_LLM_API_KEY"
+            echo "Add a supported LLM provider API key as STRIX_LLM_API_KEY, then rerun this workflow."
+            exit 1
+          }
+
+      - name: Install Strix
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -sSL https://strix.ai/install | bash
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+          export PATH="$HOME/.local/bin:$PATH"
+          strix --version
+
+      - name: Run authorized Strix assessment
+        env:
+          STRIX_LLM: openai/gpt-5.4
+          LLM_API_KEY: ${{ secrets.STRIX_LLM_API_KEY }}
+        shell: bash
+        run: |
+          set +e
+          export PATH="$HOME/.local/bin:$PATH"
+          mkdir -p strix_output
+
+          strix -n \
+            -t ./fluentx_admin_secure \
+            --scan-mode "${{ inputs.scan_mode }}" \
+            --max-budget "${{ inputs.max_budget }}" \
+            --instruction "Authorized security assessment of the Fluent X Flutter application source. Focus on OWASP MASVS-style client risks, authentication/session handling, Supabase/RLS assumptions, exposed secrets, insecure local storage, deep links, WebView/network usage, authorization logic, purchase/certificate gating, backend Edge Function trust boundaries, injection, IDOR/BOLA, and privacy/data leakage. Do not attack unrelated third-party infrastructure. Validate findings where possible and provide remediation." \
+            2>&1 | tee strix_output/console.log
+
+          rc=${PIPESTATUS[0]}
+          echo "$rc" > strix_output/exit_code.txt
+
+          if [ -d strix_runs ]; then
+            cp -R strix_runs strix_output/strix_runs
+          fi
+
+          # Strix returns non-zero when validated vulnerabilities are found.
+          # Preserve findings as artifacts instead of losing the report.
+          exit 0
+
+      - name: Upload Strix report
+        uses: actions/upload-artifact@v7
+        with:
+          name: FluentX-Strix-security-report
+          path: strix_output
+          retention-days: 7
+          if-no-files-found: error
+
+      - name: Security scan summary
+        shell: bash
+        run: |
+          echo "## Fluent X Strix Security Scan" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Target: latest patched Flutter source" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Mode: ${{ inputs.scan_mode }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Strix exit code: $(cat strix_output/exit_code.txt 2>/dev/null || echo unknown)" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Full output: FluentX-Strix-security-report artifact" >> "$GITHUB_STEP_SUMMARY"
