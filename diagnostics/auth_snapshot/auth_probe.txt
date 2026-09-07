@@ -1,4 +1,5 @@
 supabase_url=https://ampcghxowbeocfqqnnvk.supabase.co
 publishable_key_present=true
-/auth/v1/health error=URLError:<urlopen error [Errno -2] Name or service not known>
-/auth/v1/settings error=URLError:<urlopen error [Errno -2] Name or service not known>
+/auth/v1/health status=401 http_error=Unauthorized
+/auth/v1/settings status=200
+auth_settings={"disable_signup": false, "external_email_enabled": true, "mailer_autoconfirm": false, "phone_autoconfirm": false}
