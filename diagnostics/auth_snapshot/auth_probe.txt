@@ -1,0 +1,4 @@
+supabase_url=https://ampcghxowbeocfqqnnvk.supabase.co
+publishable_key_present=true
+/auth/v1/health error=URLError:<urlopen error [Errno -2] Name or service not known>
+/auth/v1/settings error=URLError:<urlopen error [Errno -2] Name or service not known>

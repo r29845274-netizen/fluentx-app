@@ -1,0 +1,115 @@
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:purchases_flutter/purchases_flutter.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:timezone/data/latest.dart' as tz_data;
+
+import 'app/app.dart';
+import 'core/config/env_config.dart';
+import 'core/theme/theme_mode_provider.dart';
+
+
+Future<void> _configureRevenueCat() async {
+  final apiKey = EnvConfig.revenueCatAndroidApiKey;
+  if (apiKey.isEmpty) {
+    // Billing stays disabled until a public RevenueCat Android SDK key is
+    // supplied via --dart-define. Never hardcode private/server keys here.
+    return;
+  }
+
+  const flavor = String.fromEnvironment('FLAVOR', defaultValue: 'dev');
+  await Purchases.setLogLevel(
+    flavor == 'prod' ? LogLevel.info : LogLevel.debug,
+  );
+  await Purchases.configure(PurchasesConfiguration(apiKey));
+}
+
+
+Future<void> _syncRevenueCatForCurrentUser() async {
+  if (EnvConfig.revenueCatAndroidApiKey.isEmpty) return;
+  final user = Supabase.instance.client.auth.currentUser;
+  if (user == null) return;
+  await Purchases.logIn(user.id);
+  try {
+    await Supabase.instance.client.functions.invoke('sync-subscription-access');
+  } catch (error) {
+    // Server access remains fail-closed if verification is unavailable.
+    debugPrint('Subscription server sync pending: $error');
+  }
+}
+
+void _watchBillingIdentity() {
+  Supabase.instance.client.auth.onAuthStateChange.listen((data) async {
+    if (EnvConfig.revenueCatAndroidApiKey.isEmpty) return;
+    final user = data.session?.user;
+    if (user != null) {
+      await Purchases.logIn(user.id);
+      try {
+        await Supabase.instance.client.functions.invoke('sync-subscription-access');
+      } catch (error) {
+        debugPrint('Subscription server sync pending: $error');
+      }
+    } else if (data.event == AuthChangeEvent.signedOut) {
+      try {
+        await Purchases.logOut();
+      } catch (_) {}
+    }
+  });
+}
+
+
+Future<void> _trackGrowthAppOpen() async {
+  if (Supabase.instance.client.auth.currentUser == null) return;
+  try {
+    await Supabase.instance.client.rpc('track_growth_event', params: {
+      'p_event_name': 'app_open',
+      'p_source': 'app',
+      'p_metadata': {'platform': 'android'},
+    });
+  } catch (_) {}
+}
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await Hive.initFlutter();
+  await Hive.openBox(kSettingsBoxName);
+
+  tz_data.initializeTimeZones();
+
+  assert(
+    EnvConfig.isConfigured,
+    'SUPABASE_URL and SUPABASE_ANON_KEY must be provided via --dart-define. '
+    'See lib/core/config/env_config.dart for the exact run command.',
+  );
+
+  await Supabase.initialize(
+    url: EnvConfig.supabaseUrl,
+    publishableKey: EnvConfig.supabaseAnonKey,
+    authOptions: const FlutterAuthClientOptions(authFlowType: AuthFlowType.pkce),
+  );
+  await _configureRevenueCat();
+  await _syncRevenueCatForCurrentUser();
+  _watchBillingIdentity();
+  await _trackGrowthAppOpen();
+
+  // Firebase: requires platform config files (google-services.json /
+  // GoogleService-Info.plist) from your Firebase project — see
+  // SPRINT_6_PAYMENTS_NOTIFICATIONS_README.md. Guarded so local dev
+  // without those files doesn't hard-crash on startup.
+  try {
+    await Firebase.initializeApp();
+    FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
+    PlatformDispatcher.instance.onError = (error, stack) {
+      FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+      return true;
+    };
+  } catch (e) {
+    debugPrint('Firebase initialization skipped/failed: $e');
+  }
+runApp(const ProviderScope(child: FluentXApp()));
+}
