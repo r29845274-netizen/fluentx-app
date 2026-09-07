@@ -1,0 +1,134 @@
+name: FluentX Auth Runtime Diagnostics
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/auth-runtime-diagnostics.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  auth-diagnostics:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Extract latest generated source
+        run: |
+          set -euo pipefail
+          rm -rf fluentx_admin_secure
+          unzip -q fluentx_mobile_test_ready.zip
+
+      - name: Apply exact current patch stack
+        run: |
+          set -euo pipefail
+          python3 scripts/ci_patch.py fluentx_admin_secure
+          python3 scripts/patch_splash_redirect.py fluentx_admin_secure
+          python3 scripts/patch_personalized_onboarding.py fluentx_admin_secure
+          python3 scripts/fix_personalized_onboarding_compile.py fluentx_admin_secure
+          python3 scripts/patch_full_placement_test_ui.py fluentx_admin_secure
+          python3 scripts/patch_learning_path_minimal.py fluentx_admin_secure
+          python3 scripts/patch_market_ready_completion.py fluentx_admin_secure
+          python3 scripts/patch_learning_path_detail.py fluentx_admin_secure
+          python3 scripts/patch_fluentx_visual_system.py fluentx_admin_secure
+          python3 scripts/patch_reference_uiux.py fluentx_admin_secure
+          python3 scripts/patch_interview_ai_coach.py fluentx_admin_secure
+          python3 scripts/patch_settings_security.py fluentx_admin_secure
+          python3 scripts/patch_revenuecat_production.py fluentx_admin_secure
+          python3 scripts/patch_release_readiness.py fluentx_admin_secure
+          python3 scripts/patch_final_ui_cleanup.py fluentx_admin_secure
+          python3 scripts/patch_final_visual_consistency.py fluentx_admin_secure
+          python3 scripts/patch_billing_compliance.py fluentx_admin_secure
+          python3 scripts/patch_certificates.py fluentx_admin_secure
+          python3 scripts/patch_membership_tiers.py fluentx_admin_secure
+          python3 scripts/patch_subscription_feature_gating.py fluentx_admin_secure
+          python3 scripts/patch_launch_runtime_completion.py fluentx_admin_secure
+          python3 scripts/patch_maya_ai_conversation.py fluentx_admin_secure
+          python3 scripts/fix_maya_compile.py fluentx_admin_secure
+          python3 scripts/patch_growth_coaching.py fluentx_admin_secure
+          python3 scripts/patch_maya_natural_voice.py fluentx_admin_secure
+          python3 scripts/patch_referral_growth.py fluentx_admin_secure
+          python3 scripts/patch_growth_analytics_share_cards.py fluentx_admin_secure
+          python3 scripts/patch_full_legal_compliance.py fluentx_admin_secure
+          python3 scripts/patch_adaptive_coaching_intelligence.py fluentx_admin_secure
+          python3 scripts/patch_onboarding_runtime_null.py fluentx_admin_secure
+
+      - name: Snapshot authentication implementation
+        run: |
+          set -euo pipefail
+          rm -rf diagnostics/auth_snapshot
+          mkdir -p diagnostics/auth_snapshot
+          cp -R fluentx_admin_secure/lib/features/authentication diagnostics/auth_snapshot/authentication
+          mkdir -p diagnostics/auth_snapshot/core/config diagnostics/auth_snapshot/core/network diagnostics/auth_snapshot/routes
+          cp fluentx_admin_secure/lib/core/config/env_config.dart diagnostics/auth_snapshot/core/config/env_config.dart
+          cp fluentx_admin_secure/lib/core/network/supabase_provider.dart diagnostics/auth_snapshot/core/network/supabase_provider.dart
+          cp fluentx_admin_secure/lib/main.dart diagnostics/auth_snapshot/main.dart
+          cp fluentx_admin_secure/lib/routes/app_router.dart diagnostics/auth_snapshot/routes/app_router.dart
+
+      - name: Probe Supabase Auth service
+        shell: bash
+        run: |
+          set +e
+          python3 - <<'PY'
+          from pathlib import Path
+          import json, re, urllib.request, urllib.error
+
+          env = Path('fluentx_admin_secure/lib/core/config/env_config.dart').read_text()
+          url_match = re.search(r"defaultValue:\s*'(https://[^']+supabase\.co)'", env)
+          key_match = re.search(r"defaultValue:\s*'(sb_publishable_[^']+)'", env)
+          out = []
+          if not url_match:
+              out.append('supabase_url=NOT_FOUND')
+              Path('diagnostics/auth_snapshot/auth_probe.txt').write_text('\n'.join(out) + '\n')
+              raise SystemExit(0)
+
+          base = url_match.group(1)
+          key = key_match.group(1) if key_match else ''
+          out.append('supabase_url=' + base)
+          out.append('publishable_key_present=' + str(bool(key)).lower())
+
+          def probe(path, headers=None):
+              req = urllib.request.Request(base + path, headers=headers or {})
+              try:
+                  with urllib.request.urlopen(req, timeout=12) as r:
+                      body = r.read().decode('utf-8', 'replace')
+                      out.append(f'{path} status={r.status}')
+                      if path.endswith('/settings'):
+                          try:
+                              data = json.loads(body)
+                              public = {
+                                  'disable_signup': data.get('disable_signup'),
+                                  'external_email_enabled': data.get('external', {}).get('email'),
+                                  'mailer_autoconfirm': data.get('mailer_autoconfirm'),
+                                  'phone_autoconfirm': data.get('phone_autoconfirm'),
+                              }
+                              out.append('auth_settings=' + json.dumps(public, sort_keys=True))
+                          except Exception as e:
+                              out.append('settings_parse_error=' + repr(e))
+              except urllib.error.HTTPError as e:
+                  out.append(f'{path} status={e.code} http_error={e.reason}')
+              except Exception as e:
+                  out.append(f'{path} error={type(e).__name__}:{e}')
+
+          probe('/auth/v1/health')
+          headers = {'apikey': key} if key else {}
+          probe('/auth/v1/settings', headers)
+          Path('diagnostics/auth_snapshot/auth_probe.txt').write_text('\n'.join(out) + '\n')
+          print('\n'.join(out))
+          PY
+
+      - name: Commit auth diagnostics snapshot
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -f diagnostics/auth_snapshot
+          if ! git diff --cached --quiet; then
+            git commit -m 'Save auth runtime diagnostics [skip ci]'
+            git pull --rebase origin main || true
+            git push origin HEAD:main
+          fi
