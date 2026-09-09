@@ -1,1 +1,1 @@
-trigger: 2026-08-31 home-maya-reliability-v3
+trigger: 2026-09-09 video-visual-transcript-fixes-v2
