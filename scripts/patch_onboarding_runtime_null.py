@@ -62,6 +62,7 @@ for script_name in [
     'patch_testing_screenshot_fixes_v2.py',
     'patch_home_scroll_fix.py',
     'patch_home_maya_reliability_v3.py',
+    'patch_video_visual_transcript_fixes_v2.py',
 ]:
     patch = Path(__file__).with_name(script_name)
     if not patch.exists():
