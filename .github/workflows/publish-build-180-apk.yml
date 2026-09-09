@@ -15,16 +15,17 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - name: Download Build 180 artifact with resilient curl
+      - name: Download Build 180 APK artifact
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           API_URL="https://api.github.com/repos/${{ github.repository }}/actions/artifacts/10098823418/zip"
-          rm -f build-180.zip
+          rm -f FluentX-build-180.apk
 
-          # GitHub's normal download-artifact action failed repeatedly on this
-          # ~179 MB artifact. Use curl with resumable retries instead.
+          # Build #180 used actions/upload-artifact with archive:false, so the
+          # artifact download endpoint returns the APK bytes directly even
+          # though the REST endpoint path ends in /zip.
           for attempt in $(seq 1 12); do
             echo "Download attempt ${attempt}/12"
             if curl \
@@ -40,27 +41,24 @@ jobs:
               -H "Authorization: Bearer ${GH_TOKEN}" \
               -H "Accept: application/vnd.github+json" \
               -H "X-GitHub-Api-Version: 2022-11-28" \
-              -o build-180.zip \
+              -o FluentX-build-180.apk \
               "$API_URL"; then
               break
             fi
             sleep 3
           done
 
-          test -s build-180.zip
-          unzip -t build-180.zip
-          mkdir -p extracted
-          unzip -q build-180.zip -d extracted
+          test -s FluentX-build-180.apk
+          unzip -t FluentX-build-180.apk >/dev/null
+          ls -lh FluentX-build-180.apk
 
-      - name: Prepare APK
+      - name: Verify APK digest
         run: |
           set -euo pipefail
-          APK_PATH="$(find extracted -type f -name '*.apk' | head -n 1)"
-          test -n "$APK_PATH"
-          cp "$APK_PATH" FluentX-build-180.apk
-          test -s FluentX-build-180.apk
-          ls -lh FluentX-build-180.apk
-          echo "sha256=$(sha256sum FluentX-build-180.apk | awk '{print $1}')"
+          ACTUAL="$(sha256sum FluentX-build-180.apk | awk '{print $1}')"
+          EXPECTED="45f8e5d9032e40912fb1203333ad066426ebc4e06bbdbdb3b495dcdc5bd9e538"
+          echo "actual_sha256=$ACTUAL"
+          test "$ACTUAL" = "$EXPECTED"
 
       - name: Publish direct APK release asset
         env:
