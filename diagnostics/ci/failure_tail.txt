@@ -1,8 +1,3 @@
-Lucide icon names migrated: award, barChart2, bell, bookOpen, briefcase, building2, check, checkCircle2, chevronRight, clock, construction, crown, eye, eyeOff, fileText, flame, footprints, graduationCap, headphones, helpCircle, home, inbox, info, languages, lifeBuoy, lightbulb, lock, logOut, mailCheck, messageCircle, messageSquare, mic, moon, partyPopper, pause, penLine, play, playCircle, refreshCw, rotateCcw, search, settings, shield, smartphone, sparkles, spellCheck, square, star, sun, target, trash2, trophy, user, userCog, users, wifiOff, x
-CI compatibility patch applied successfully.
-Patched branded splash timing and routing in: fluentx_admin_secure/lib/routes/app_router.dart
-Minimum FluentX splash duration: 1200 ms
-FluentX splash timing + redirect fix applied successfully.
 Personalized onboarding UI patch applied.
 Personalized onboarding compile fix applied.
 Full FluentX placement test UI applied.
@@ -108,11 +103,18 @@ Home scroll fix applied: always-scrollable with safe bottom navigation clearance
 Updated: lib/features/home/presentation/screens/home_screen.dart
 Updated: lib/features/ai_practice/presentation/screens/ai_practice_hub_screen.dart
 Home + Maya reliability v3 applied successfully.
-Could not locate Start Level Check button row for overflow fix.
+Start Level Check row shape changed; using narrow-layout compatibility fix.
+Could not align signup password validation to 10 characters.
+Traceback (most recent call last):
+  File "/home/runner/work/fluentx-app/fluentx-app/scripts/patch_video_visual_transcript_fixes_v2_compat.py", line 22, in <module>
+    subprocess.check_call([sys.executable, str(temp_script), str(root)])
+  File "/usr/lib/python3.12/subprocess.py", line 413, in check_call
+    raise CalledProcessError(retcode, cmd)
+subprocess.CalledProcessError: Command '['/usr/bin/python3', '/tmp/tmp8cq302dc.py', 'fluentx_admin_secure']' returned non-zero exit status 1.
 Fixed onboarding eager PageView null crash and placement auth null assertion.
 Traceback (most recent call last):
   File "/home/runner/work/fluentx-app/fluentx-app/scripts/patch_onboarding_runtime_null.py", line 70, in <module>
     subprocess.check_call([sys.executable, str(patch), str(root)])
   File "/usr/lib/python3.12/subprocess.py", line 413, in check_call
     raise CalledProcessError(retcode, cmd)
-subprocess.CalledProcessError: Command '['/usr/bin/python3', '/home/runner/work/fluentx-app/fluentx-app/scripts/patch_video_visual_transcript_fixes_v2.py', 'fluentx_admin_secure']' returned non-zero exit status 1.
+subprocess.CalledProcessError: Command '['/usr/bin/python3', '/home/runner/work/fluentx-app/fluentx-app/scripts/patch_video_visual_transcript_fixes_v2_compat.py', 'fluentx_admin_secure']' returned non-zero exit status 1.
