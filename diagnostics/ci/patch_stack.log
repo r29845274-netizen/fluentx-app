@@ -67,20 +67,52 @@ Video regression fixes applied.
 Changed files:
  - lib/app/app.dart
  - lib/shared/widgets/navigation/app_shell.dart
- - lib/features/interview_prep/presentation/screens/interview_prep_screen.dart
- - lib/features/certificates/presentation/screens/certificates_screen.dart
- - lib/features/profile/presentation/screens/referral_screen.dart
- - lib/features/profile/presentation/screens/help_support_screen.dart
- - lib/features/premium/application/providers/membership_identity_provider.dart
- - lib/features/premium/presentation/screens/premium_screen.dart
- - lib/features/progress/presentation/screens/share_progress_card_screen.dart
- - lib/features/progress/presentation/screens/progress_screen.dart
- - lib/features/splash/presentation/screens/splash_screen.dart
- - lib/features/settings/presentation/screens/legal_document_screen.dart
- - lib/features/settings/presentation/screens/legal_compliance_center_screen.dart
- - lib/features/admin/presentation/screens/admin_console_screen.dart
  - lib/features/onboarding/presentation/screens/onboarding_screen.dart
+ - lib/features/splash/presentation/screens/splash_screen.dart
+ - lib/features/profile/presentation/screens/help_support_screen.dart
+ - lib/features/profile/presentation/screens/referral_screen.dart
+ - lib/features/premium/presentation/screens/premium_screen.dart
+ - lib/features/premium/application/providers/membership_identity_provider.dart
+ - lib/features/settings/presentation/screens/legal_compliance_center_screen.dart
+ - lib/features/settings/presentation/screens/legal_document_screen.dart
+ - lib/features/interview_prep/presentation/screens/interview_prep_screen.dart
+ - lib/features/admin/presentation/screens/admin_console_screen.dart
+ - lib/features/progress/presentation/screens/progress_screen.dart
+ - lib/features/progress/presentation/screens/share_progress_card_screen.dart
+ - lib/features/certificates/presentation/screens/certificates_screen.dart
  - lib/features/onboarding/presentation/screens/onboarding_screen.dart
  - lib/features/authentication/presentation/screens/login_screen.dart
  - lib/features/authentication/presentation/screens/otp_verification_screen.dart
+Placement helper methods restored: showError, audienceLabel, goalLabel
+Runtime screenshot regressions fixed:
+ - lib/features/grammar/presentation/widgets/grammar_quiz_sheet.dart
+ - lib/features/writing/presentation/widgets/writing_editor_sheet.dart
+ - lib/features/learn/presentation/screens/pronunciation_practice_screen.dart
+ - lib/features/progress/presentation/screens/progress_screen.dart
+ - lib/features/achievements/presentation/screens/achievements_screen.dart
+ - lib/features/premium/presentation/screens/premium_screen.dart
+ - lib/features/certificates/presentation/screens/certificates_screen.dart
+ - lib/features/ai_practice/presentation/screens/ai_practice_hub_screen.dart
+Theme preference fixed: first launch Light; user can choose Light, Dark or System in Settings.
+Applied premium Home UI: learning-first layout, recommendations, challenge, improved goal and stats.
+certificate lifetime access: updated fluentx_admin_secure/lib/features/certificates/presentation/screens/certificates_screen.dart
+Fluent X final certificate lifetime model applied.
+Final certificate fallback price set to ₹299 one-time.
+Updated: lib/features/ai_practice/presentation/screens/ai_practice_hub_screen.dart
+Updated: lib/features/learn/presentation/screens/learn_hub_screen.dart
+Updated: lib/features/learn/presentation/screens/learning_path_screen.dart
+Updated: lib/features/achievements/presentation/screens/achievements_screen.dart
+Updated: lib/features/home/presentation/widgets/stat_chip.dart
+Testing screenshot fixes v2 applied successfully.
+Home scroll fix applied: always-scrollable with safe bottom navigation clearance.
+Updated: lib/features/home/presentation/screens/home_screen.dart
+Updated: lib/features/ai_practice/presentation/screens/ai_practice_hub_screen.dart
+Home + Maya reliability v3 applied successfully.
+Could not locate Start Level Check button row for overflow fix.
 Fixed onboarding eager PageView null crash and placement auth null assertion.
+Traceback (most recent call last):
+  File "/home/runner/work/fluentx-app/fluentx-app/scripts/patch_onboarding_runtime_null.py", line 70, in <module>
+    subprocess.check_call([sys.executable, str(patch), str(root)])
+  File "/usr/lib/python3.12/subprocess.py", line 413, in check_call
+    raise CalledProcessError(retcode, cmd)
+subprocess.CalledProcessError: Command '['/usr/bin/python3', '/home/runner/work/fluentx-app/fluentx-app/scripts/patch_video_visual_transcript_fixes_v2.py', 'fluentx_admin_secure']' returned non-zero exit status 1.
