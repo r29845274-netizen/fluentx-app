@@ -15,13 +15,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download Build 180 artifact
-        env:
-          GH_TOKEN: ${{ github.token }}
+        uses: actions/download-artifact@v4
+        with:
+          name: app-debug.apk
+          path: extracted
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: 34337994817
+
+      - name: Prepare APK
         run: |
           set -euo pipefail
-          gh api /repos/${{ github.repository }}/actions/artifacts/10098823418/zip > build-180.zip
-          mkdir extracted
-          unzip -q build-180.zip -d extracted
           APK_PATH="$(find extracted -type f -name '*.apk' | head -n 1)"
           test -n "$APK_PATH"
           cp "$APK_PATH" FluentX-build-180.apk
