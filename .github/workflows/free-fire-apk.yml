@@ -1,0 +1,56 @@
+name: Build Free Fire AI Calculator APK
+
+on:
+  push:
+    branches:
+      - free-fire-apk-build
+    paths:
+      - 'free-fire-calculator-android/**'
+      - '.github/workflows/free-fire-apk.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.10.2'
+
+      - name: Install Android SDK packages
+        run: sdkmanager 'platforms;android-35' 'build-tools;35.0.0'
+
+      - name: Build debug APK
+        working-directory: free-fire-calculator-android
+        run: gradle :app:assembleDebug --stacktrace
+
+      - name: Prepare APK
+        run: |
+          cp free-fire-calculator-android/app/build/outputs/apk/debug/app-debug.apk Free-Fire-AI-Points-Calculator.apk
+          test -s Free-Fire-AI-Points-Calculator.apk
+          sha256sum Free-Fire-AI-Points-Calculator.apk
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: free-fire-ai-calculator-apk
+          path: Free-Fire-AI-Points-Calculator.apk
+          if-no-files-found: error
+          retention-days: 7
