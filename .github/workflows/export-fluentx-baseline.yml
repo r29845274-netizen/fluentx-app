@@ -1,0 +1,28 @@
+name: Export FluentX Baseline Source
+
+on:
+  push:
+    paths:
+      - '.github/workflows/export-fluentx-baseline.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Extract baseline source
+        run: |
+          set -euo pipefail
+          mkdir baseline
+          unzip -q fluentx_mobile_test_ready.zip -d baseline
+          find baseline -maxdepth 2 -type f | sort | head -100
+      - name: Upload extracted source
+        uses: actions/upload-artifact@v4
+        with:
+          name: fluentx-baseline-source
+          path: baseline
+          retention-days: 1
