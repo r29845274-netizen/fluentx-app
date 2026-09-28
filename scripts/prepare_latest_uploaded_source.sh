@@ -138,6 +138,14 @@ if notifications.exists():
         text = text.replace(needle, replacement)
         notifications.write_text(text)
 
+# Replace extension-only Failure UI access with the shared generated message getter.
+# Every Failure variant in this source defines message, so this avoids relying on
+# extension-import visibility at individual screen call sites.
+for path in (root / 'lib').rglob('*.dart'):
+    text = path.read_text()
+    if '.uiMessage' in text:
+        path.write_text(text.replace('.uiMessage', '.message'))
+
 print('latest compile compatibility fixes applied')
 PY
 
