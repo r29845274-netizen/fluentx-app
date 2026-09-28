@@ -17,6 +17,7 @@ tar: Exiting with failure status due to previous errors
 + tar -xzf /tmp/fluentx_overrides.tar.gz -C .
 + test -f fluentx_admin_secure/pubspec.yaml
 + sed -i 's/intl: \^0\.19\.0/intl: ^0.20.3/' fluentx_admin_secure/pubspec.yaml
++ sed -i 's/freezed: \\^2\\.5\\.5/freezed: ^2.5.2/' fluentx_admin_secure/pubspec.yaml
 ++ grep -E '^[[:space:]]*purchases_flutter:' fluentx_admin_secure/pubspec.yaml
 + echo 'payments_dependency=  purchases_flutter: 10.13.2 # Published release; purchase API matched below'
 payments_dependency=  purchases_flutter: 10.13.2 # Published release; purchase API matched below
