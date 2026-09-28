@@ -1,1 +1,1 @@
-trigger: 2026-09-28 latest-uploaded-source-build
+trigger: 2026-09-28 latest-uploaded-source-final-build
