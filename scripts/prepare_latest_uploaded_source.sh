@@ -56,7 +56,6 @@ base64 --decode   .source_handoff/2026-09-28-latest-overrides/override13.tar.gz.
 
 tar -xzf /tmp/fluentx_overrides.tar.gz -C .
 
-test -f fluentx_admin_secure/TEST_HANDOFF.md
 test -f fluentx_admin_secure/pubspec.yaml
 echo "payments_dependency=$(grep -E '^[[:space:]]*purchases_flutter:' fluentx_admin_secure/pubspec.yaml || true)"
 
