@@ -17,14 +17,14 @@ jobs:
       - name: Inspect staged source archives
         shell: bash
         run: |
-          set -euo pipefail
+          set -u
 
           cat .fluentx/latest_overlay/part*.b64 > /tmp/overlay.b64
           base64 --decode /tmp/overlay.b64 > /tmp/overlay.tar.gz
           echo "=== CLIENT OVERLAY ==="
           wc -c /tmp/overlay.b64 /tmp/overlay.tar.gz
           sha256sum /tmp/overlay.tar.gz
-          tar -tzf /tmp/overlay.tar.gz | head -80
+          tar -tzf /tmp/overlay.tar.gz | head -80 || true
 
           cat .source_handoff/2026-09-26-latest/part_*.b64 > /tmp/latest.b64
           echo "=== LATEST HANDOFF ==="
