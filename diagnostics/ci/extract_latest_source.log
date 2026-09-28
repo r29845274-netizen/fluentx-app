@@ -16,9 +16,13 @@ tar: Exiting with failure status due to previous errors
 + base64 --decode .source_handoff/2026-09-28-latest-overrides/override13.tar.gz.b64
 + tar -xzf /tmp/fluentx_overrides.tar.gz -C .
 + test -f fluentx_admin_secure/pubspec.yaml
++ sed -i 's/intl: \^0\.19\.0/intl: ^0.20.3/' fluentx_admin_secure/pubspec.yaml
 ++ grep -E '^[[:space:]]*purchases_flutter:' fluentx_admin_secure/pubspec.yaml
 + echo 'payments_dependency=  purchases_flutter: 10.13.2 # Published release; purchase API matched below'
 payments_dependency=  purchases_flutter: 10.13.2 # Published release; purchase API matched below
+++ grep -E '^[[:space:]]*intl:' fluentx_admin_secure/pubspec.yaml
++ echo 'intl_dependency=  intl: ^0.20.3'
+intl_dependency=  intl: ^0.20.3
 + echo latest_source_overlay=ok
 latest_source_overlay=ok
 ++ find fluentx_admin_secure/lib -type f -name '*.dart'

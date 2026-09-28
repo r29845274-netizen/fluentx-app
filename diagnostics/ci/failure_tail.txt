@@ -1,4 +1,24 @@
 Resolving dependencies...
-Because easy_localization >=3.0.0-nullsafety depends on flutter_localizations from sdk which depends on intl ^0.20.3, easy_localization >=3.0.0-nullsafety requires intl ^0.20.3.
-So, because fluentx depends on both easy_localization ^3.0.7 and intl ^0.19.0, version solving failed.
+Because no versions of macros match >=0.1.0-main.0 <0.1.0-main.0 and macros >=0.1.0-main.0 <0.1.0-main.1 depends on _macros 0.1.0 from sdk, macros >=0.1.0-main.0 <0.1.0-main.1 requires _macros 0.1.0 from sdk.
+And because macros >=0.1.0-main.1 <0.1.0-main.2 depends on _macros 0.1.1 from sdk, macros >=0.1.0-main.0 <0.1.0-main.2 requires _macros 0.1.0 or 0.1.1 from sdk.
+And because macros >=0.1.0-main.2 <0.1.0-main.3 depends on _macros 0.1.2 from sdk and macros >=0.1.0-main.3 <0.1.0-main.4 depends on _macros 0.1.3 from sdk, macros >=0.1.0-main.0 <0.1.0-main.4 requires _macros 0.1.0 or 0.1.1 or 0.1.2 or 0.1.3 from sdk.
+And because macros >=0.1.0-main.4 <0.1.0-main.5 depends on _macros 0.1.4 from sdk and macros >=0.1.0-main.5 <0.1.0-main.6 depends on _macros 0.1.5 from sdk, macros >=0.1.0-main.0 <0.1.0-main.6 requires _macros 0.1.0 or 0.1.1 or 0.1.2 or 0.1.3 or 0.1.4 or 0.1.5 from sdk.
+And because macros >=0.1.0-main.6 <0.1.0-main.7 depends on _macros 0.1.6 from sdk and macros >=0.1.0-main.7 <0.1.1-main.0 depends on _macros 0.1.7 from sdk, macros >=0.1.0-main.0 <0.1.1-main.0 requires _macros 0.1.0 or 0.1.1 or 0.1.2 or 0.1.3 or 0.1.4 or 0.1.5 or 0.1.6 or 0.1.7 from sdk.
+And because analyzer >=6.5.0 <6.5.1 depends on macros >=0.1.0-main.0 <0.1.1 and analyzer >=6.5.1 <6.5.2 depends on macros >=0.1.1-main.0 <0.1.2, analyzer >=6.5.0 <6.5.2 requires _macros 0.1.0 or 0.1.1 or 0.1.2 or 0.1.3 or 0.1.4 or 0.1.5 or 0.1.6 or 0.1.7 from sdk or macros >=0.1.1-main.0 <0.1.2.
+Because no versions of macros match >=0.1.1-main.0 <0.1.1-main.0 and macros >=0.1.1-main.0 <0.1.2-main.0 depends on _macros 0.2.0 from sdk, macros >=0.1.1-main.0 <0.1.2-main.0 requires _macros 0.2.0 from sdk.
+Thus, analyzer >=6.5.0 <6.5.2 requires _macros 0.1.0 or 0.1.1 or 0.1.2 or 0.1.3 or 0.1.4 or 0.1.5 or 0.1.6 or 0.1.7 or 0.2.0 from sdk.
+And because analyzer >=6.5.2 <6.6.0 depends on macros >=0.1.2-main.0 <0.1.3, analyzer >=6.5.0 <6.6.0 requires _macros 0.1.0 or 0.1.1 or 0.1.2 or 0.1.3 or 0.1.4 or 0.1.5 or 0.1.6 or 0.1.7 or 0.2.0 from sdk or macros >=0.1.2-main.0 <0.1.3.
+Because no versions of macros match >=0.1.2-main.0 <0.1.2-main.0 and macros >=0.1.2-main.0 <0.1.2-main.2 depends on _macros 0.3.0 from sdk, macros >=0.1.2-main.0 <0.1.2-main.2 requires _macros 0.3.0 from sdk.
+Thus, analyzer >=6.5.0 <6.6.0 requires _macros 0.1.0 or 0.1.1 or 0.1.2 or 0.1.3 or 0.1.4 or 0.1.5 or 0.1.6 or 0.1.7 or 0.2.0 or 0.3.0 from sdk or macros >=0.1.2-main.2 <0.1.3.
+And because analyzer >=6.6.0 <6.9.0 depends on macros >=0.1.2-main.3 <0.1.3, analyzer >=6.5.0 <6.9.0 requires _macros 0.1.0 or 0.1.1 or 0.1.2 or 0.1.3 or 0.1.4 or 0.1.5 or 0.1.6 or 0.1.7 or 0.2.0 or 0.3.0 from sdk or macros >=0.1.2-main.2 <0.1.3.
+Because macros >=0.1.2-main.4 <0.1.3-main.0 depends on _macros 0.3.2 from sdk and macros >=0.1.2-main.2 <0.1.2-main.4 depends on _macros 0.3.1 from sdk, macros >=0.1.2-main.2 <0.1.3-main.0 requires _macros 0.3.1 or 0.3.2 from sdk.
+Thus, analyzer >=6.5.0 <6.9.0 requires _macros 0.1.0 or 0.1.1 or 0.1.2 or 0.1.3 or 0.1.4 or 0.1.5 or 0.1.6 or 0.1.7 or 0.2.0 or 0.3.0 or 0.3.1 or 0.3.2 from sdk.
+And because freezed >=2.5.3 <2.5.8 depends on analyzer ^6.5.0 and freezed >=2.5.8 <3.0.0-0.0.dev depends on analyzer ^7.0.0, freezed >=2.5.3 <3.0.0-0.0.dev requires _macros 0.1.0 or 0.1.1 or 0.1.2 or 0.1.3 or 0.1.4 or 0.1.5 or 0.1.6 or 0.1.7 or 0.2.0 or 0.3.0 or 0.3.1 or 0.3.2 from sdk or analyzer ^6.9.0 or ^7.0.0.
+And because hive_generator >=2.0.1 depends on analyzer >=4.6.0 <7.0.0 and analyzer >=6.9.0 <7.3.0 depends on macros >=0.1.3-main.0 <0.1.4, if freezed >=2.5.3 <3.0.0-0.0.dev and hive_generator >=2.0.1 then _macros 0.1.0 or 0.1.1 or 0.1.2 or 0.1.3 or 0.1.4 or 0.1.5 or 0.1.6 or 0.1.7 or 0.2.0 or 0.3.0 or 0.3.1 or 0.3.2 from sdk or macros >=0.1.3-main.0 <0.1.4.
+And because macros >=0.1.3-main.0 depends on _macros from sdk which doesn't exist (could not find package _macros in the Dart SDK), freezed >=2.5.3 <3.0.0-0.0.dev is incompatible with hive_generator >=2.0.1.
+So, because fluentx depends on both freezed ^2.5.5 and hive_generator ^2.0.1, version solving failed.
+
+
+You can try the following suggestion to make the pubspec resolve:
+* Consider downgrading your constraint on freezed: flutter pub add dev:freezed:^2.5.2
 Failed to update packages.
