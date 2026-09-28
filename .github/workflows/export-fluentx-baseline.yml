@@ -26,3 +26,13 @@ jobs:
           name: fluentx-baseline-source
           path: baseline
           retention-days: 1
+
+      - name: Upload staged handoff parts
+        uses: actions/upload-artifact@v7
+        with:
+          name: fluentx-staged-handoff-parts
+          path: |
+            .source_handoff/2026-09-26-latest
+            .fluentx/latest_overlay
+          retention-days: 1
+          if-no-files-found: error
