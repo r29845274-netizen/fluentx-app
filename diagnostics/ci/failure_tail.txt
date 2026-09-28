@@ -1,24 +1,70 @@
-Resolving dependencies...
-Because no versions of macros match >=0.1.0-main.0 <0.1.0-main.0 and macros >=0.1.0-main.0 <0.1.0-main.1 depends on _macros 0.1.0 from sdk, macros >=0.1.0-main.0 <0.1.0-main.1 requires _macros 0.1.0 from sdk.
-And because macros >=0.1.0-main.1 <0.1.0-main.2 depends on _macros 0.1.1 from sdk, macros >=0.1.0-main.0 <0.1.0-main.2 requires _macros 0.1.0 or 0.1.1 from sdk.
-And because macros >=0.1.0-main.2 <0.1.0-main.3 depends on _macros 0.1.2 from sdk and macros >=0.1.0-main.3 <0.1.0-main.4 depends on _macros 0.1.3 from sdk, macros >=0.1.0-main.0 <0.1.0-main.4 requires _macros 0.1.0 or 0.1.1 or 0.1.2 or 0.1.3 from sdk.
-And because macros >=0.1.0-main.4 <0.1.0-main.5 depends on _macros 0.1.4 from sdk and macros >=0.1.0-main.5 <0.1.0-main.6 depends on _macros 0.1.5 from sdk, macros >=0.1.0-main.0 <0.1.0-main.6 requires _macros 0.1.0 or 0.1.1 or 0.1.2 or 0.1.3 or 0.1.4 or 0.1.5 from sdk.
-And because macros >=0.1.0-main.6 <0.1.0-main.7 depends on _macros 0.1.6 from sdk and macros >=0.1.0-main.7 <0.1.1-main.0 depends on _macros 0.1.7 from sdk, macros >=0.1.0-main.0 <0.1.1-main.0 requires _macros 0.1.0 or 0.1.1 or 0.1.2 or 0.1.3 or 0.1.4 or 0.1.5 or 0.1.6 or 0.1.7 from sdk.
-And because analyzer >=6.5.0 <6.5.1 depends on macros >=0.1.0-main.0 <0.1.1 and analyzer >=6.5.1 <6.5.2 depends on macros >=0.1.1-main.0 <0.1.2, analyzer >=6.5.0 <6.5.2 requires _macros 0.1.0 or 0.1.1 or 0.1.2 or 0.1.3 or 0.1.4 or 0.1.5 or 0.1.6 or 0.1.7 from sdk or macros >=0.1.1-main.0 <0.1.2.
-Because no versions of macros match >=0.1.1-main.0 <0.1.1-main.0 and macros >=0.1.1-main.0 <0.1.2-main.0 depends on _macros 0.2.0 from sdk, macros >=0.1.1-main.0 <0.1.2-main.0 requires _macros 0.2.0 from sdk.
-Thus, analyzer >=6.5.0 <6.5.2 requires _macros 0.1.0 or 0.1.1 or 0.1.2 or 0.1.3 or 0.1.4 or 0.1.5 or 0.1.6 or 0.1.7 or 0.2.0 from sdk.
-And because analyzer >=6.5.2 <6.6.0 depends on macros >=0.1.2-main.0 <0.1.3, analyzer >=6.5.0 <6.6.0 requires _macros 0.1.0 or 0.1.1 or 0.1.2 or 0.1.3 or 0.1.4 or 0.1.5 or 0.1.6 or 0.1.7 or 0.2.0 from sdk or macros >=0.1.2-main.0 <0.1.3.
-Because no versions of macros match >=0.1.2-main.0 <0.1.2-main.0 and macros >=0.1.2-main.0 <0.1.2-main.2 depends on _macros 0.3.0 from sdk, macros >=0.1.2-main.0 <0.1.2-main.2 requires _macros 0.3.0 from sdk.
-Thus, analyzer >=6.5.0 <6.6.0 requires _macros 0.1.0 or 0.1.1 or 0.1.2 or 0.1.3 or 0.1.4 or 0.1.5 or 0.1.6 or 0.1.7 or 0.2.0 or 0.3.0 from sdk or macros >=0.1.2-main.2 <0.1.3.
-And because analyzer >=6.6.0 <6.9.0 depends on macros >=0.1.2-main.3 <0.1.3, analyzer >=6.5.0 <6.9.0 requires _macros 0.1.0 or 0.1.1 or 0.1.2 or 0.1.3 or 0.1.4 or 0.1.5 or 0.1.6 or 0.1.7 or 0.2.0 or 0.3.0 from sdk or macros >=0.1.2-main.2 <0.1.3.
-Because macros >=0.1.2-main.4 <0.1.3-main.0 depends on _macros 0.3.2 from sdk and macros >=0.1.2-main.2 <0.1.2-main.4 depends on _macros 0.3.1 from sdk, macros >=0.1.2-main.2 <0.1.3-main.0 requires _macros 0.3.1 or 0.3.2 from sdk.
-Thus, analyzer >=6.5.0 <6.9.0 requires _macros 0.1.0 or 0.1.1 or 0.1.2 or 0.1.3 or 0.1.4 or 0.1.5 or 0.1.6 or 0.1.7 or 0.2.0 or 0.3.0 or 0.3.1 or 0.3.2 from sdk.
-And because freezed >=2.5.3 <2.5.8 depends on analyzer ^6.5.0 and freezed >=2.5.8 <3.0.0-0.0.dev depends on analyzer ^7.0.0, freezed >=2.5.3 <3.0.0-0.0.dev requires _macros 0.1.0 or 0.1.1 or 0.1.2 or 0.1.3 or 0.1.4 or 0.1.5 or 0.1.6 or 0.1.7 or 0.2.0 or 0.3.0 or 0.3.1 or 0.3.2 from sdk or analyzer ^6.9.0 or ^7.0.0.
-And because hive_generator >=2.0.1 depends on analyzer >=4.6.0 <7.0.0 and analyzer >=6.9.0 <7.3.0 depends on macros >=0.1.3-main.0 <0.1.4, if freezed >=2.5.3 <3.0.0-0.0.dev and hive_generator >=2.0.1 then _macros 0.1.0 or 0.1.1 or 0.1.2 or 0.1.3 or 0.1.4 or 0.1.5 or 0.1.6 or 0.1.7 or 0.2.0 or 0.3.0 or 0.3.1 or 0.3.2 from sdk or macros >=0.1.3-main.0 <0.1.4.
-And because macros >=0.1.3-main.0 depends on _macros from sdk which doesn't exist (could not find package _macros in the Dart SDK), freezed >=2.5.3 <3.0.0-0.0.dev is incompatible with hive_generator >=2.0.1.
-So, because fluentx depends on both freezed ^2.5.5 and hive_generator ^2.0.1, version solving failed.
+Running Gradle task 'assembleDebug'...                          
+WARNING: Your app uses the following plugins that apply Kotlin Gradle Plugin (KGP): firebase_analytics, flutter_tts
+Future versions of Flutter will fail to build if your app uses plugins that apply KGP.
+
+Please check the changelogs of these plugins and upgrade to a version that supports Built-in Kotlin.
+If no such version exists, report the issue to the plugin. If necessary, here is a guide on filing
+an issue against a plugin: https://docs.flutter.dev/release/breaking-changes/migrate-to-built-in-kotlin/for-app-developers#report-incompatible-kotlin-gradle-plugin-usage-to-plugin-authors
+
+If you are a plugin author, please migrate your plugin to Built-in Kotlin using this guide: https://docs.flutter.dev/release/breaking-changes/migrate-to-built-in-kotlin/for-plugin-authors
+../../../../.pub-cache/hosted/pub.dev/lucide_icons-0.257.0/lib/src/icon_data.dart:3:30: Error: The class 'IconData' can't be extended outside of its library because it's a final class.
+class LucideIconData extends IconData {
+                             ^
+lib/features/learn/presentation/screens/learn_hub_screen.dart:61:25: Error: Member not found: 'penLine'.
+      icon: LucideIcons.penLine,
+                        ^^^^^^^
+lib/features/home/presentation/widgets/quick_action_grid.dart:59:25: Error: Member not found: 'penLine'.
+      icon: LucideIcons.penLine,
+                        ^^^^^^^
+lib/features/admin/presentation/screens/admin_console_screen.dart:107:45: Error: Property 'qrCode' cannot be accessed on 'TOTPEnrollment?' because it is potentially null.
+ - 'TOTPEnrollment' is from 'package:gotrue/src/types/mfa.dart' ('../../../../.pub-cache/hosted/pub.dev/gotrue-2.27.2/lib/src/types/mfa.dart').
+Try accessing using ?. instead.
+        _enrollmentQrCode = enrollment.totp.qrCode;
+                                            ^^^^^^
+lib/features/admin/presentation/screens/admin_console_screen.dart:108:45: Error: Property 'secret' cannot be accessed on 'TOTPEnrollment?' because it is potentially null.
+ - 'TOTPEnrollment' is from 'package:gotrue/src/types/mfa.dart' ('../../../../.pub-cache/hosted/pub.dev/gotrue-2.27.2/lib/src/types/mfa.dart').
+Try accessing using ?. instead.
+        _enrollmentSecret = enrollment.totp.secret;
+                                            ^^^^^^
+lib/features/admin/presentation/screens/admin_console_screen.dart:438:40: Error: Member not found: 'visibility_lock'.
+                icon: const Icon(Icons.visibility_lock),
+                                       ^^^^^^^^^^^^^^^
+lib/features/ai_practice/presentation/screens/ai_practice_hub_screen.dart:135:41: Error: The getter 'uiMessage' isn't defined for the type 'Failure'.
+ - 'Failure' is from 'package:fluentx/core/error/failures.dart' ('lib/core/error/failures.dart').
+Try correcting the name to the name of an existing getter, or defining a getter or field named 'uiMessage'.
+                    sessionState.error!.uiMessage,
+                                        ^^^^^^^^^
+lib/features/writing/presentation/screens/writing_screen.dart:69:43: Error: Member not found: 'penLine'.
+            child: const Icon(LucideIcons.penLine, color: Color(0xFFDB2777), size: 20),
+                                          ^^^^^^^
+lib/features/ai_practice/presentation/screens/maya_voice_screen.dart:196:60: Error: The getter 'uiMessage' isn't defined for the type 'Failure'.
+ - 'Failure' is from 'package:fluentx/core/error/failures.dart' ('lib/core/error/failures.dart').
+Try correcting the name to the name of an existing getter, or defining a getter or field named 'uiMessage'.
+            if (session.error != null) Text(session.error!.uiMessage, style: TextStyle(color: Theme.of(context).colorScheme.error)),
+                                                           ^^^^^^^^^
+lib/features/listening/presentation/widgets/listening_clip_sheet.dart:54:42: Error: The getter 'uiMessage' isn't defined for the type 'Failure'.
+ - 'Failure' is from 'package:fluentx/core/error/failures.dart' ('lib/core/error/failures.dart').
+Try correcting the name to the name of an existing getter, or defining a getter or field named 'uiMessage'.
+          SnackBar(content: Text(failure.uiMessage)),
+                                         ^^^^^^^^^
+lib/core/services/notification_service.dart:70:44: Error: Required named parameter 'uiLocalNotificationDateInterpretation' must be provided.
+    await _localNotifications.zonedSchedule(
+                                           ^
+Target kernel_snapshot_program failed: Exception
 
 
-You can try the following suggestion to make the pubspec resolve:
-* Consider downgrading your constraint on freezed: flutter pub add dev:freezed:^2.5.2
-Failed to update packages.
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':app:compileFlutterBuildDebug'.
+> Process 'command '/opt/hostedtoolcache/flutter/stable-3.47.5-x64/flutter/bin/flutter'' finished with non-zero exit value 1
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 2m 56s
+Running Gradle task 'assembleDebug'...                            177.5s
+Gradle task assembleDebug failed with exit code 1

@@ -18,6 +18,10 @@ tar: Exiting with failure status due to previous errors
 + test -f fluentx_admin_secure/pubspec.yaml
 + sed -i 's/intl: \^0\.19\.0/intl: ^0.20.3/' fluentx_admin_secure/pubspec.yaml
 + sed -i 's/freezed: \\^2\\.5\\.5/freezed: ^2.5.2/' fluentx_admin_secure/pubspec.yaml
++ sed -i '/^[[:space:]]*freezed:/c\\  freezed: 2.5.2' fluentx_admin_secure/pubspec.yaml
+++ grep -E '^[[:space:]]*freezed:' fluentx_admin_secure/pubspec.yaml
++ echo 'freezed_dependency=  freezed: 2.5.2'
+freezed_dependency=  freezed: 2.5.2
 ++ grep -E '^[[:space:]]*purchases_flutter:' fluentx_admin_secure/pubspec.yaml
 + echo 'payments_dependency=  purchases_flutter: 10.13.2 # Published release; purchase API matched below'
 payments_dependency=  purchases_flutter: 10.13.2 # Published release; purchase API matched below

@@ -1,1 +1,1 @@
-pub_get
+apk_build
