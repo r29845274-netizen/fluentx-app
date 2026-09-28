@@ -2,5 +2,13 @@ checkout=ok
 START:flutter_version
 OK:flutter_version
 START:extract_latest_source
-FAILED:extract_latest_source:1
-completed_at=2026-09-28T09:37:19Z
+OK:extract_latest_source
+START:preflight
+OK:preflight
+START:bootstrap_android
+OK:bootstrap_android
+START:desugaring
+OK:desugaring
+START:pub_get
+FAILED:pub_get:1
+completed_at=2026-09-28T09:39:56Z

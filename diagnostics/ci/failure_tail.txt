@@ -1,18 +1,4 @@
-+ rm -rf fluentx_admin_secure
-+ rm -rf /tmp/fluentx_latest
-+ rm -f /tmp/fluentx_latest.b64 /tmp/fluentx_recovered.tar /tmp/fluentx_overrides.tar.gz
-+ mkdir -p /tmp/fluentx_latest
-+ unzip -q fluentx_mobile_test_ready.zip
-+ cat .source_handoff/2026-09-26-latest/part_00.b64 .source_handoff/2026-09-26-latest/part_01.b64 .source_handoff/2026-09-26-latest/part_02.b64 .source_handoff/2026-09-26-latest/part_03.b64 .source_handoff/2026-09-26-latest/part_04.b64 .source_handoff/2026-09-26-latest/part_05.b64 .source_handoff/2026-09-26-latest/part_06.b64 .source_handoff/2026-09-26-latest/part_07.b64
-+ python3 -
-recovered_tar_bytes=938388
-+ tar -xf /tmp/fluentx_recovered.tar -C /tmp/fluentx_latest
-tar: Skipping to next header
-tar: Exiting with failure status due to previous errors
-+ true
-+ '[' '!' -d /tmp/fluentx_latest/fluentx_admin_secure ']'
-+ rm -f /tmp/fluentx_latest/fluentx_admin_secure/lib/features/vocabulary/application/providers/vocabulary_providers.dart
-+ rsync -a /tmp/fluentx_latest/fluentx_admin_secure/ fluentx_admin_secure/
-+ base64 --decode .source_handoff/2026-09-28-latest-overrides/override13.tar.gz.b64
-+ tar -xzf /tmp/fluentx_overrides.tar.gz -C .
-+ test -f fluentx_admin_secure/TEST_HANDOFF.md
+Resolving dependencies...
+Because easy_localization >=3.0.0-nullsafety depends on flutter_localizations from sdk which depends on intl ^0.20.3, easy_localization >=3.0.0-nullsafety requires intl ^0.20.3.
+So, because fluentx depends on both easy_localization ^3.0.7 and intl ^0.19.0, version solving failed.
+Failed to update packages.

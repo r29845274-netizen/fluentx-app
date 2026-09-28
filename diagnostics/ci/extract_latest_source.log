@@ -15,4 +15,17 @@ tar: Exiting with failure status due to previous errors
 + rsync -a /tmp/fluentx_latest/fluentx_admin_secure/ fluentx_admin_secure/
 + base64 --decode .source_handoff/2026-09-28-latest-overrides/override13.tar.gz.b64
 + tar -xzf /tmp/fluentx_overrides.tar.gz -C .
-+ test -f fluentx_admin_secure/TEST_HANDOFF.md
++ test -f fluentx_admin_secure/pubspec.yaml
+++ grep -E '^[[:space:]]*purchases_flutter:' fluentx_admin_secure/pubspec.yaml
++ echo 'payments_dependency=  purchases_flutter: 10.13.2 # Published release; purchase API matched below'
+payments_dependency=  purchases_flutter: 10.13.2 # Published release; purchase API matched below
++ echo latest_source_overlay=ok
+latest_source_overlay=ok
+++ find fluentx_admin_secure/lib -type f -name '*.dart'
+++ wc -l
++ echo dart_files=194
+dart_files=194
+++ find fluentx_admin_secure/supabase/migrations -type f -name '*.sql'
+++ wc -l
++ echo migrations=11
+migrations=11
