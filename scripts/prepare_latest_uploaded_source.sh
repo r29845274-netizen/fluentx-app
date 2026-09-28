@@ -57,7 +57,12 @@ base64 --decode   .source_handoff/2026-09-28-latest-overrides/override13.tar.gz.
 tar -xzf /tmp/fluentx_overrides.tar.gz -C .
 
 test -f fluentx_admin_secure/pubspec.yaml
+# Flutter stable currently resolves flutter_localizations to intl ^0.20.3.
+# Align the uploaded source constraint so dependency solving can complete.
+sed -i 's/intl: \^0\.19\.0/intl: ^0.20.3/' fluentx_admin_secure/pubspec.yaml
+
 echo "payments_dependency=$(grep -E '^[[:space:]]*purchases_flutter:' fluentx_admin_secure/pubspec.yaml || true)"
+echo "intl_dependency=$(grep -E '^[[:space:]]*intl:' fluentx_admin_secure/pubspec.yaml || true)"
 
 echo "latest_source_overlay=ok"
 echo "dart_files=$(find fluentx_admin_secure/lib -type f -name '*.dart' | wc -l)"
