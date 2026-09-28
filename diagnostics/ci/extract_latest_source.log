@@ -1,1 +1,3 @@
-xz: /tmp/fluentx_latest.tar.xz: Compressed data is corrupt
+recovered_tar_bytes=938388
+tar: Skipping to next header
+tar: Exiting with failure status due to previous errors
