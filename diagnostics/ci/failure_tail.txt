@@ -7,36 +7,11 @@ If no such version exists, report the issue to the plugin. If necessary, here is
 an issue against a plugin: https://docs.flutter.dev/release/breaking-changes/migrate-to-built-in-kotlin/for-app-developers#report-incompatible-kotlin-gradle-plugin-usage-to-plugin-authors
 
 If you are a plugin author, please migrate your plugin to Built-in Kotlin using this guide: https://docs.flutter.dev/release/breaking-changes/migrate-to-built-in-kotlin/for-plugin-authors
-../../../../.pub-cache/hosted/pub.dev/lucide_icons-0.257.0/lib/src/icon_data.dart:3:30: Error: The class 'IconData' can't be extended outside of its library because it's a final class.
-class LucideIconData extends IconData {
-                             ^
-lib/features/learn/presentation/screens/learn_hub_screen.dart:61:25: Error: Member not found: 'penLine'.
-      icon: LucideIcons.penLine,
-                        ^^^^^^^
-lib/features/home/presentation/widgets/quick_action_grid.dart:59:25: Error: Member not found: 'penLine'.
-      icon: LucideIcons.penLine,
-                        ^^^^^^^
-lib/features/admin/presentation/screens/admin_console_screen.dart:107:45: Error: Property 'qrCode' cannot be accessed on 'TOTPEnrollment?' because it is potentially null.
- - 'TOTPEnrollment' is from 'package:gotrue/src/types/mfa.dart' ('../../../../.pub-cache/hosted/pub.dev/gotrue-2.27.2/lib/src/types/mfa.dart').
-Try accessing using ?. instead.
-        _enrollmentQrCode = enrollment.totp.qrCode;
-                                            ^^^^^^
-lib/features/admin/presentation/screens/admin_console_screen.dart:108:45: Error: Property 'secret' cannot be accessed on 'TOTPEnrollment?' because it is potentially null.
- - 'TOTPEnrollment' is from 'package:gotrue/src/types/mfa.dart' ('../../../../.pub-cache/hosted/pub.dev/gotrue-2.27.2/lib/src/types/mfa.dart').
-Try accessing using ?. instead.
-        _enrollmentSecret = enrollment.totp.secret;
-                                            ^^^^^^
-lib/features/admin/presentation/screens/admin_console_screen.dart:438:40: Error: Member not found: 'visibility_lock'.
-                icon: const Icon(Icons.visibility_lock),
-                                       ^^^^^^^^^^^^^^^
 lib/features/ai_practice/presentation/screens/ai_practice_hub_screen.dart:135:41: Error: The getter 'uiMessage' isn't defined for the type 'Failure'.
  - 'Failure' is from 'package:fluentx/core/error/failures.dart' ('lib/core/error/failures.dart').
 Try correcting the name to the name of an existing getter, or defining a getter or field named 'uiMessage'.
                     sessionState.error!.uiMessage,
                                         ^^^^^^^^^
-lib/features/writing/presentation/screens/writing_screen.dart:69:43: Error: Member not found: 'penLine'.
-            child: const Icon(LucideIcons.penLine, color: Color(0xFFDB2777), size: 20),
-                                          ^^^^^^^
 lib/features/ai_practice/presentation/screens/maya_voice_screen.dart:196:60: Error: The getter 'uiMessage' isn't defined for the type 'Failure'.
  - 'Failure' is from 'package:fluentx/core/error/failures.dart' ('lib/core/error/failures.dart').
 Try correcting the name to the name of an existing getter, or defining a getter or field named 'uiMessage'.
@@ -47,9 +22,6 @@ lib/features/listening/presentation/widgets/listening_clip_sheet.dart:54:42: Err
 Try correcting the name to the name of an existing getter, or defining a getter or field named 'uiMessage'.
           SnackBar(content: Text(failure.uiMessage)),
                                          ^^^^^^^^^
-lib/core/services/notification_service.dart:70:44: Error: Required named parameter 'uiLocalNotificationDateInterpretation' must be provided.
-    await _localNotifications.zonedSchedule(
-                                           ^
 Target kernel_snapshot_program failed: Exception
 
 
@@ -65,6 +37,6 @@ Execution failed for task ':app:compileFlutterBuildDebug'.
 > Run with --scan to get full insights from a Build Scan (powered by Develocity).
 > Get more help at https://help.gradle.org.
 
-BUILD FAILED in 2m 56s
-Running Gradle task 'assembleDebug'...                            177.5s
+BUILD FAILED in 3m 17s
+Running Gradle task 'assembleDebug'...                            198.0s
 Gradle task assembleDebug failed with exit code 1

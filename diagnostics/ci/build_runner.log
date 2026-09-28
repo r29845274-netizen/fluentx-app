@@ -1,12 +1,12 @@
 [INFO] Generating build script...
-[INFO] Generating build script completed, took 315ms
+[INFO] Generating build script completed, took 293ms
 
 [INFO] Precompiling build script......
 [INFO] Precompiling build script... completed, took 5.1s
 
 [INFO] Initializing inputs
 [INFO] Building new asset graph...
-[INFO] Building new asset graph completed, took 1.5s
+[INFO] Building new asset graph completed, took 1.6s
 
 [INFO] Checking for unexpected pre-existing outputs....
 [INFO] Checking for unexpected pre-existing outputs. completed, took 0ms
@@ -14,8 +14,8 @@
 [INFO] Running build...
 [INFO] Generating SDK summary...
 [INFO] 2.1s elapsed, 0/16 actions completed.
-[INFO] 3.8s elapsed, 0/16 actions completed.
-[WARNING] riverpod_generator on test/shared/widgets/buttons/primary_button_test.dart:
+[INFO] 3.9s elapsed, 0/16 actions completed.
+[WARNING] riverpod_generator on lib/shared/widgets/indicators/progress_ring.dart:
 Your current `analyzer` version may not fully support your current SDK version.
 
 Analyzer language version: 3.4.0
@@ -31,24 +31,25 @@ diagnosing why you can't get the latest version:
 dev_dependencies:
   analyzer: ^14.4.0
 
-[INFO] Generating SDK summary completed, took 4.8s
+[INFO] Generating SDK summary completed, took 4.9s
 
-[INFO] 5.9s elapsed, 192/202 actions completed.
+[INFO] 6.0s elapsed, 148/164 actions completed.
 [INFO] 7.0s elapsed, 206/208 actions completed.
-[INFO] 8.0s elapsed, 207/209 actions completed.
-[INFO] 15.6s elapsed, 209/210 actions completed.
-[INFO] 16.7s elapsed, 420/440 actions completed.
-[INFO] 17.8s elapsed, 464/482 actions completed.
-[INFO] 19.7s elapsed, 530/551 actions completed.
-[INFO] 21.2s elapsed, 530/551 actions completed.
-[INFO] 22.8s elapsed, 570/586 actions completed.
-[INFO] 23.9s elapsed, 621/638 actions completed.
-[INFO] 24.9s elapsed, 713/732 actions completed.
-[INFO] 25.9s elapsed, 739/743 actions completed.
-[INFO] Running build completed, took 26.4s
+[INFO] 8.2s elapsed, 207/209 actions completed.
+[INFO] 17.0s elapsed, 209/210 actions completed.
+[INFO] 18.2s elapsed, 413/429 actions completed.
+[INFO] 21.3s elapsed, 419/436 actions completed.
+[INFO] 22.3s elapsed, 444/471 actions completed.
+[INFO] 23.3s elapsed, 479/496 actions completed.
+[INFO] 26.6s elapsed, 530/551 actions completed.
+[INFO] 28.3s elapsed, 570/586 actions completed.
+[INFO] 29.3s elapsed, 589/603 actions completed.
+[INFO] 30.4s elapsed, 686/707 actions completed.
+[INFO] 32.0s elapsed, 739/743 actions completed.
+[INFO] Running build completed, took 32.6s
 
 [INFO] Caching finalized dependency graph...
-[INFO] Caching finalized dependency graph completed, took 109ms
+[INFO] Caching finalized dependency graph completed, took 115ms
 
-[INFO] Succeeded after 26.5s with 140 outputs (1296 actions)
+[INFO] Succeeded after 32.8s with 140 outputs (1296 actions)
 

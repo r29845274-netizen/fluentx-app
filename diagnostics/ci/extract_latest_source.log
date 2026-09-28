@@ -22,6 +22,8 @@ tar: Exiting with failure status due to previous errors
 ++ grep -E '^[[:space:]]*freezed:' fluentx_admin_secure/pubspec.yaml
 + echo 'freezed_dependency=  freezed: 2.5.2'
 freezed_dependency=  freezed: 2.5.2
++ python3 -
+latest compile compatibility fixes applied
 ++ grep -E '^[[:space:]]*purchases_flutter:' fluentx_admin_secure/pubspec.yaml
 + echo 'payments_dependency=  purchases_flutter: 10.13.2 # Published release; purchase API matched below'
 payments_dependency=  purchases_flutter: 10.13.2 # Published release; purchase API matched below
