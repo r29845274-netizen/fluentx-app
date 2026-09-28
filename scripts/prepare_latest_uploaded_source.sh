@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -euo pipefail
+set -euxo pipefail
 
 rm -rf fluentx_admin_secure
 rm -rf /tmp/fluentx_latest
