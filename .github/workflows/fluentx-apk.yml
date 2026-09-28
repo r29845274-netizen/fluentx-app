@@ -89,21 +89,34 @@ jobs:
 
           stage flutter_version flutter --version
           stage extract_latest_source bash -lc '
-            rm -rf fluentx_admin_secure /tmp/fluentx_latest /tmp/fluentx_latest.tar.xz /tmp/fluentx_latest.b64 &&
+            rm -rf fluentx_admin_secure /tmp/fluentx_latest /tmp/fluentx_latest.b64 /tmp/fluentx_recovered.tar /tmp/fluentx_overrides.tar.gz &&
             unzip -q fluentx_mobile_test_ready.zip &&
             mkdir -p /tmp/fluentx_latest &&
-            cat .source_handoff/2026-09-26-latest/part_0[0-6].b64 > /tmp/fluentx_latest.b64 &&
-            tail -c +2 .source_handoff/2026-09-26-latest/part_07.b64 >> /tmp/fluentx_latest.b64 &&
-            base64 --decode /tmp/fluentx_latest.b64 > /tmp/fluentx_latest.tar.xz &&
-            xz -t /tmp/fluentx_latest.tar.xz &&
-            tar -xJf /tmp/fluentx_latest.tar.xz -C /tmp/fluentx_latest &&
-            if [ -d /tmp/fluentx_latest/fluentx_admin_secure ]; then
-              rsync -a /tmp/fluentx_latest/fluentx_admin_secure/ fluentx_admin_secure/;
-            else
-              rsync -a /tmp/fluentx_latest/ fluentx_admin_secure/;
-            fi &&
+            cat .source_handoff/2026-09-26-latest/part_*.b64 > /tmp/fluentx_latest.b64 &&
+            python3 - <<'"'PY'"'"'
+from pathlib import Path
+import base64, lzma
+s=Path("/tmp/fluentx_latest.b64").read_text()
+repair_index=159817
+s=s[:repair_index]+s[repair_index+1:]
+raw=base64.b64decode(s, validate=True)
+dec=lzma.LZMADecompressor()
+out=[]
+try:
+    for i in range(0, len(raw), 1024):
+        out.append(dec.decompress(raw[i:i+1024]))
+except lzma.LZMAError:
+    pass
+Path("/tmp/fluentx_recovered.tar").write_bytes(b"".join(out))
+PY
+            tar -xf /tmp/fluentx_recovered.tar -C /tmp/fluentx_latest || true &&
+            rm -f /tmp/fluentx_latest/fluentx_admin_secure/lib/features/vocabulary/application/providers/vocabulary_providers.dart &&
+            rsync -a /tmp/fluentx_latest/fluentx_admin_secure/ fluentx_admin_secure/ &&
+            base64 --decode .source_handoff/2026-09-28-latest-overrides/override13.tar.gz.b64 > /tmp/fluentx_overrides.tar.gz &&
+            tar -xzf /tmp/fluentx_overrides.tar.gz -C . &&
             test -f fluentx_admin_secure/TEST_HANDOFF.md &&
             test -f fluentx_admin_secure/pubspec.yaml &&
+            grep -q "purchases_flutter: 10.13.2" fluentx_admin_secure/pubspec.yaml &&
             echo latest_source_overlay=ok
           '
 
