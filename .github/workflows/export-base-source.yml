@@ -1,0 +1,27 @@
+name: Export Base Flutter Source
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/export-base-source.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Extract source
+        run: |
+          rm -rf exported_source
+          mkdir exported_source
+          unzip -q fluentx_mobile_test_ready.zip -d exported_source
+      - name: Upload source
+        uses: actions/upload-artifact@v7
+        with:
+          name: FluentX-base-source
+          path: exported_source
+          retention-days: 1
