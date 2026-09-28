@@ -88,39 +88,23 @@ jobs:
           fi
 
           stage flutter_version flutter --version
-          stage extract bash -lc 'rm -rf fluentx_admin_secure && unzip -q fluentx_mobile_test_ready.zip'
-
-          stage patch_stack bash -lc '
-            python3 scripts/ci_patch.py fluentx_admin_secure &&
-            python3 scripts/patch_splash_redirect.py fluentx_admin_secure &&
-            python3 scripts/patch_personalized_onboarding.py fluentx_admin_secure &&
-            python3 scripts/fix_personalized_onboarding_compile.py fluentx_admin_secure &&
-            python3 scripts/patch_full_placement_test_ui.py fluentx_admin_secure &&
-            python3 scripts/patch_learning_path_minimal.py fluentx_admin_secure &&
-            python3 scripts/patch_market_ready_completion.py fluentx_admin_secure &&
-            python3 scripts/patch_learning_path_detail.py fluentx_admin_secure &&
-            python3 scripts/patch_fluentx_visual_system.py fluentx_admin_secure &&
-            python3 scripts/patch_reference_uiux.py fluentx_admin_secure &&
-            python3 scripts/patch_interview_ai_coach.py fluentx_admin_secure &&
-            python3 scripts/patch_settings_security.py fluentx_admin_secure &&
-            python3 scripts/patch_revenuecat_production.py fluentx_admin_secure &&
-            python3 scripts/patch_release_readiness.py fluentx_admin_secure &&
-            python3 scripts/patch_final_ui_cleanup.py fluentx_admin_secure &&
-            python3 scripts/patch_final_visual_consistency.py fluentx_admin_secure &&
-            python3 scripts/patch_billing_compliance.py fluentx_admin_secure &&
-            python3 scripts/patch_certificates.py fluentx_admin_secure &&
-            python3 scripts/patch_membership_tiers.py fluentx_admin_secure &&
-            python3 scripts/patch_subscription_feature_gating.py fluentx_admin_secure &&
-            python3 scripts/patch_launch_runtime_completion.py fluentx_admin_secure &&
-            python3 scripts/patch_maya_ai_conversation.py fluentx_admin_secure &&
-            python3 scripts/fix_maya_compile.py fluentx_admin_secure &&
-            python3 scripts/patch_growth_coaching.py fluentx_admin_secure &&
-            python3 scripts/patch_maya_natural_voice.py fluentx_admin_secure &&
-            python3 scripts/patch_referral_growth.py fluentx_admin_secure &&
-            python3 scripts/patch_growth_analytics_share_cards.py fluentx_admin_secure &&
-            python3 scripts/patch_full_legal_compliance.py fluentx_admin_secure &&
-            python3 scripts/patch_adaptive_coaching_intelligence.py fluentx_admin_secure &&
-            python3 scripts/patch_onboarding_runtime_null.py fluentx_admin_secure
+          stage extract_latest_source bash -lc '
+            rm -rf fluentx_admin_secure /tmp/fluentx_latest /tmp/fluentx_latest.tar.xz /tmp/fluentx_latest.b64 &&
+            unzip -q fluentx_mobile_test_ready.zip &&
+            mkdir -p /tmp/fluentx_latest &&
+            cat .source_handoff/2026-09-26-latest/part_0[0-6].b64 > /tmp/fluentx_latest.b64 &&
+            tail -c +2 .source_handoff/2026-09-26-latest/part_07.b64 >> /tmp/fluentx_latest.b64 &&
+            base64 --decode /tmp/fluentx_latest.b64 > /tmp/fluentx_latest.tar.xz &&
+            xz -t /tmp/fluentx_latest.tar.xz &&
+            tar -xJf /tmp/fluentx_latest.tar.xz -C /tmp/fluentx_latest &&
+            if [ -d /tmp/fluentx_latest/fluentx_admin_secure ]; then
+              rsync -a /tmp/fluentx_latest/fluentx_admin_secure/ fluentx_admin_secure/;
+            else
+              rsync -a /tmp/fluentx_latest/ fluentx_admin_secure/;
+            fi &&
+            test -f fluentx_admin_secure/TEST_HANDOFF.md &&
+            test -f fluentx_admin_secure/pubspec.yaml &&
+            echo latest_source_overlay=ok
           '
 
           stage preflight bash -lc 'cd fluentx_admin_secure && python3 scripts/preflight_check.py'
