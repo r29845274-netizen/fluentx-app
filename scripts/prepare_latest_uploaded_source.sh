@@ -61,6 +61,9 @@ test -f fluentx_admin_secure/pubspec.yaml
 # Align the uploaded source constraint so dependency solving can complete.
 sed -i 's/intl: \^0\.19\.0/intl: ^0.20.3/' fluentx_admin_secure/pubspec.yaml
 
+# Keep codegen on the last compatible Freezed 2.x release for the current Dart SDK.
+sed -i 's/freezed: \\^2\\.5\\.5/freezed: ^2.5.2/' fluentx_admin_secure/pubspec.yaml
+
 echo "payments_dependency=$(grep -E '^[[:space:]]*purchases_flutter:' fluentx_admin_secure/pubspec.yaml || true)"
 echo "intl_dependency=$(grep -E '^[[:space:]]*intl:' fluentx_admin_secure/pubspec.yaml || true)"
 
