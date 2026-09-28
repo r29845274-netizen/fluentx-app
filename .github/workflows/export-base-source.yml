@@ -33,7 +33,7 @@ jobs:
           base64 --decode /tmp/latest.b64 > /tmp/latest.tar.xz
           rc=$?
           set -e
-          echo "decode_rc=$rc"
+          echo "decode_rc=$rc"\n          echo "=== CANDIDATE DROP FIRST CHAR OF PART 07 ==="\n          cat .source_handoff/2026-09-26-latest/part_0[0-6].b64 > /tmp/candidate.b64\n          tail -c +2 .source_handoff/2026-09-26-latest/part_07.b64 >> /tmp/candidate.b64\n          wc -c /tmp/candidate.b64\n          base64 --decode /tmp/candidate.b64 > /tmp/candidate.tar.xz\n          echo "candidate_decode_rc=$?"\n          xz -t /tmp/candidate.tar.xz\n          echo "candidate_xz_rc=$?"\n          tar -tJf /tmp/candidate.tar.xz | head -120 || true
           if [ "$rc" -eq 0 ]; then
             wc -c /tmp/latest.tar.xz
             sha256sum /tmp/latest.tar.xz
