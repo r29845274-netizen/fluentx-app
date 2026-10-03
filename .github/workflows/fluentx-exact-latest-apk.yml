@@ -48,7 +48,7 @@ jobs:
           test -f fluentx_admin_secure/pubspec.yaml
           echo "EXACT_ZIP_SHA256=$(sha256sum /tmp/fluentx_mobile_test_ready.zip | awk '{print $1}')"
 
-      - name: Apply compile compatibility only
+      - name: Apply compile compatibility + Supabase runtime fixes
         shell: bash
         run: |
           set -euo pipefail
@@ -98,105 +98,9 @@ jobs:
               )
               if needle in s and 'uiLocalNotificationDateInterpretation:' not in s:
                   notifications.write_text(s.replace(needle, repl))
-
-          # Remove the deleted/foreign Supabase project fallback. The real project
-          # is injected below with dart-defines.
-          env_config = root / 'lib/core/config/env_config.dart'
-          env_text = env_config.read_text()
-          env_text = env_text.replace(
-              "defaultValue: 'https://ampcghxowbeocfqqnnvk.supabase.co',",
-              "defaultValue: '',",
-          )
-          env_text = env_text.replace(
-              "defaultValue: 'sb_publishable_TF58ThseSYp-CERYJklnbA_PL_F_rGo',",
-              "defaultValue: '',",
-          )
-          env_config.write_text(env_text)
-
-          # Keep Failure.uiMessage in UI files and make sure its extension is imported.
-          for path in (root / 'lib').rglob('*.dart'):
-              s = path.read_text()
-              if '.uiMessage' in s and "core/error/failures.dart" not in s and path.name != 'failures.dart':
-                  s = "import 'package:fluentx/core/error/failures.dart';\n" + s
-                  path.write_text(s)
-
-          # Convert low-level network exceptions into a domain NetworkFailure.
-          datasource = root / 'lib/features/authentication/data/datasources/auth_remote_datasource.dart'
-          ds = datasource.read_text()
-          helper = """
-Exception _mapAuthInfrastructureException(Object error) {
-  final message = error.toString();
-  final lower = message.toLowerCase();
-  if (lower.contains('socketexception') ||
-      lower.contains('failed host lookup') ||
-      lower.contains('clientexception') ||
-      lower.contains('network is unreachable') ||
-      lower.contains('connection refused') ||
-      lower.contains('connection reset') ||
-      lower.contains('connection timed out')) {
-    return const NetworkException(
-      'Unable to connect to FluentX. Check your internet connection and try again.',
-    );
-  }
-  return ServerException(message);
-}
-
-"""
-          if '_mapAuthInfrastructureException' not in ds:
-              marker = 'abstract class AuthRemoteDataSource {'
-              ds = ds.replace(marker, helper + marker)
-          ds = ds.replace('throw ServerException(e.toString());', 'throw _mapAuthInfrastructureException(e);')
-          datasource.write_text(ds)
-
-          repo_file = root / 'lib/features/authentication/data/repositories/auth_repository_impl.dart'
-          rs = repo_file.read_text()
-          server_catch = """    } on ServerException catch (e) {
-      return left(Failure.server(message: e.message));
-"""
-          network_then_server = """    } on NetworkException catch (e) {
-      return left(Failure.network(message: e.message));
-    } on ServerException catch (e) {
-      return left(Failure.server(message: e.message));
-"""
-          rs = rs.replace(server_catch, network_then_server)
-          repo_file.write_text(rs)
-
-          # Server errors shown in the UI are generic; auth/network messages stay useful.
-          failures = root / 'lib/core/error/failures.dart'
-          fs = failures.read_text()
-          fs = fs.replace(
-              'ServerFailure(:final message) => message,',
-              "ServerFailure() => 'Something went wrong. Please try again.',",
-          )
-          failures.write_text(fs)
-
-          # Regression test for the exact screenshot class of failure.
-          test = root / 'test/core/error/failures_test.dart'
-          test.parent.mkdir(parents=True, exist_ok=True)
-          test.write_text("""import 'package:flutter_test/flutter_test.dart';
-import 'package:fluentx/core/error/failures.dart';
-
-void main() {
-  test('network failure exposes only a friendly UI message', () {
-    const failure = Failure.network(
-      message: 'Unable to connect to FluentX. Check your internet connection and try again.',
-    );
-    expect(failure.uiMessage, contains('Unable to connect to FluentX'));
-    expect(failure.uiMessage, isNot(contains('supabase.co')));
-    expect(failure.uiMessage, isNot(contains('SocketException')));
-  });
-
-  test('server failure does not leak internal details', () {
-    const failure = Failure.server(
-      message: "ClientException with SocketException: Failed host lookup: bad.supabase.co",
-    );
-    expect(failure.uiMessage, 'Something went wrong. Please try again.');
-    expect(failure.uiMessage, isNot(contains('supabase.co')));
-  });
-}
-""")
-          print('compile compatibility + Supabase runtime fixes applied')
+          print('compile compatibility applied')
           PY
+          python3 scripts/fix_supabase_runtime.py
 
       - name: Preflight
         working-directory: fluentx_admin_secure
