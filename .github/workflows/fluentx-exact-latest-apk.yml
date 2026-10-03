@@ -132,8 +132,6 @@ jobs:
         run: |
           flutter build apk --debug \
             --dart-define=FLAVOR=dev \
-            --dart-define=SUPABASE_URL=https://fkrxqysdcrgwjarezsmd.supabase.co \
-            --dart-define=SUPABASE_ANON_KEY=sb_publishable_0s_nQk6ksSLDhgLiiaPg4w_g_WOsoBu \
             --dart-define=REVENUECAT_ANDROID_API_KEY="${REVENUECAT_ANDROID_API_KEY:-}"
 
       - name: Verify APK
