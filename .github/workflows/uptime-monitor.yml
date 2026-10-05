@@ -1,0 +1,18 @@
+name: FluentX Uptime Monitor
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+permissions:
+  contents: read
+  issues: write
+jobs:
+  health:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check health endpoints
+        run: |
+          set -euo pipefail
+          base='https://rdrvqszejpupaqeitmmu.supabase.co/functions/v1/health'
+          curl --fail --silent --show-error --max-time 10 "$base/live"
+          curl --fail --silent --show-error --max-time 10 "$base"
