@@ -1,0 +1,22 @@
+name: FluentX Staging Restore Drill
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/staging-restore-drill.yml'
+      - '.github/staging-drill-trigger.txt'
+  workflow_dispatch:
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify staging liveness
+        run: curl --fail --silent --show-error --max-time 15 https://mrnyuaitsmotwzbegcgi.supabase.co/functions/v1/health/live
+      - name: Verify staging readiness
+        run: curl --fail --silent --show-error --max-time 15 https://mrnyuaitsmotwzbegcgi.supabase.co/functions/v1/health
+      - name: Run staging load smoke test
+        run: python3 scripts/load/load_test_health.py --url https://mrnyuaitsmotwzbegcgi.supabase.co/functions/v1/health --requests 200 --concurrency 10 --max-error-rate 0.01 --max-p95-ms 2000
