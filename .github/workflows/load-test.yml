@@ -1,0 +1,20 @@
+name: FluentX Health Load Test
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/load-test.yml'
+      - 'scripts/load/load_test_health.py'
+  workflow_dispatch:
+jobs:
+  load:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify live endpoint
+        run: curl --fail --silent --show-error --max-time 10 https://rdrvqszejpupaqeitmmu.supabase.co/functions/v1/health/live
+      - name: Run dependency health load test
+        run: python3 scripts/load/load_test_health.py --url https://rdrvqszejpupaqeitmmu.supabase.co/functions/v1/health --requests 500 --concurrency 25 --max-error-rate 0.01 --max-p95-ms 1500
