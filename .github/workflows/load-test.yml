@@ -5,6 +5,7 @@ on:
     paths:
       - '.github/workflows/load-test.yml'
       - 'scripts/load/load_test_health.py'
+      - '.github/load-test-trigger.txt'
   workflow_dispatch:
 jobs:
   load:
