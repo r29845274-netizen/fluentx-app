@@ -2,10 +2,14 @@ name: FluentX Uptime Monitor
 on:
   schedule:
     - cron: '*/15 * * * *'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/uptime-monitor.yml'
+      - '.github/uptime-trigger.txt'
   workflow_dispatch:
 permissions:
   contents: read
-  issues: write
 jobs:
   health:
     runs-on: ubuntu-latest
