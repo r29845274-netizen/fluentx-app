@@ -1,2 +1,2 @@
-admin100-build-trigger 2026-10-05
-source_sha256=4601262a620defb2cb890a33b9eadd4ac7bc89245a49f8ff9937bd196ae0c561
+admin100-final-build 2026-10-05
+source_sha256=6c501a81afca7fe28fb6dee6b2cf0eeb404c7ddd701dcf4934e59a786a1fd08a
