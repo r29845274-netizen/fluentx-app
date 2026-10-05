@@ -1,0 +1,36 @@
+name: FluentX Prelaunch Gate
+on:
+  pull_request:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/prelaunch-gate.yml'
+      - 'docs/**'
+      - '.env.example'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Required production files
+        run: |
+          test -s docs/architecture.md
+          test -s docs/security/threat-model.md
+          test -s docs/monitoring.md
+          test -s docs/runbooks/incident.md
+          test -s docs/runbooks/backups.md
+          test -s docs/runbooks/rollback.md
+          test -s docs/legal/terms-of-service.md
+          test -s docs/legal/privacy-policy.md
+          test -s .env.example
+          grep -q "SUPABASE_URL" .env.example
+          grep -q "SUPABASE_ANON_KEY" .env.example
+      - name: Reject obvious private secret classes
+        run: |
+          if grep -RInE --exclude-dir=.git --exclude='*.md' --exclude='.env.example' '(sb_secret_|SUPABASE_SERVICE_ROLE_KEY[[:space:]]*=|OPENAI_API_KEY[[:space:]]*=[[:space:]]*[^$])' .; then
+            echo 'Potential private secret committed to repository'
+            exit 1
+          fi
