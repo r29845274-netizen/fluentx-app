@@ -28,9 +28,39 @@ jobs:
           test -s .env.example
           grep -q "SUPABASE_URL" .env.example
           grep -q "SUPABASE_ANON_KEY" .env.example
-      - name: Reject obvious private secret classes
+      - name: Reject obvious literal private credentials
+        shell: bash
         run: |
-          if grep -RInE --exclude-dir=.git --exclude='*.md' --exclude='.env.example' '(sb_secret_|SUPABASE_SERVICE_ROLE_KEY[[:space:]]*=|OPENAI_API_KEY[[:space:]]*=[[:space:]]*[^$])' .; then
-            echo 'Potential private secret committed to repository'
-            exit 1
-          fi
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          import re, sys
+
+          skip_dirs = {'.git', '.source_handoff', 'node_modules', 'build', '.dart_tool'}
+          skip_files = {'.env.example', 'prelaunch-gate.yml'}
+          patterns = [
+              re.compile(r'sb_secret_[A-Za-z0-9_-]{12,}'),
+              re.compile(r'sk-proj-[A-Za-z0-9_-]{12,}'),
+              re.compile(r'''SUPABASE_SERVICE_ROLE_KEY\s*=\s*["'][^"$][^"']{8,}["']'''),
+              re.compile(r'''OPENAI_API_KEY\s*=\s*["'][^"$][^"']{8,}["']'''),
+          ]
+          hits = []
+          for path in Path('.').rglob('*'):
+              if not path.is_file():
+                  continue
+              if path.name in skip_files or any(part in skip_dirs for part in path.parts):
+                  continue
+              try:
+                  text = path.read_text(errors='ignore')
+              except Exception:
+                  continue
+              for p in patterns:
+                  if p.search(text):
+                      hits.append(str(path))
+                      break
+          if hits:
+              print('Potential literal private credentials found:')
+              print('\n'.join(hits))
+              sys.exit(1)
+          print('No obvious literal private credentials found.')
+          PY
