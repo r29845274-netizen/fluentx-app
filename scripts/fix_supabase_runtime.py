@@ -283,3 +283,20 @@ class _HelpSupportScreenState extends ConsumerState<HelpSupportScreen> {
 """)
 
 print("Supabase runtime + PDF gap fixes applied")
+
+
+# 9) Admin100 widget API compatibility.
+admin_ui = root / "lib/features/admin/presentation/screens/admin_console_screen.dart"
+ui = admin_ui.read_text()
+for old, new in {
+    "const EmptyStateWidget(message:'No users yet.')": "const EmptyStateWidget(title:'No users yet')",
+    "const EmptyStateWidget(message:'No managed content yet.')": "const EmptyStateWidget(title:'No managed content yet')",
+    "const EmptyStateWidget(message:'No support tickets.')": "const EmptyStateWidget(title:'No support tickets')",
+    "const EmptyStateWidget(message:'No devices registered yet.')": "const EmptyStateWidget(title:'No devices registered yet')",
+    "const EmptyStateWidget(message:'No promo codes yet.')": "const EmptyStateWidget(title:'No promo codes yet')",
+    "const EmptyStateWidget(message:'No partners yet.')": "const EmptyStateWidget(title:'No partners yet')",
+    "const EmptyStateWidget(message:'No moderation reports.')": "const EmptyStateWidget(title:'No moderation reports')",
+    "const EmptyStateWidget(message:'No RevenueCat webhook events received yet.')": "const EmptyStateWidget(title:'No subscription events yet', message:'No RevenueCat webhook events received yet.')",
+}.items():
+    ui = ui.replace(old, new)
+admin_ui.write_text(ui)
