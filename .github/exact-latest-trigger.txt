@@ -1,2 +1,3 @@
-admin100-final-build 2026-10-05
-source_sha256=6c501a81afca7fe28fb6dee6b2cf0eeb404c7ddd701dcf4934e59a786a1fd08a
+admin100-complete-rebuild 2026-10-05
+source_sha256=84d9ef9b6fbaaf9cb26008422a68bb49421c8a018999c3f50cdb1087666009a2
+patch_commit=676fe73012aa19e364a0e2b5c32c505e2d6fbc7e
