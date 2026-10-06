@@ -44,7 +44,8 @@ jobs:
           base64 --decode /tmp/fluentx_latest.b64 > /tmp/fluentx_mobile_test_ready.zip
           echo "2ec3e52b4c84108688b87eb463cd0973e7aa1b57ba893e5360fed9fd58e404af  /tmp/fluentx_mobile_test_ready.zip" | sha256sum -c -
           rm -rf fluentx_admin_secure
-          unzip -q /tmp/fluentx_mobile_test_ready.zip
+          mkdir -p fluentx_admin_secure
+          unzip -q /tmp/fluentx_mobile_test_ready.zip -d fluentx_admin_secure
           test -f fluentx_admin_secure/pubspec.yaml
           echo "EXACT_ZIP_SHA256=$(sha256sum /tmp/fluentx_mobile_test_ready.zip | awk '{print $1}')"
 
