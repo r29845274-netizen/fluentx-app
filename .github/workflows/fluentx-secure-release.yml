@@ -1,0 +1,158 @@
+name: FluentX Secure Release APK
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/fluentx-secure-release.yml'
+      - '.github/exact-latest-trigger.txt'
+  workflow_dispatch:
+
+concurrency:
+  group: fluentx-secure-release-main
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Flutter 3.47.5
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.5'
+          channel: stable
+          cache: false
+
+      - name: Reconstruct exact uploaded ZIP
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat .source_handoff/2026-10-06-secure-final/part_*.b64 > /tmp/fluentx_latest.b64
+          base64 --decode /tmp/fluentx_latest.b64 > /tmp/fluentx_mobile_test_ready.zip
+          echo "2ec3e52b4c84108688b87eb463cd0973e7aa1b57ba893e5360fed9fd58e404af  /tmp/fluentx_mobile_test_ready.zip" | sha256sum -c -
+          rm -rf fluentx_admin_secure
+          mkdir -p fluentx_admin_secure
+          unzip -q /tmp/fluentx_mobile_test_ready.zip -d fluentx_admin_secure
+          test -f fluentx_admin_secure/pubspec.yaml
+          echo "EXACT_ZIP_SHA256=$(sha256sum /tmp/fluentx_mobile_test_ready.zip | awk '{print $1}')"
+
+      - name: Apply compile compatibility + Supabase runtime fixes
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          root = Path('fluentx_admin_secure')
+          pub = root / 'pubspec.yaml'
+          text = pub.read_text()
+          text = text.replace('intl: ^0.19.0', 'intl: ^0.20.3')
+          text = text.replace('lucide_icons: ^0.257.0', 'lucide_icons_flutter: ^3.1.20')
+          text = text.replace('freezed: ^2.5.5', 'freezed: 2.5.2')
+          pub.write_text(text)
+
+          for path in (root / 'lib').rglob('*.dart'):
+              s = path.read_text()
+              s2 = s.replace(
+                  "package:lucide_icons/lucide_icons.dart",
+                  "package:lucide_icons_flutter/lucide_icons.dart",
+              )
+              if s2 != s:
+                  path.write_text(s2)
+
+          admin = root / 'lib/features/admin/presentation/screens/admin_console_screen.dart'
+          if admin.exists():
+              s = admin.read_text()
+              s = s.replace(
+                  '_enrollmentQrCode = enrollment.totp.qrCode;\n'
+                  '        _enrollmentSecret = enrollment.totp.secret;',
+                  '_enrollmentQrCode = enrollment.totp?.qrCode;\n'
+                  '        _enrollmentSecret = enrollment.totp?.secret;\n'
+                  "        if (_enrollmentQrCode == null || _enrollmentSecret == null) {\n"
+                  "          throw StateError('TOTP enrollment details were not returned.');\n"
+                  '        }',
+              )
+              s = s.replace('Icons.visibility_lock', 'Icons.visibility_off_outlined')
+              admin.write_text(s)
+
+          notifications = root / 'lib/core/services/notification_service.dart'
+          if notifications.exists():
+              s = notifications.read_text()
+              needle = '      androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,\n      matchDateTimeComponents: DateTimeComponents.time,'
+              repl = (
+                  '      androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,\n'
+                  '      uiLocalNotificationDateInterpretation: '
+                  'UILocalNotificationDateInterpretation.absoluteTime,\n'
+                  '      matchDateTimeComponents: DateTimeComponents.time,'
+              )
+              if needle in s and 'uiLocalNotificationDateInterpretation:' not in s:
+                  notifications.write_text(s.replace(needle, repl))
+          print('compile compatibility applied')
+          PY
+          python3 scripts/fix_supabase_runtime.py
+
+      - name: Preflight
+        working-directory: fluentx_admin_secure
+        run: python3 scripts/preflight_check.py
+
+      - name: Bootstrap Android
+        working-directory: fluentx_admin_secure
+        run: bash scripts/bootstrap_android.sh
+
+      - name: Apply Android desugaring
+        run: python3 scripts/patch_android_desugaring.py fluentx_admin_secure
+
+      - name: Install dependencies
+        working-directory: fluentx_admin_secure
+        run: flutter pub get
+
+      - name: Generate code
+        working-directory: fluentx_admin_secure
+        run: dart run build_runner build --delete-conflicting-outputs
+
+      - name: Test auth error handling
+        working-directory: fluentx_admin_secure
+        run: flutter test test/core/error/failures_test.dart
+
+      - name: Build release APK
+        working-directory: fluentx_admin_secure
+        env:
+          REVENUECAT_ANDROID_API_KEY: ${{ secrets.REVENUECAT_ANDROID_API_KEY }}
+        run: |
+          SUPABASE_URL="$(printf '%s' 'aHR0cHM6Ly9yZHJ2cXN6ZWpwdXBhcWVpdG1tdS5zdXBhYmFzZS5jbw==' | base64 --decode)"
+          SUPABASE_ANON_KEY="$(printf '%s' 'c2JfcHVibGlzaGFibGVfY2FOM1N2QmdhUFR2N0xNbEd0NDQyQV9XTzNQSWhoeQ==' | base64 --decode)"
+          flutter build apk --release \
+            --dart-define=FLAVOR=dev \
+            --dart-define=APP_BUILD_NUMBER=1 \
+            --dart-define=SUPABASE_URL="${SUPABASE_URL}" \
+            --dart-define=SUPABASE_ANON_KEY="${SUPABASE_ANON_KEY}" \
+            --dart-define=REVENUECAT_ANDROID_API_KEY="${REVENUECAT_ANDROID_API_KEY:-}"
+
+      - name: Verify APK
+        run: |
+          test -s fluentx_admin_secure/build/app/outputs/flutter-apk/app-release.apk
+          cp fluentx_admin_secure/build/app/outputs/flutter-apk/app-release.apk FluentX-secure-final-release.apk
+          sha256sum FluentX-secure-final-release.apk | tee FluentX-secure-final-release.sha256
+          stat -c 'APK_BYTES=%s' FluentX-secure-final-release.apk
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v7
+        with:
+          name: FluentX-secure-final-release-apk
+          path: |
+            FluentX-secure-final-release.apk
+            FluentX-secure-final-release.sha256
+          retention-days: 7
+          if-no-files-found: error
