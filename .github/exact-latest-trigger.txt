@@ -1,3 +1,2 @@
-admin100-complete-rebuild 2026-10-05
-source_sha256=84d9ef9b6fbaaf9cb26008422a68bb49421c8a018999c3f50cdb1087666009a2
-patch_commit=676fe73012aa19e364a0e2b5c32c505e2d6fbc7e
+secure-final-build-trigger 2026-10-06
+source_sha256=2ec3e52b4c84108688b87eb463cd0973e7aa1b57ba893e5360fed9fd58e404af
