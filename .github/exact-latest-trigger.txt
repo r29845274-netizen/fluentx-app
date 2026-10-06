@@ -1,2 +1,2 @@
-secure-final-build-trigger 2026-10-06
+secure-final-build-trigger-v2 2026-10-06
 source_sha256=2ec3e52b4c84108688b87eb463cd0973e7aa1b57ba893e5360fed9fd58e404af
