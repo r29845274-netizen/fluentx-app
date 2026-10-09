@@ -102,6 +102,7 @@ jobs:
           print('compile compatibility applied')
           PY
           python3 scripts/fix_supabase_runtime.py
+          python3 scripts/patch_auth_email_verification.py fluentx_admin_secure
 
       - name: Preflight
         working-directory: fluentx_admin_secure
