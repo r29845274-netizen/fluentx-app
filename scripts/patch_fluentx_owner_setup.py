@@ -21,8 +21,10 @@ if ("owner-bootstrap-status" not in old
 if ("functions.invoke('owner-bootstrap')" not in replacement
         or "functions.invoke('password-login'" not in replacement):
     raise SystemExit("Missing mandatory server-side identity/owner checks")
-if "signUpWithEmail" not in replacement:
-    raise SystemExit("Missing new-account fallback")
+# Existing verified owners intentionally do not sign up again.
+# Never require a new-account signup path in the one-time owner flow.
+if "signUpWithEmail" in replacement:
+    raise SystemExit("Unsafe owner flow: duplicate signup is forbidden")
 needle = "      if (routerNotifier.isRecoveringPassword) {"
 insertion = (
     "      // Keep owner setup on screen until its verified session and one-time\n"
