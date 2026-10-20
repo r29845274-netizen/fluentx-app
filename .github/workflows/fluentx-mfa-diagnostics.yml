@@ -1,0 +1,28 @@
+name: FluentX MFA Code Diagnostics
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/fluentx-mfa-diagnostics.yml'
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inspect MFA UI without changing production
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat .source_handoff/2026-10-06-secure-final/part_*.b64 | base64 -d > /tmp/fluentx_code.zip
+          echo "2ec3e52b4c84108688b87eb463cd0973e7aa1b57ba893e5360fed9fd58e404af  /tmp/fluentx_code.zip" | sha256sum -c -
+          mkdir -p /tmp/fluentx_mfa_source
+          unzip -q /tmp/fluentx_code.zip -d /tmp/fluentx_mfa_source
+          echo "---ADMIN CONSOLE SCREEN---"
+          nl -ba /tmp/fluentx_mfa_source/lib/features/admin/presentation/screens/admin_console_screen.dart | head -n 330
+          echo "---SECURITY ACCESS PROVIDER---"
+          nl -ba /tmp/fluentx_mfa_source/lib/features/admin/application/providers/security_access_provider.dart
+          echo "---APP ROUTER---"
+          nl -ba /tmp/fluentx_mfa_source/lib/routes/app_router.dart | head -n 170
