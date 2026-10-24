@@ -13,6 +13,8 @@ patch("  int _round=0;", """  int _round=0;
   bool _profileLoaded=false;
   bool _diagnosticMode=false;
   Timer? _diagnosticTimer;
+  Timer? _diagnosticTicker;
+  int _diagnosticSecondsLeft=120;
   DateTime _startedAt=DateTime.now();
 
   @override
@@ -54,16 +56,22 @@ patch("  int _round=0;", """  int _round=0;
   Future<void> _startDiagnostic() async{
     if(_assessing)return;
     _diagnosticTimer?.cancel();
+    _diagnosticTicker?.cancel();
     _turns.clear();
     _history.clear();
     _startedAt=DateTime.now();
     setState((){
       _diagnosticMode=true;
+      _diagnosticSecondsLeft=120;
       _error=null;
       _reply='Tell me about yourself, your daily activities and when you want to speak English.';
     });
     _stopped=false;
     await _listen();
+    _diagnosticTicker=Timer.periodic(const Duration(seconds:1),(_){
+      if(!mounted || !_diagnosticMode)return;
+      setState(()=>_diagnosticSecondsLeft=(_diagnosticSecondsLeft-1).clamp(0,120));
+    });
     _diagnosticTimer=Timer(const Duration(minutes:2),(){
       if(mounted && _diagnosticMode && !_assessing){
         _diagnosticMode=false;
@@ -74,6 +82,7 @@ patch("  int _round=0;", """  int _round=0;
 
   Future<void> _evaluate(bool diagnostic) async{
     _diagnosticTimer?.cancel();
+    _diagnosticTicker?.cancel();
     _diagnosticMode=false;
     if(_assessing)return;
     await _stop();
@@ -126,7 +135,8 @@ patch("        const Icon(Icons.graphic_eq,size:56),", """        const Icon(Ico
         ],onChanged:_assessing?null:(track){if(track!=null)_changeTrack(track);}),
         const Text('Personalized English speaking coach'),
         if(_diagnosticMode)const Text('Initial assessment · 2 minutes'),
-        if(_diagnosticMode)const LinearProgressIndicator(),
+        if(_diagnosticMode)LinearProgressIndicator(value:(120-_diagnosticSecondsLeft)/120),
+        if(_diagnosticMode)Text('Time left: '+(_diagnosticSecondsLeft~/60).toString().padLeft(2,'0')+':'+(_diagnosticSecondsLeft%60).toString().padLeft(2,'0')),
         if(_error!=null)TextButton.icon(
           onPressed:_assessing?null:()async{_stopped=false;await _listen();},
           icon:const Icon(Icons.refresh),
@@ -139,6 +149,6 @@ patch("        OutlinedButton.icon(onPressed:_stop,icon:const Icon(Icons.stop),l
           TextButton.icon(onPressed:_assessing?null:()=>_evaluate(false),icon:const Icon(Icons.assessment_outlined),label:const Text('End & Scorecard')),
         ]),
 """)
-s=s.replace('  void dispose(){\n    _stopped=true;', '  void dispose(){\n    _diagnosticTimer?.cancel();\n    _stopped=true;')
+s=s.replace('  void dispose(){\n    _stopped=true;', '  void dispose(){\n    _diagnosticTicker?.cancel();\n    _diagnosticTimer?.cancel();\n    _stopped=true;')
 p.write_text(s)
 print("PERSONALIZED_GEMINI_UI_APPLIED")
