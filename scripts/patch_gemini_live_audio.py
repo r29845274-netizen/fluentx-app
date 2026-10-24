@@ -90,7 +90,7 @@ class _GeminiLiveAudioScreenState extends State<GeminiLiveAudioScreen> {
       if(mounted && _startedAt!=null)setState(()=>_elapsed=DateTime.now().difference(_startedAt!));
     });
     try{
-      final url=Uri.parse(Supabase.instance.client.supabaseUrl)
+      final url=Uri.parse(const String.fromEnvironment('SUPABASE_URL'))
           .replace(scheme:'wss',path:'/functions/v1/voice-assistant/live');
       _socket=await WebSocket.connect(
         url.toString(),
