@@ -10,12 +10,15 @@ patch("  int _round=0;", """  int _round=0;
   String _track='student';
   final List<String> _turns=[];
   bool _assessing=false;
+  bool _profileLoaded=false;
+  bool _diagnosticMode=false;
+  Timer? _diagnosticTimer;
   DateTime _startedAt=DateTime.now();
 
   @override
   void didChangeDependencies(){
     super.didChangeDependencies();
-    if(_turns.isEmpty)_loadProfile();
+    if(!_profileLoaded){_profileLoaded=true;_loadProfile();}
   }
 
   Future<void> _loadProfile() async{
@@ -35,7 +38,30 @@ patch("  int _round=0;", """  int _round=0;
     }catch(e){if(mounted)setState(()=>_error='Cannot save track. Please retry.');}
   }
 
+  Future<void> _startDiagnostic() async{
+    if(_assessing)return;
+    _diagnosticTimer?.cancel();
+    _turns.clear();
+    _history.clear();
+    _startedAt=DateTime.now();
+    setState((){
+      _diagnosticMode=true;
+      _error=null;
+      _reply='Tell me about yourself, your daily activities and when you want to speak English.';
+    });
+    _stopped=false;
+    await _listen();
+    _diagnosticTimer=Timer(const Duration(minutes:2),(){
+      if(mounted && _diagnosticMode && !_assessing){
+        _diagnosticMode=false;
+        _evaluate(true);
+      }
+    });
+  }
+
   Future<void> _evaluate(bool diagnostic) async{
+    _diagnosticTimer?.cancel();
+    _diagnosticMode=false;
     if(_assessing)return;
     await _stop();
     if(_turns.length<2){
@@ -86,12 +112,14 @@ patch("        const Icon(Icons.graphic_eq,size:56),", """        const Icon(Ico
           DropdownMenuItem(value:'professional',child:Text('Working Professional')),
         ],onChanged:_assessing?null:(track){if(track!=null)_changeTrack(track);}),
         const Text('Personalized English speaking coach'),
+        if(_diagnosticMode)const Text('Initial assessment · 2 minutes'),
 """)
 patch("        OutlinedButton.icon(onPressed:_stop,icon:const Icon(Icons.stop),label:const Text('Stop')),", """        OutlinedButton.icon(onPressed:_stop,icon:const Icon(Icons.stop),label:const Text('Stop')),
         Wrap(alignment:WrapAlignment.center,spacing:8,children:[
-          TextButton.icon(onPressed:_assessing?null:()=>_evaluate(true),icon:const Icon(Icons.school_outlined),label:const Text('2-min Assessment')),
+          TextButton.icon(onPressed:_assessing?null:_startDiagnostic,icon:const Icon(Icons.school_outlined),label:const Text('2-min Assessment')),
           TextButton.icon(onPressed:_assessing?null:()=>_evaluate(false),icon:const Icon(Icons.assessment_outlined),label:const Text('End & Scorecard')),
         ]),
 """)
+s=s.replace('  void dispose(){\n    _stopped=true;', '  void dispose(){\n    _diagnosticTimer?.cancel();\n    _stopped=true;')
 p.write_text(s)
 print("PERSONALIZED_GEMINI_UI_APPLIED")
