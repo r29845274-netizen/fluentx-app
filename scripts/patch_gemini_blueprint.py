@@ -27,6 +27,19 @@ patch("  int _round=0;", """  int _round=0;
       if(!mounted)return;
       final value=res.data is Map?(res.data as Map)['track']:null;
       if(value is String && ['student','homemaker','professional'].contains(value))setState(()=>_track=value);
+      if((res.data as Map)['latest']==null){
+        WidgetsBinding.instance.addPostFrameCallback((_){
+          if(!mounted || _turns.isNotEmpty || _assessing)return;
+          showDialog<void>(context:context,builder:(ctx)=>AlertDialog(
+            title:const Text('Your first speaking assessment'),
+            content:const Text('Start with a two-minute voice assessment to personalize FluentX to your English level.'),
+            actions:[
+              TextButton(onPressed:()=>Navigator.pop(ctx),child:const Text('Later')),
+              FilledButton(onPressed:(){Navigator.pop(ctx);_startDiagnostic();},child:const Text('Start Assessment')),
+            ],
+          ));
+        });
+      }
     }catch(_){}
   }
 
