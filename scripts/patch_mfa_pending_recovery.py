@@ -12,7 +12,7 @@ replacement="""      } else {
         // An interrupted MFA setup may leave unverified factors in Supabase.
         // Remove only this signed-in user's unverified factors so enrollment
         // can start again; verified factors are never removed.
-        for(final factor in factors.all.where((f)=>f.factorType == FactorType.totp && f.status == FactorStatus.unverified)){
+        for(final factor in factors.all.where((f)=>f.factorType == FactorType.totp && f.status.toString().split('.').last == 'unverified')){
           await _client.auth.mfa.unenroll(factor.id);
         }
         final enrollment = await _client.auth.mfa.enroll("""
