@@ -27,7 +27,7 @@ jobs:
           try: error=json.loads(Path('/tmp/voice-config-response.json').read_text()).get("error","")
           except (ValueError,OSError,AttributeError): error=""
           if status==401:
-              print("PASS: GEMINI_API_KEY is visible to the backend; authentication was correctly required.")
+              print("PASS: Voice endpoint rejected unauthenticated call after configuration checks.")
           elif status==503 and "GEMINI_API_KEY" in error:
               raise SystemExit("FAIL: GEMINI_API_KEY is missing from this Supabase project.")
           else:
