@@ -1,0 +1,42 @@
+name: FluentX UI UX Source Review
+on:
+  push:
+    paths: ['.github/workflows/fluentx-uiux-review.yml']
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inspect actual built Flutter screens and themes
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/ux
+          cat .source_handoff/2026-10-06-secure-final/part_*.b64 | base64 -d > /tmp/ux.zip
+          unzip -q /tmp/ux.zip -d /tmp/ux
+          python3 - <<'PY'
+          from pathlib import Path
+          root=Path('/tmp/ux/lib')
+          for rel,limit in [
+              ('core/theme/app_colors.dart',140),
+              ('core/theme/app_theme.dart',190),
+              ('shared/widgets/navigation/app_shell.dart',200),
+              ('features/home/presentation/screens/home_screen.dart',200),
+              ('features/ai_practice/presentation/screens/ai_practice_hub_screen.dart',220),
+              ('features/learn/presentation/screens/learn_hub_screen.dart',160),
+              ('features/onboarding/presentation/screens/onboarding_screen.dart',130),
+              ('features/progress/presentation/screens/progress_screen.dart',130),
+              ('features/profile/presentation/screens/profile_screen.dart',130),
+              ('routes/app_router.dart',120),
+          ]:
+              f=root/rel
+              if f.exists():
+                  print('FILE_START',rel,'LINES',len(f.read_text().splitlines()))
+                  for i,line in enumerate(f.read_text().splitlines()[:limit],1):
+                      print(str(i).zfill(3),line)
+                  print('FILE_END',rel)
+              else:print('MISSING',rel)
+          PY
