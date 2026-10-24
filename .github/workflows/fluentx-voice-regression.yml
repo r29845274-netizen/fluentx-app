@@ -1,0 +1,39 @@
+name: FluentX Voice Regression Checks
+on:
+  push:
+    paths:
+      - '.github/workflows/fluentx-voice-regression.yml'
+      - 'scripts/patch_gemini_voice.py'
+      - 'scripts/patch_gemini_blueprint.py'
+      - 'scripts/patch_mfa_pending_recovery.py'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  voice-code-and-auth:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test patch source and integration markers
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m py_compile scripts/patch_gemini_voice.py scripts/patch_gemini_blueprint.py scripts/patch_mfa_pending_recovery.py
+          grep -q 'voice-assistant/diagnostic' scripts/patch_gemini_blueprint.py
+          grep -q 'voice-assistant/scorecard' scripts/patch_gemini_blueprint.py
+          grep -q 'voice-assistant/api/chat' scripts/patch_gemini_voice.py
+          grep -q 'patch_gemini_blueprint.py' .github/workflows/fluentx-secure-release.yml
+          grep -q 'patch_mfa_pending_recovery.py' .github/workflows/fluentx-secure-release.yml
+          echo 'Source and integration checks passed'
+      - name: Verify anonymous backend requests are rejected
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE='https://rdrvqszejpupaqeitmmu.supabase.co/functions/v1/voice-assistant'
+          for route in api/chat api/diagnostic api/scorecard api/save_profile api/profile; do
+            status="$(curl --silent --show-error --output /tmp/voice-reply --write-out '%{http_code}' --max-time 20 -H 'content-type: application/json' --data '{}' "$BASE/$route")"
+            echo "$route => $status"
+            test "$status" = 401
+          done
+          echo 'Unauthenticated request protection passed'
