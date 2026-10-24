@@ -1,0 +1,23 @@
+name: Inspect Voice Source
+on:
+  push:
+    paths:
+      - '.github/workflows/fluentx-voice-source-inspect.yml'
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inspect source
+        run: |
+          mkdir -p /tmp/fxsrc
+          cat .source_handoff/2026-10-06-secure-final/part_*.b64 | base64 -d > /tmp/fxsrc.zip
+          unzip -q /tmp/fxsrc.zip -d /tmp/fxsrc
+          echo '---DEPENDENCIES---'
+          grep -E 'http:|speech_to_text:|flutter_tts:|audioplayers:|record:|supabase_flutter:' /tmp/fxsrc/pubspec.yaml || true
+          echo '---VOICE METHODS---'
+          grep -nE '_toggleMic|_send|_voiceMode|_startVoiceTimer|_speak|Future<void>|_client.functions|_speech' /tmp/fxsrc/lib/features/ai_practice/presentation/screens/ai_practice_hub_screen.dart | head -110 || true
+          echo '---VOICE SCREEN TOP---'
+          head -90 /tmp/fxsrc/lib/features/ai_practice/presentation/screens/ai_practice_hub_screen.dart
