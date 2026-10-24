@@ -6,3 +6,5 @@ owner-flow-build-retry=2026-10-16-guard-correction
 Gemini voice diagnostic, profile and MFA recovery final correction: 2026-10-24
 
 2026-10-24 adaptive-coaching-and-voice-retry-regression
+
+2026-10-24-gemini-live-supabase-url-getter-fixed-and-onboarding
