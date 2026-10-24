@@ -1,0 +1,35 @@
+name: FluentX Gemini Secret Presence Check
+on:
+  push:
+    paths: ['.github/workflows/fluentx-gemini-config-test.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify-env:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - name: Verify Gemini secret is available to protected backend
+        shell: bash
+        run: |
+          set -euo pipefail
+          STATUS="$(curl --silent --show-error --location --max-time 25 \
+            -X POST 'https://rdrvqszejpupaqeitmmu.supabase.co/functions/v1/voice-assistant/api/chat' \
+            -H 'Content-Type: application/json' \
+            --data '{"text":"config-probe"}' \
+            --output /tmp/voice-config-response.json --write-out '%{http_code}')"
+          export FLUENTX_PROBE_STATUS="$STATUS"
+          python3 - <<'PY'
+          import json, os
+          from pathlib import Path
+          status=int(os.environ["FLUENTX_PROBE_STATUS"])
+          try: error=json.loads(Path('/tmp/voice-config-response.json').read_text()).get("error","")
+          except (ValueError,OSError,AttributeError): error=""
+          if status==401:
+              print("PASS: GEMINI_API_KEY is visible to the backend; authentication was correctly required.")
+          elif status==503 and "GEMINI_API_KEY" in error:
+              raise SystemExit("FAIL: GEMINI_API_KEY is missing from this Supabase project.")
+          else:
+              raise SystemExit(f"Unable to verify: HTTP {status}; check function logs without disclosing secrets.")
+          PY
