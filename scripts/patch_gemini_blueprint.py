@@ -113,6 +113,12 @@ patch("        const Icon(Icons.graphic_eq,size:56),", """        const Icon(Ico
         ],onChanged:_assessing?null:(track){if(track!=null)_changeTrack(track);}),
         const Text('Personalized English speaking coach'),
         if(_diagnosticMode)const Text('Initial assessment · 2 minutes'),
+        if(_diagnosticMode)const LinearProgressIndicator(),
+        if(_error!=null)TextButton.icon(
+          onPressed:_assessing?null:()async{_stopped=false;await _listen();},
+          icon:const Icon(Icons.refresh),
+          label:const Text('Retry microphone'),
+        ),
 """)
 patch("        OutlinedButton.icon(onPressed:_stop,icon:const Icon(Icons.stop),label:const Text('Stop')),", """        OutlinedButton.icon(onPressed:_stop,icon:const Icon(Icons.stop),label:const Text('Stop')),
         Wrap(alignment:WrapAlignment.center,spacing:8,children:[
