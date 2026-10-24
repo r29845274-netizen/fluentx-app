@@ -5,7 +5,7 @@ path=root/"lib/features/admin/presentation/screens/admin_console_screen.dart"
 s=path.read_text(encoding="utf8")
 needle="if (factors.totp.isNotEmpty) {"
 if needle not in s:raise SystemExit("MFA factor guard missing")
-s=s.replace(needle,"if (factors.totp.isNotEmpty) {",1)
+s=s.replace(needle,"if (factors.totp.where((f) => f.status.toString().split('.').last == 'verified').isNotEmpty) {",1)
 # Pending factors must not block fresh setup. Recovery goes through Supabase Auth.
 marker="      } else {\n        final enrollment = await _client.auth.mfa.enroll("
 replacement="""      } else {
