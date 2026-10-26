@@ -40,7 +40,10 @@ class _OwnerSetupScreenState extends ConsumerState<OwnerSetupScreen> {
       final client = ref.read(supabaseClientProvider);
       final response = await client.functions.invoke('owner-bootstrap-status');
       if (!mounted) return;
-      if (response.status == 404) {
+      if (response.status == 404 ||
+          (response.status == 200 && response.data is Map &&
+           (response.data as Map)['setup_required'] == false &&
+           (response.data as Map)['configuration_missing'] != true)) {
         context.go(RoutePaths.login);
         return;
       }
