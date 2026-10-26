@@ -1,0 +1,44 @@
+name: FluentX Auth Source Inspection
+on:
+  push:
+    paths: ['.github/workflows/fluentx-auth-source-inspection.yml']
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inspect Flutter source
+        run: |
+          set -euo pipefail
+          mkdir -p fluentx_admin_secure
+          cat .source_handoff/2026-10-06-secure-final/part_*.b64 | base64 -d > /tmp/fluentx-src.zip
+          unzip -q /tmp/fluentx-src.zip -d fluentx_admin_secure
+          python3 scripts/fix_supabase_runtime.py
+          python3 scripts/patch_auth_email_verification.py fluentx_admin_secure
+          python3 scripts/patch_fluentx_owner_setup.py fluentx_admin_secure
+          python3 - <<'PY'
+          from pathlib import Path
+          root=Path('fluentx_admin_secure/lib')
+          files=[
+            'features/authentication/presentation/screens/login_screen.dart',
+            'features/authentication/presentation/screens/signup_screen.dart',
+            'features/authentication/presentation/screens/otp_verification_screen.dart',
+            'features/authentication/data/datasources/auth_remote_datasource.dart',
+            'routes/app_router.dart',
+            'core/config/env_config.dart',
+          ]
+          for file in files:
+            p=root/file
+            if not p.is_file():
+              print('MISSING',file)
+              continue
+            lines=p.read_text().splitlines()
+            print('==',file,'LINES',len(lines))
+            for i,line in enumerate(lines[:380],1):
+              if file.endswith('env_config.dart') and any(s in line for s in ['supabaseAnonKey','revenueCat','API_KEY']): continue
+              if file.endswith('app_router.dart') and i>310:break
+              print(str(i).rjust(4)+': '+line)
+          PY
