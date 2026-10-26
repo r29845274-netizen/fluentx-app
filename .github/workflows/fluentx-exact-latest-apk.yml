@@ -103,6 +103,7 @@ jobs:
           PY
           python3 scripts/fix_supabase_runtime.py
           python3 scripts/patch_auth_email_verification.py fluentx_admin_secure
+          python3 scripts/patch_auth_provider_signup_flow.py fluentx_admin_secure
           python3 scripts/patch_fluentx_owner_setup.py fluentx_admin_secure
           python3 scripts/patch_mfa_pending_recovery.py fluentx_admin_secure
           python3 scripts/patch_gemini_voice.py fluentx_admin_secure
