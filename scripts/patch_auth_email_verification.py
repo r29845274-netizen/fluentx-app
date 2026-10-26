@@ -54,6 +54,12 @@ if "bool _useOtp = true;" in login_text:
     login_text = login_text.replace("bool _useOtp = true;", "bool _useOtp = false;", 1)
 elif "bool _useOtp = false;" not in login_text:
     raise SystemExit("Could not determine password-vs-OTP login default")
+# Avoid offering broken OTP/OAuth while server-side email and provider settings are not configured.
+# Password sign-in remains enabled for the existing verified owner.
+login_text=login_text.replace(
+    "onPressed: isLoading ? null : () => setState(() => _useOtp = !_useOtp),",
+    "onPressed: null,",
+)
 login.write_text(login_text)
 
 # A user who verified using the old link can return to login instead of
